@@ -65,7 +65,7 @@ ${BIN_SUBDIR}:
 	${MKDIR} ${BIN_SUBDIR}
 
 ${TEST_DIR}%.c: ${BIN_DIR} ${BIN_SUBDIR} ${OBJ}
-	${CC} ${CFLAGS} ${CPPFLAGS} -o ${EXE}_test_$(shell basename $@ .c) $@ $(shell find ${BIN_DIR}$(shell basename $@ .c)/  -type f -name "*.o") ${CRITERION_LDLIBS} ${LDFLAGS} ${LDLIBS}
+	${CC} ${CFLAGS} ${CPPFLAGS} -o ${EXE}_test_$(shell basename $@ .c) $@ $(shell find ${BIN_DIR}$(shell basename $@ .c)/  -type f -name "*.o") ${LDFLAGS} ${LDLIBS} ${CRITERION_LDLIBS}
 
 clean:
 	${RM} ${OBJ}

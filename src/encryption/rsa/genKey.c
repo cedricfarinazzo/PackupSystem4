@@ -1,7 +1,5 @@
 #include <stdlib.h>
 
-#include "rsa.h"
-
 int is_prime(unsigned long n)
 {
     if (n%2 == 0)
@@ -33,7 +31,7 @@ unsigned long rand_a_b(unsigned long a, unsigned long b)
 
 unsigned int find_coprime(unsigned long phi, unsigned long max)
 {
-    unsigned int b = rand_a_b(0, b);
+    unsigned int b = rand_a_b(0, max);
     while (gcd(b, phi) != 1)
     {
         b = rand_a_b(0, b);
@@ -71,11 +69,14 @@ void extendedEuclideanAlgorithm(unsigned long a, unsigned long b)
 
 
 
-void RSA_genKey(unsigned long p, unsigned long q)
+unsigned long RSA_genKey(unsigned long p, unsigned long q)
 {
     unsigned long n = p*q;
     unsigned long phi_n = (p-1) * (q-1);
     
     unsigned long e = find_coprime(phi_n, phi_n-1);
+    
+    //tmp to disable warning
+    return n + e;
 
 }
