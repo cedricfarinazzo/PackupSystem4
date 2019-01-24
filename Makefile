@@ -7,7 +7,10 @@ CC=gcc
 GTK_CFLAGS=$(shell pkg-config --cflags gtk+-3.0)
 GTK_LDLIBS=$(shell pkg-config --libs gtk+-3.0)
 
-CFLAGS=-Wall -Wextra -Werror -std=c99 -pedantic -Wformat=2 ${GTK_CFLAGS}
+CRITERION_CFLAGS=$(shell pkg-config --cflags criterion)
+CRITERION_LDLIBS=$(shell pkg-config --libs criterion)
+
+CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 ${GTK_CFLAGS}
 CPPFLAGS=-MMD
 
 LDFLAGS=-lasan
@@ -33,6 +36,7 @@ RM=rm -rf
 EXE=packup
 SRC_DIR=src/
 BIN_DIR=bin/
+TEST_DIR=tests/
 
 SRC_SUBDIR=$(shell find ${SRC_DIR} -type d)
 BIN_SUBDIR=$(addprefix ${BIN_DIR}, $(subst ${SRC_DIR},,${SRC_SUBDIR}))
@@ -57,9 +61,11 @@ ${BIN_DIR}%.o: ${SRC_DIR}%.c
 ${BIN_DIR}: 
 	${MKDIR} ${BIN_DIR}
 
-
 ${BIN_SUBDIR}: 
 	${MKDIR} ${BIN_SUBDIR}
+
+${TEST_DIR}%.c: ${BIN_DIR} ${BIN_SUBDIR} ${OBJ}
+	${CC} ${CFLAGS} ${CPPFLAGS} -o ${EXE}_test_$(shell basename $@ .c) $@ $(shell find ${BIN_DIR}$(shell basename $@ .c)/  -type f -name "*.o") ${CRITERION_LDLIBS} ${LDFLAGS} ${LDLIBS}
 
 clean:
 	${RM} ${OBJ}
@@ -67,6 +73,7 @@ clean:
 	${RM} ${BIN_DIR}
 	${RM} ${DEP}
 	${RM} ${EXE}
+	${RM} ${EXE}_*
 
 -include ${DEP}
 
