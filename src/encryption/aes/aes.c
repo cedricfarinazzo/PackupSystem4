@@ -1,5 +1,7 @@
 #include <stdlib.h>
 
+#include "aes_matrix.h"
+#include "aes_addroundkey.h"
 #include "aes.h"
 
 size_t AES_encrypt(char *data, size_t data_size, char *key, size_t key_size, char **encrypt)

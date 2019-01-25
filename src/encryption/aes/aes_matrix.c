@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "aes_matrix.h"
-
 
 
 struct AES_matrix *AES_matrix_init()
@@ -100,4 +100,61 @@ struct AES_matrix *AES_matrix_mul(struct AES_matrix *a, struct AES_matrix *b)
     }
     return c;
 }
+
+void AES_matrix_text2matrix(char *text, struct AES_matrix **blocks, size_t *count)
+{
+    size_t lentext = strlen(text);
+    *count = (lentext / (AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT))
+        + (lentext % (AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT) == 0 ? 0 : 1);
+    blocks = malloc(sizeof(struct AES_matrix*) * *count);
+    size_t i = 0;
+    size_t ib = 0;
+    while (i < lentext)
+    {
+        blocks[ib] = AES_matrix_init();
+        for (size_t y = 0; y < blocks[ib]->rowsLenght && i < lentext; ++y)
+        {
+            for (size_t x = 0; x < blocks[ib]->colsLenght && i < lentext; ++x)
+            {
+                AES_matrix_set(blocks[ib], x, y,text[i]);
+                ++i;
+            }
+        }
+        ++ib;
+    }
+}
+
+void AES_matrix_matrix2text(struct AES_matrix **blocks, size_t count, char **text)
+{
+    size_t lentext = count * (AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT);
+    *text = malloc(sizeof(char*) * lentext);
+
+    size_t i = 0;
+    size_t ib = 0;
+
+    while (i < lentext)
+    {
+        blocks[ib] = AES_matrix_init();
+        for (size_t y = 0; y < blocks[ib]->rowsLenght && i < lentext; ++y)
+        {
+            for (size_t x = 0; x < blocks[ib]->colsLenght && i < lentext; ++x)
+            {
+                *text[i] = AES_matrix_get(blocks[ib], x, y);
+                ++i;
+            }
+        }
+        ++ib;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
 
