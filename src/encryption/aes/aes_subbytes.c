@@ -36,7 +36,7 @@ int __charToint(char c)
     if ('0' <= c && c <= '9')
         return (int)(c - '0');
     if ('A' <= c && c <= 'F')
-        return (int)(c - 'A');
+        return (int)(c - 'A') + 10;
     return -1;
 }
 
