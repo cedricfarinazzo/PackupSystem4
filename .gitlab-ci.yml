@@ -1,4 +1,4 @@
-image: gcc:latest
+image: cedricfarinazzo/archlinux-criterion-c:latest
 
 stages:
   - build
@@ -13,20 +13,19 @@ cache:
 job_build:
   stage: build
   before_script:
-    - apt-get update -qq && apt-get install -y -qq valgrind gtk+-3 cmake
-    - git clone --recursive https://github.com/Snaipe/Criterion && cd Criterion && mkdir build &&  cd build && cmake .. && cmake --build . && make install && cd ../..
-
+    - pacman -Syyu --noconfirm
   script:
     - pwd
     - make clean
     - make
     - make tests/*
-    
+
 job_test:
   stage: test
   before_script:
-    - apt-get update -qq && apt-get install -y -qq valgrind gtk+-3 cmake
-    - git clone --recursive https://github.com/Snaipe/Criterion && cd Criterion && mkdir build &&  cd build && cmake .. && cmake --build . && make install && cd ../..
+    - pacman -Syyu --noconfirm
   script:
     - ./packup
+    - ls | grep -e "packup_test_[a-z]*$" --color=never | sed -e 's/^/.\//' | sh
+    - rm -rf Criterion
 
