@@ -102,6 +102,20 @@ struct AES_matrix *AES_matrix_mul(struct AES_matrix *a, struct AES_matrix *b)
     return c;
 }
 
+void AES_matrix_copy(struct AES_matrix *in, struct AES_matrix *out)
+{
+    out->rowsLenght = in->rowsLenght;
+    out->colsLenght = in->colsLenght;
+    for (size_t y = 0; y < in->rowsLenght; ++y)
+    {
+        for (size_t x = 0; x < in->colsLenght; ++x)
+        {
+            AES_matrix_set(out, x, y, AES_matrix_get(in, x, y));
+        }
+    }
+
+}
+
 void AES_matrix_text2matrix(char *text, struct AES_matrix ***blocks, size_t *count)
 {
     size_t lentext = strlen(text);
@@ -124,7 +138,7 @@ void AES_matrix_text2matrix(char *text, struct AES_matrix ***blocks, size_t *cou
         {
             for (size_t x = 0; x < (tmp[ib])->colsLenght && i < lentext; ++x)
             {
-                AES_matrix_set(tmp[ib], x, y,text[i]);
+                AES_matrix_set(tmp[ib], x, y, text[i]);
                 ++i;
             }
         }
@@ -135,24 +149,26 @@ void AES_matrix_text2matrix(char *text, struct AES_matrix ***blocks, size_t *cou
 void AES_matrix_matrix2text(struct AES_matrix **blocks, size_t count, char **text)
 {
     size_t lentext = count * (AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT);
-    *text = malloc(sizeof(char) * lentext);
+    *text = malloc(sizeof(char) * (lentext+1));
+
+    char *tmp = *text;
 
     size_t i = 0;
     size_t ib = 0;
 
     while (i < lentext)
     {
-        blocks[ib] = AES_matrix_init();
         for (size_t y = 0; y < blocks[ib]->rowsLenght && i < lentext; ++y)
         {
             for (size_t x = 0; x < blocks[ib]->colsLenght && i < lentext; ++x)
             {
-                *text[i] = AES_matrix_get(blocks[ib], x, y);
+                tmp[i] = AES_matrix_get(blocks[ib], x, y);
                 ++i;
             }
         }
         ++ib;
     }
+    tmp[lentext] = 0;
 
 }
 
@@ -174,6 +190,24 @@ void AES_matrix_printf(struct AES_matrix *block)
     printf("}\n");
 }
 
+void AES_matrix_printfchar(struct AES_matrix *block)
+{
+    printf("AES_matrix: rows: %ld, cols: %ld\n", block->rowsLenght, block->colsLenght);
+    printf("{\n");
+
+    for (size_t y = 0; y < block->rowsLenght; ++y)
+    {
+        printf(" | ");
+        for (size_t x = 0; x < block->colsLenght; ++x)
+        {
+            printf("%c |", (char)AES_matrix_get(block, x, y));
+        }
+        printf("\n");
+    }
+
+    printf("}\n");
+}
+
 void AES_matrix_sprintf(struct AES_matrix *block, char **text)
 {
     size_t count = 4 + block->rowsLenght*((block->colsLenght * 2) + 1);
@@ -181,7 +215,7 @@ void AES_matrix_sprintf(struct AES_matrix *block, char **text)
 
     char *tmp = *text;
 
-    tmp += sprintf(tmp, "%d|%d\n", block->rowsLenght, block->colsLenght);
+    tmp += sprintf(tmp, "%ld|%ld\n", block->rowsLenght, block->colsLenght);
     for (size_t y = 0; y < block->rowsLenght; ++y)
     {
         for (size_t x = 0; x < block->colsLenght; ++x)

@@ -34,11 +34,15 @@ struct AES_matrix *AES_matrix_sub(struct AES_matrix *a, struct AES_matrix *b);
 
 struct AES_matrix *AES_matrix_mul(struct AES_matrix *a, struct AES_matrix *b);
 
+void AES_matrix_copy(struct AES_matrix *in, struct AES_matrix *out);
+
 void AES_matrix_text2matrix(char *text, struct AES_matrix ***blocks, size_t *count);
 
 void AES_matrix_matrix2text(struct AES_matrix **blocks, size_t count, char **text);
 
 void AES_matrix_printf(struct AES_matrix *block);
+
+void AES_matrix_printfchar(struct AES_matrix *block);
 
 void AES_matrix_sprintf(struct AES_matrix *block, char **text);
 

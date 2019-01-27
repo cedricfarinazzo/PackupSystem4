@@ -7,9 +7,10 @@
 #include "aes_addroundkey.h"
 #include "aes_subbytes.h"
 #include "aes_shiftrows.h"
+#include "aes_mixcolumns.h"
 
-size_t AES_encrypt(char *data, size_t data_size, char *key, size_t key_size, char **encrypt);
+void AES_encrypt(char *data, char *key, char **encrypt);
 
-size_t AES_decrypt(char *encrypt, size_t encrypt_size, char *key, size_t key_size, char **decrypt);
+void AES_decrypt(char *encrypt, char *key, char **decrypt);
 
 #endif /* _SRC_ENCRYPTION_AES_AES_H_ */

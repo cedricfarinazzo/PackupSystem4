@@ -49,11 +49,11 @@ Test(AES, addRoundKey)
     {
         for (size_t x = 0; x < mat->colsLenght; ++x)
         {
-            AES_matrix_set(mat, x, y, rand() % 255);
+            AES_matrix_set(mat, x, y, (rand() % (255 - 30)) + 30);
         }
         for (size_t x = 0; x < key->colsLenght; ++x)
         {
-            AES_matrix_set(key, x, y, rand() % 255);
+            AES_matrix_set(key, x, y, (rand() % (255 - 30)) + 30);
         }
     }
 
@@ -81,7 +81,7 @@ Test(AES, shiftRows)
     {
         for (size_t x = 0; x < mat->colsLenght; ++x)
         {
-            AES_matrix_set(mat, x, y, rand() % 255);
+            AES_matrix_set(mat, x, y, (rand() % (255 - 30)) + 30);
         }
     }
 
@@ -117,7 +117,7 @@ Test(AES, subBytes)
     if (state == NULL)
     {
         AES_matrix_free(mat);
-        cr_assert_fail("state = null");
+        cr_assert_fail("state = NULL");
     }
 
     AES_matrix_free(state);
@@ -148,6 +148,9 @@ Test(AES, text2matrix)
     struct AES_matrix **blocks;
     size_t count = 0;
 
+    size_t len = strlen(text);
+    size_t nbblock = (len / 16) + (len%16 != 0 ? 1 : 0);
+
     AES_matrix_text2matrix(text, &blocks, &count);
 
     for (size_t i = 0; i < count; ++i)
@@ -155,34 +158,56 @@ Test(AES, text2matrix)
         AES_matrix_free(blocks[i]);
     }
     free(blocks);
+
+    cr_assert_eq(nbblock, count);
+}
+
+Test(AES, matrix2text)
+{
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+
+    struct AES_matrix **blocks;
+    size_t count = 0;
+
+    AES_matrix_text2matrix(text, &blocks, &count);
+    
+    char *out;
+
+    AES_matrix_matrix2text(blocks, count, &out);
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        AES_matrix_free(blocks[i]);
+    }
+    free(blocks);
+    
+    cr_assert_str_eq(out, text);
+    free(out);
 }
 
 
-Test(AES, isEncrypted)
+Test(AES, Encryption)
 {
-    srand(time(NULL));
-    size_t key_size = 128;
-    char key[key_size];
-    size_t data_size = 256;
-    char data[data_size];
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
     char *output = NULL;
+    char key[] = "01G345a.89sbhdef";
 
-    for (size_t i; i < key_size; ++i)
-        key[i] = rand()%255;
+    printf("\nkey: %s  | text: %s\n", key, text);
+    AES_encrypt(text, key, &output);
 
-    for (size_t i; i < data_size; ++i)
-        data[i] = rand()%255;
-
-    size_t count = AES_encrypt(data, data_size, key, key_size, &output);
-
-    cr_expect_fail("Not implemented");
-    //cr_assert_not_null(output);
-    //cr_assert_str_not_empty(output);
-    //cr_assert_str_neq(data, output);
+    if (output == NULL)
+        cr_assert_fail("output = NULL");
+    
+    printf("encryption: %s\n\n", output);
+    
+    cr_assert_not_null(output);
+    cr_assert_str_not_empty(output);
+    cr_assert_str_neq(text, output);
 
     free(output);
 }
 
+/*
 Test(AES, EncryptDecrypt)
 {
     srand(time(NULL));
@@ -211,4 +236,4 @@ Test(AES, EncryptDecrypt)
     free(encrypt);
     free(decrypt);
 }
-
+*/

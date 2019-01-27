@@ -37,7 +37,9 @@ int __charToint(char c)
         return (int)(c - '0');
     if ('A' <= c && c <= 'F')
         return (int)(c - 'A') + 10;
-    return -1;
+    if ('a' <= c && c <= 'f')
+        return (int)(c - 'a') + 10;
+    return 0;
 }
 
 struct AES_matrix *AES_matrix_subBytes(struct AES_matrix *block)
@@ -48,15 +50,16 @@ struct AES_matrix *AES_matrix_subBytes(struct AES_matrix *block)
         for (size_t x = 0; x < block->colsLenght; ++x)
         {
             char hex[5];
-            sprintf(hex, "%x", AES_matrix_get(block, x, y));
-            int x = __charToint(hex[1]);
-            int y = __charToint(hex[0]);
-            if (x == -1 || y == -1)
+            int value = AES_matrix_get(block, x, y);
+            sprintf(hex, "%x", value);
+            int xv = __charToint(hex[1]);
+            int yv = __charToint(hex[0]);
+            if (xv == -1 || yv == -1)
             {
                 AES_matrix_free(state);
                 return NULL;
             }
-            AES_matrix_set(state, x, y, __SboxGet(x, y));
+            AES_matrix_set(state, x, y, __SboxGet(xv, yv));
         }
     }
     return state;
