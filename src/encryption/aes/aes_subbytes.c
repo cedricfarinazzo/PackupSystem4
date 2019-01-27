@@ -47,7 +47,7 @@ struct AES_matrix *AES_matrix_subBytes(struct AES_matrix *block)
     {
         for (size_t x = 0; x < block->colsLenght; ++x)
         {
-            char hex[2];
+            char hex[5];
             sprintf(hex, "%x", AES_matrix_get(block, x, y));
             int x = __charToint(hex[1]);
             int y = __charToint(hex[0]);
