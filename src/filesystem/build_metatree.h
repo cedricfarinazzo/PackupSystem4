@@ -18,9 +18,9 @@ struct meta_data
 
 struct meta_tree
 {
-    meta_data data;
-    meta_tree *son;
-    meta_tree *sibling;
+    struct meta_data data;
+    struct meta_tree *son;
+    struct meta_tree *sibling;
 }meta_tree;
 
 /*build_metatree: creates a tree with all metadata\
