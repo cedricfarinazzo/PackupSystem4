@@ -15,7 +15,7 @@ struct meta_tree *sub_build_mti(char *path)
     path = path;
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
     struct stat fs;
-    struct meta_data *data = malloc(sizof(struct meta_data));
+    struct meta_data *data = malloc(sizeof(struct meta_data));
     size_t len;
     for (char *temp = path; *temp; temp++)
     {
