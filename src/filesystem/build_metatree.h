@@ -4,8 +4,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
+#include <err.h>
 
 struct meta_data
 {
@@ -34,12 +37,12 @@ struct meta_tree
 
 struct meta_tree *FILESYSTEM_build_metatree(char *path);
 
-/*free_meta_tree: free allocated memory for meta_tree struct and all it's\
+/*free_metatree: free allocated memory for meta_tree struct and all it's\
                   sons and sibings.\
   struct meta_tre *tree: the tree that has to be freed;
-  return: int indicating wether free was a success or not.
+  return: void
 */
 
-int FILESYSTEM_free_meta_tree(struct meta_tree *tree);
+void FILESYSTEM_free_metatree(struct meta_tree *tree);
 
 #endif //_SRC_FILESYSTEM_BUILD_METATREE_H
