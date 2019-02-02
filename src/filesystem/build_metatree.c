@@ -12,7 +12,6 @@
 
 struct meta_tree *sub_build_mti(char *path)
 {
-    path = path;
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
     struct stat fs;
     struct meta_data *data = malloc(sizeof(struct meta_data));
@@ -38,9 +37,72 @@ struct meta_tree *sub_build_mti(char *path)
 
 struct meta_tree *sub_build_mtd(char *path)
 {
-    path = path;
-    //TODO
-    return NULL;
+    struct meta_tree *tree = malloc(sizeof(struct meta_tree));
+    struct meta_data data = malloc(sizeof(struct meta_data));
+    struct stat fs;
+    for (char *temp = path; *temp; temp++)
+    {
+        len++;
+    }
+    data->path = malloc((len + 1) * sizeof(char));
+    size_t p;
+    for (p = 0; *(path + p); p++)
+    {
+        *(data->path + p) = *(path + p);
+    }
+    *(data->path + p) = 0;
+    int e = stat(path, fs);
+    data->fs = fs;
+    if (e == -1)
+        err(23, "FILESYSTEM: sub build tree directory stat failure.");
+    tree->data = data;
+    DIR *directory = opendir(path);
+    struct dirent *next = readdir(directory);
+    char newpath[1024];
+    strcpy(newpath, path);
+    char *start;
+    for (start = newpath; *start, start++);
+    *start = '/';
+    start++;
+    char *p = start;
+    char *q;
+    for (q = next->d_name; *q; q++)
+    {
+        *p = *q;
+        p++;
+    }
+    switch (next->d_type)
+    {
+        case DT_DIR:
+            tree->son = sub_build_mtd(newpath);
+            break;
+        case DT_REG:
+            tree->son = sub_build_mtd(newpath);
+            break;
+        break;
+    }
+    struct meta_tree temp = tree->son;
+    while ((next = readdir(directory)))
+    {
+        p = start;
+        for (q = next->d_name; *q; q++)
+        {
+            *p = *q;
+            p++;
+        }
+        switch (next->d_type)
+        {
+            case DT_DIR:
+                temp->sibling = sub_build_mtd(newpath);
+                break;
+            case DT_REG:
+                temp->sibling = sub_build_mti(newpath);
+                break;
+            break;
+        }
+        temp = temp->sibling;
+    }
+    return tree;
 }
 
 struct meta_tree *FILESYSTEM_build_metatree(char *path)
@@ -56,52 +118,7 @@ struct meta_tree *FILESYSTEM_build_metatree(char *path)
     }
     else if (S_ISDIR(data.st_mode))
     {
-        DIR *directory = opendir(path);
-        struct dirent *next = readdir(directory);
-        char newpath[1024];
-        strcpy(newpath, path);
-        char *start;
-        for (start = newpath; *start; start++);
-        *start = '/';
-        start++;
-        char *p = start;
-        char *q;
-        for (q = next->d_name; *q; q++)
-        {
-            *p = *q;
-            p++;
-        }
-        switch (next->d_type)
-        {
-            case DT_DIR:
-                tree->son = sub_build_mtd(newpath);
-                break;
-            case DT_REG:
-                tree->son = sub_build_mti(newpath);
-                break;
-            break;
-        }
-        struct meta_tree *temp = tree->son;
-        while ((next = readdir(directory)))
-        {
-            p = start;
-            for (q = next->d_name; *q; q++)
-            {
-                *p = *q;
-                p++;
-            }
-            switch (next->d_type)
-            {
-                case DT_DIR:
-                    temp->sibling = sub_build_mtd(newpath);
-                    break;
-                case DT_REG:
-                    temp->sibling = sub_build_mti(newpath);
-                    break;
-                break;
-            }
-            temp = temp->sibling;
-        }
+        tree->son = sub_build_mtd(path);
     }
     return tree;
 }
