@@ -32,7 +32,7 @@ struct meta_tree
   return: a pointer to the allocated memory for the tree.
 */
 
-struct meta_tree *build_metatree(char *path);
+struct meta_tree *FILESYSTEM_build_metatree(char *path);
 
 /*free_meta_tree: free allocated memory for meta_tree struct and all it's\
                   sons and sibings.\
@@ -40,6 +40,6 @@ struct meta_tree *build_metatree(char *path);
   return: int indicating wether free was a success or not.
 */
 
-int free_meta_tree(struct meta_tree *tree);
+int FILESYSTEM_free_meta_tree(struct meta_tree *tree);
 
 #endif //_SRC_FILESYSTEM_BUILD_METATREE_H
