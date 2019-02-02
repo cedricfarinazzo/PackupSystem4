@@ -62,7 +62,7 @@ struct meta_tree *sub_build_mtd(char *path)
     char newpath[1024];
     strcpy(newpath, path);
     char *start;
-    for (start = newpath; *start, start++);
+    for (start = newpath; *start; start++);
     *start = '/';
     start++;
     char *p = start;
