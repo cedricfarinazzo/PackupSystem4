@@ -4,12 +4,14 @@ struct meta_tree *sub_build_mti(char *path)
 {
     path = path;
     //TODO
+    return NULL;
 }
 
 struct meta_tree *sub_build_mtd(char *path)
 {
     path = path;
     //TODO
+    return NULL;
 }
 
 struct meta_tree *FILESYSTEM_build_metatree(char *path)
@@ -29,7 +31,8 @@ struct meta_tree *FILESYSTEM_build_metatree(char *path)
         struct dirent *next = readdir(directory);
         char newpath[1024];
         strcpy(newpath, path);
-        for (char *start = newpath; *start; start++);
+        char *start;
+        for (start = newpath; *start; start++);
         *start = '/';
         start++;
         char *p = start;
