@@ -134,8 +134,8 @@ void FILESYSTEM_free_metatree(struct meta_tree *tree)
         FILESYSTEM_free_metatree(temp1);
         temp1 = temp2;
     }
-    free(tree->data->fs);
     free(tree->data->path);
+    free(tree->data);
     free(tree);
 }
 
