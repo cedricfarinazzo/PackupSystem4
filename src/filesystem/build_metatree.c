@@ -30,7 +30,7 @@ struct meta_tree *sub_build_mti(char *path)
     int e = stat(path, &fs);
     if (e == -1)
         err(22, "FILESYSTEM: sub build file stat failure.");
-    data->fs = &fs;
+    data->fs = fs;
     tree->data = data;
     return tree;
 }

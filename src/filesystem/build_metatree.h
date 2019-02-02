@@ -20,7 +20,7 @@ struct meta_data
 
 struct meta_tree
 {
-    struct meta_data data;
+    struct meta_data *data;
     struct meta_tree *son;
     struct meta_tree *sibling;
 }meta_tree;
