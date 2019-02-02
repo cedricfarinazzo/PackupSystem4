@@ -37,7 +37,7 @@ struct meta_tree *sub_build_mti(char *path)
 
 struct meta_tree *sub_build_mtd(char *path)
 {
-    struct meta_tree *tree = malloc(sizeof(struct meta_tree));
+    struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
     struct meta_data *data = malloc(sizeof(struct meta_data));
     struct stat fs;
     size_t len = 0;
@@ -126,7 +126,16 @@ struct meta_tree *FILESYSTEM_build_metatree(char *path)
 
 void FILESYSTEM_free_metatree(struct meta_tree *tree)
 {
-    tree = tree;
-    //TODO
+    struct meta_tree *temp1 = tree->son;
+    struct meta_tree *temp2;
+    while (temp1)
+    {
+        temp2 = temp1->sibling;
+        FILESYSTEM_free_metatree(temp1);
+        temp1 = temp2;
+    }
+    free(tree->data->fs);
+    free(tree->data->path);
+    free(tree);
 }
 
