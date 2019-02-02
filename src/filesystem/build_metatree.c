@@ -22,7 +22,8 @@ struct meta_tree *sub_build_mti(char *path)
         len++;
     }
     data->path = malloc((len + 1) * sizeof(char));
-    for (size_t p = 0; *(path + p); p++)
+    size_t p;
+    for (p = 0; *(path + p); p++)
     {
         *(data->path + p) = *(path + p);
     }
