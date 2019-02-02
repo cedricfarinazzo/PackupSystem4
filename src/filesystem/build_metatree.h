@@ -14,14 +14,14 @@ struct meta_data
 {
     char *path;
     struct stat fs;
-}
+};
 
 struct meta_tree
 {
     neta_data data;
     meta_tree *son;
     meta_tree *sibling;
-}
+};
 
 /*build_metatree: creates a tree with all metadata\
                   It takes the form of a tree as bintree\

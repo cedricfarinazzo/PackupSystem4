@@ -2,11 +2,13 @@
 
 struct meta_tree *sub_build_mti(char *path)
 {
+    path = path;
     //TODO
 }
 
 struct meta_tree *sub_build_mtd(char *path)
 {
+    path;
     //TODO
 }
 
@@ -74,6 +76,7 @@ struct meta_tree *FILESYSTEM_build_metatree(char *path)
 
 void FILESYSTEM_free_metatree(struct meta_tree *tree)
 {
+    tree = tree;
     //TODO
 }
 
