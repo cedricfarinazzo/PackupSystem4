@@ -1,6 +1,8 @@
 #ifndef _SRC_FILESYSTEM_BUILD_METATREE_H
 #define _SRC_FILESYSTEM_BUILD_METATREE_H
 
+#define _GNU_SOURCE
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
