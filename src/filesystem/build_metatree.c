@@ -38,20 +38,21 @@ struct meta_tree *sub_build_mti(char *path)
 struct meta_tree *sub_build_mtd(char *path)
 {
     struct meta_tree *tree = malloc(sizeof(struct meta_tree));
-    struct meta_data data = malloc(sizeof(struct meta_data));
+    struct meta_data *data = malloc(sizeof(struct meta_data));
     struct stat fs;
+    size_t len = 0;
     for (char *temp = path; *temp; temp++)
     {
         len++;
     }
     data->path = malloc((len + 1) * sizeof(char));
-    size_t p;
-    for (p = 0; *(path + p); p++)
+    size_t k;
+    for (k = 0; *(path + k); k++)
     {
-        *(data->path + p) = *(path + p);
+        *(data->path + k) = *(path + k);
     }
-    *(data->path + p) = 0;
-    int e = stat(path, fs);
+    *(data->path + k) = 0;
+    int e = stat(path, &fs);
     data->fs = fs;
     if (e == -1)
         err(23, "FILESYSTEM: sub build tree directory stat failure.");
@@ -81,7 +82,7 @@ struct meta_tree *sub_build_mtd(char *path)
             break;
         break;
     }
-    struct meta_tree temp = tree->son;
+    struct meta_tree *temp = tree->son;
     while ((next = readdir(directory)))
     {
         p = start;
