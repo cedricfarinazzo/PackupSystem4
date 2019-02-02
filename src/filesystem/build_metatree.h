@@ -18,7 +18,7 @@ struct meta_data
 
 struct meta_tree
 {
-    neta_data data;
+    meta_data data;
     meta_tree *son;
     meta_tree *sibling;
 };
