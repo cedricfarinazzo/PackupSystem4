@@ -8,20 +8,20 @@ struct meta_tree *sub_build_mti(char *path)
 
 struct meta_tree *sub_build_mtd(char *path)
 {
-    path;
+    path = path;
     //TODO
 }
 
 struct meta_tree *FILESYSTEM_build_metatree(char *path)
 {
     struct stat data;
-    int err = stat(path, data);
-    if (err == -1)
+    int er = stat(path, &data);
+    if (er == -1)
         err(21, "FILESYSTEM: stat Failure.");
-    struct meta_tree *tree = calloc(tree, sizeof(struct meta_tree));
+    struct meta_tree *tree = calloc(1 , sizeof(struct meta_tree));
     if (S_ISREG(data.st_mode))
     {
-        tree->son = sub_build_mtf(path);
+        tree->son = sub_build_mti(path);
     }
     else if (S_ISDIR(data.st_mode))
     {
@@ -29,7 +29,7 @@ struct meta_tree *FILESYSTEM_build_metatree(char *path)
         struct dirent *next = readdir(directory);
         char newpath[1024];
         strcpy(newpath, path);
-        for (char *start = newpath; p; p++);
+        for (char *start = newpath; *start; start++);
         *start = '/';
         start++;
         char *p = start;
