@@ -85,17 +85,27 @@ void AES_encrypt(char *data, char *key, char **encrypt)
 void AES_decrypt(char *encrypt, char *key, char **decrypt)
 {
 
+    struct AES_matrix **blockskey;
+    size_t countkey = 0;
+    AES_matrix_text2matrix(key, &blockskey, &countkey);
+    if (countkey != 1)
+    {
+        for (size_t i = 0; i < countkey; ++i)
+        {
+            AES_matrix_free(blockskey[i]);
+        }
+        free(blockskey);
+        return;
+    }
+    struct AES_matrix *keyblock = blockskey[0];
+
 
     struct AES_matrix **blocksencrypt;
     size_t countencrypt = 0;
     AES_matrix_text2matrix(encrypt, &blocksencrypt, &countencrypt);
 
-    struct AES_matrix **blockskey;
-    size_t countkey = 0;
-    AES_matrix_text2matrix(key, &blockskey, &countkey);
-
-
-    //do something
+    
+    // do something
 
 
     AES_matrix_matrix2text(blocksencrypt, countencrypt, decrypt);
@@ -110,22 +120,5 @@ void AES_decrypt(char *encrypt, char *key, char **decrypt)
         AES_matrix_free(blocksencrypt[i]);
     }
     free(blocksencrypt);
-
-
-
-
-    struct AES_matrix **blocks;
-    size_t count = 0;
-    AES_matrix_text2matrix(encrypt, &blocks, &count);
-    //do something
-
-
-    AES_matrix_matrix2text(blocks, count, decrypt);
-
-    for (size_t i = 0; i < count; ++i)
-    {
-        AES_matrix_free(blocks[i]);
-    }
-    free(blocks);
 }
 

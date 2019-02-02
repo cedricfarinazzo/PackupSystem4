@@ -207,33 +207,29 @@ Test(AES, Encryption)
     free(output);
 }
 
-/*
-Test(AES, EncryptDecrypt)
+
+Test(AES, Decrypt)
 {
-    srand(time(NULL));
-    size_t key_size = 128;
-    char key[key_size];
-    size_t data_size = 256;
-    char data[data_size];
-    char *encrypt = NULL;
+    
+    cr_assert_fail("Not implemented");
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    char *output = NULL;
     char *decrypt = NULL;
+    char key[] = "01G345a.89sbhdef";
 
-    for (size_t i; i < key_size; ++i)
-        key[i] = rand()%255;
+    AES_encrypt(text, key, &output);
 
-    for (size_t i; i < data_size; ++i)
-        data[i] = rand()%255;
+    if (output == NULL)
+        cr_assert_fail("output = NULL");
+    
+    AES_decrypt(output, key, &decrypt);
+    
+    free(output);
 
-    size_t encrypt_size = AES_encrypt(data, data_size, key, key_size, &encrypt);
+    cr_assert_not_null(decrypt);;
+    cr_assert_str_not_empty(decrypt);
+    cr_assert_str_eq(text, decrypt);
 
-    size_t decrypt_size = AES_decrypt(encrypt, encrypt_size, key, key_size, &decrypt);
-
-    cr_expect_fail("Not implemented");
-    //cr_assert_not_null(decrypt);
-    //cr_assert_str_not_empty(decrypt);
-    //cr_assert_str_eq(data, decrypt);
-
-    free(encrypt);
     free(decrypt);
 }
-*/
+
