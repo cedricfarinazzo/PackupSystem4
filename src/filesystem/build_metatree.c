@@ -13,8 +13,26 @@
 struct meta_tree *sub_build_mti(char *path)
 {
     path = path;
-    //TODO
-    return NULL;
+    struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
+    struct stat fs;
+    struct meta_data *data = malloc(sizof(struct meta_data));
+    size_t len;
+    for (char *temp = path; *temp; temp++)
+    {
+        len++;
+    }
+    data->path = malloc((len + 1) * sizeof(char));
+    for (size_t p = 0; *(path + p); p++)
+    {
+        *(data->path + p) = *(path + p);
+    }
+    *(data->path + p) = 0;
+    int e = stat(path, &fs);
+    if (e == -1)
+        err(22, "FILESYSTEM: sub build file stat failure.");
+    data->fs = &fs;
+    tree->data = data;
+    return tree;
 }
 
 struct meta_tree *sub_build_mtd(char *path)
