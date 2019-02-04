@@ -1,72 +1,21 @@
+#ifndef _SRC_COMPRESSION_BINTREE_H_
+#define _SRC_COMPRESSION_BINTREE_H_
+
+#include <err.h>
+#include <stdlib.h>
+
 struct bintree {
     unsigned char key;
     struct bintree *left;
     struct bintree *right;
-}
+} bintree;
 
-typedef struct element element;
+bintree new_tree(char n);
 
-struct element {
-    int val;
-    struct element *prec;
-    struct element *next;
-};
+bintree insert_right(bintree b, char n);
 
-typedef element* Liste;
+bintree insert_left(bintree b, char n);
 
-typedef struct dliste
-{
-    size_t length;
-    struct element *p_tail;
-    struct element *p_head;
-} Dliste;
+void bin_free(bintree b);
 
-Dliste *dlist_new(void)
-{
-    Dliste *p_new = malloc(sizeof *p_new);
-    if (p_new != NULL)
-    {
-        p_new->length = 0;
-        p_new->p_head = NULL;
-        p_new->p_tail = NULL;
-    }
-    return p_new;
-}
-
-Dliste *dlist_append(Dlist *p_list, int data)
-{
-    if (
-
-
-
-
-Liste add_in_head(Liste liste, int valeur)
-{
-    element* nouvelElement = malloc(sizeof(element));
-    nouvelElement->val = valeur;
-    nouvelElement->next = liste;
-    nouvelElement->prec = NULL;
-    return nouvelElement;
-}
-
-Liste add_in_end(Liste liste, int valeur)
-{
-    element* nouvelElement = malloc(sizeof(element));
-    nouvelElement->val = valeur;
-    nouvelElement->next = NULL;
-    if (liste == NULL);
-    {
-        return nouvelElement;
-    }
-    else
-    {
-        element* temp = liste;
-        while (temp->next != NULL)
-        {
-            temp = temp->next;
-        }
-        temp->next = nouvelElement;
-        nouvelElement->prec = temp;
-        return liste;
-    }
-}
+#endif /*_SRC_COMPRESSION_BINTREE_H_*/
