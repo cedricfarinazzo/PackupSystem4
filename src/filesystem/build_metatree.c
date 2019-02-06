@@ -65,8 +65,10 @@ struct meta_tree *sub_build_mtd(char *chemin)
         next = readdir(directory);
     if (next == NULL)
     {
-        //printf("null detected\n");
+        printf("null detected\n");
         tree->son = NULL;
+        printf("end of mtd\n");
+        closedir(directory);
         return tree;
     }
     //printf("copy started\n");
@@ -90,14 +92,14 @@ struct meta_tree *sub_build_mtd(char *chemin)
         case DT_DIR:
             tree->son = sub_build_mtd(newpath);
             break;
-        case DT_REG:
+        default:
             tree->son = sub_build_mti(newpath);
             break;
-        break;
     }
     struct meta_tree *temp = tree->son;
     while ((next = readdir(directory)))
     {
+        //printf("path: %s\n", next->d_name);
         p = start;
         if (*(p) == '.')
             continue;
@@ -112,20 +114,21 @@ struct meta_tree *sub_build_mtd(char *chemin)
             case DT_DIR:
                 temp->sibling = sub_build_mtd(newpath);
                 break;
-            case DT_REG:
+            default:
                 temp->sibling = sub_build_mti(newpath);
                 break;
-            break;
         }
+        //printf("end of: %s\n", next->d_name);
         temp = temp->sibling;
     }
+    closedir(directory);
     //printf("finished mtd\n");
     return tree;
 }
 
 struct meta_tree *FILESYSTEM_build_metatree(char *path)
 {
-    //printf("start building tree\n");
+    printf("start building tree\n");
     struct stat data;
     int er = stat(path, &data);
     if (er == -1)
@@ -139,7 +142,7 @@ struct meta_tree *FILESYSTEM_build_metatree(char *path)
     {
         tree->son = sub_build_mtd(path);
     }
-    //printf("returning tree\n");
+    printf("returning tree\n");
     return tree;
 }
 
@@ -153,11 +156,18 @@ void FILESYSTEM_free_metatree(struct meta_tree *tree)
         FILESYSTEM_free_metatree(temp1);
         temp1 = temp2;
     }
+    //printf("free start\n");
     if (tree->data)
     {
+        //printf("freeing path\n");
         free(tree->data->path);
+        //printf("freeing stats\n");
+        //free(&(tree->data->fs));
+        //printf("freeing data\n");
         free(tree->data);
     }
+    //printf("free end\n");
     free(tree);
+    //printf("tree freed\n");
 }
 
