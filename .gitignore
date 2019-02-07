@@ -331,9 +331,10 @@ TSWLatexianTemp*
 # standalone packages
 *.sta
 
-##### GLADE
-*.glade~
-
+#### GCOV
+*.gcda
+*.gcno
+*.gcov
 
 packup
 packup_*

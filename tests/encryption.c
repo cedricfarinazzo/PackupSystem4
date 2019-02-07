@@ -11,12 +11,27 @@
 #include "../src/encryption/aes/aes_subbytes.h"
 #include "../src/encryption/aes/aes_mixcolumns.h"
 
+char *decrypt = NULL;
+char *output = NULL;
+char *out;
+
+void myfree(void *e)
+{
+    if (e != NULL)
+        free(e);
+}
 
 void setup(void)
 {
     srand(time(NULL));
 }
 
+void teardown(void)
+{
+    myfree(decrypt);
+    myfree(output);
+    myfree(out);
+}
 
 // AES
 Test(AES, printf_matrix)
@@ -171,7 +186,7 @@ Test(AES, matrix2text)
 
     AES_matrix_text2matrix(text, &blocks, &count);
     
-    char *out;
+    out = NULL;
 
     AES_matrix_matrix2text(blocks, count, &out);
 
@@ -182,14 +197,13 @@ Test(AES, matrix2text)
     free(blocks);
     
     cr_assert_str_eq(out, text);
-    free(out);
 }
 
 
 Test(AES, Encryption)
 {
     char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-    char *output = NULL;
+    output = NULL;
     char key[] = "01G345a.89sbhdef";
 
     printf("\nkey: %s  | text: %s\n", key, text);
@@ -202,19 +216,16 @@ Test(AES, Encryption)
     
     cr_assert_not_null(output);
     cr_assert_str_not_empty(output);
-    cr_assert_str_neq(text, output);
-
-    free(output);
+    cr_assert_str_neq(output, text);
 }
 
 
 Test(AES, Decrypt)
 {
     
-    cr_assert_fail("Not implemented");
     char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
     char *output = NULL;
-    char *decrypt = NULL;
+    decrypt = NULL;
     char key[] = "01G345a.89sbhdef";
 
     AES_encrypt(text, key, &output);
@@ -228,8 +239,6 @@ Test(AES, Decrypt)
 
     cr_assert_not_null(decrypt);;
     cr_assert_str_not_empty(decrypt);
-    cr_assert_str_eq(text, decrypt);
-
-    free(decrypt);
+    cr_assert_str_eq(decrypt, text);
 }
 

@@ -7,4 +7,6 @@
 
 struct AES_matrix *AES_matrix_mixColumns(struct AES_matrix *block);
 
+struct AES_matrix *AES_matrix_InvMixColumns(struct AES_matrix *block);
+
 #endif /* _SRC_ENCRYPTION_AES_AES_MIXCOLUMNS_H__ */
