@@ -11,9 +11,13 @@
 #include "../src/encryption/aes/aes_subbytes.h"
 #include "../src/encryption/aes/aes_mixcolumns.h"
 
+#include "../src/encryption/rotn.h"
+
 char *decrypt = NULL;
 char *output = NULL;
 char *out;
+
+int ROTNkey = 13;
 
 void myfree(void *e)
 {
@@ -242,3 +246,43 @@ Test(AES, Decrypt)
     cr_assert_str_eq(decrypt, text);
 }
 
+// RSA
+
+
+
+
+// ROTN
+Test(ROTN, encrypt)
+{
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    size_t lentext = strlen(text);
+    char data[lentext + 1];
+    for (size_t i = 0; i < lentext; ++i)
+        data[i] = text[i];
+    data[lentext] = 0;
+
+    ROTN_encrypt(data, ROTNkey);
+
+    cr_assert_not_null(data);
+    cr_assert_str_not_empty(data);
+    cr_assert_str_neq(data, text);
+}
+
+Test(ROTN, decrypt)
+{
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    size_t lentext = strlen(text);
+    char data[lentext + 1];
+    for (size_t i = 0; i < lentext; ++i)
+        data[i] = text[i];
+    data[lentext] = 0;
+
+    ROTN_encrypt(data, ROTNkey);
+    
+    ROTN_decrypt(data, ROTNkey);
+
+    cr_assert_not_null(data);
+    cr_assert_str_not_empty(data);
+    cr_assert_str_eq(data, text);
+
+}
