@@ -61,13 +61,13 @@ struct meta_tree *sub_build_mtd(char *chemin)
     tree->data = data;
     DIR *directory = opendir(chemin);
     struct dirent *next = readdir(directory);
-    while (next && *(next->d_name) == '.')
+    while (next && (strcmp(next->d_name, ".") == 0 || strcmp(next->d_name, "..") == 0))
         next = readdir(directory);
     if (next == NULL)
     {
-        printf("null detected\n");
+        //printf("null detected\n");
         tree->son = NULL;
-        printf("end of mtd\n");
+        //printf("end of mtd\n");
         closedir(directory);
         return tree;
     }
@@ -101,7 +101,7 @@ struct meta_tree *sub_build_mtd(char *chemin)
     {
         //printf("path: %s\n", next->d_name);
         p = start;
-        if (*(p) == '.')
+        if (strcmp(next->d_name, ".") == 0 || strcmp(next->d_name, "..") == 0)
             continue;
         for (q = next->d_name; *q; q++)
         {
@@ -128,7 +128,7 @@ struct meta_tree *sub_build_mtd(char *chemin)
 
 struct meta_tree *FILESYSTEM_build_metatree(char *path)
 {
-    printf("start building tree\n");
+    //printf("start building tree\n");
     struct stat data;
     int er = stat(path, &data);
     if (er == -1)
@@ -142,7 +142,7 @@ struct meta_tree *FILESYSTEM_build_metatree(char *path)
     {
         tree->son = sub_build_mtd(path);
     }
-    printf("returning tree\n");
+    //printf("returning tree\n");
     return tree;
 }
 

@@ -27,5 +27,4 @@ job_test:
   script:
     - ./packup
     - ls | grep -e "packup_test_[a-z]*$" --color=never | sed -e 's/^/.\//' | sh
-    - rm -rf Criterion
-
+    - make clean

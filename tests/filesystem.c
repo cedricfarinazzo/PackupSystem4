@@ -15,14 +15,14 @@ void print_tree(struct meta_tree *tree, int indent)
     if (tree != NULL)
     {
         printf("%spath:%s | ", indents, tree->data->path);
-        printf("size:%ld | ",  tree->data->fs.st_size);
-        printf("mpde: %d | ", tree->data->fs.st_mode);
+        printf("size:%ld o | ",  tree->data->fs.st_size);
+        printf("mode: %d | ", tree->data->fs.st_mode);
         printf("\n");
 
         struct meta_tree *c = tree->son;
         while (c)
         {
-            print_tree(c, indent + 4);
+            print_tree(c, indent + 6);
             c = c->sibling;
         }
     }
