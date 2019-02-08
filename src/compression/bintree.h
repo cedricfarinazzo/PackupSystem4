@@ -12,10 +12,10 @@ struct bintree {
 
 struct bintree *new_tree(char n);
 
-void insert_right(struct bintree b, char n);
+void insert_right(struct bintree *b, char n);
 
-void insert_left(struct bintree b, char n);
+void insert_left(struct bintree *b, char n);
 
-void bin_free(struct bintree b);
+void bin_free(struct bintree *b);
 
 #endif /*_SRC_COMPRESSION_BINTREE_H_*/

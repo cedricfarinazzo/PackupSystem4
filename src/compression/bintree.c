@@ -1,6 +1,8 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "bintree.h"
+
 struct bintree *new_tree(char n) {
     struct bintree *b_new = malloc(sizeof(struct bintree));
     if (b_new != NULL)
@@ -16,7 +18,7 @@ struct bintree *new_tree(char n) {
     return b_new;
 }
 
-void insert_right(struct bintree b, char n) {
+void insert_right(struct bintree *b, char n) {
     struct bintree *b_right = malloc(sizeof(struct bintree));
     if (b_right != NULL)
     {
@@ -31,7 +33,7 @@ void insert_right(struct bintree b, char n) {
     b->right = b_right;
 }
 
-void insert_left(struct bintree b, char n)
+void insert_left(struct bintree *b, char n)
 {
     struct bintree *b_left = malloc(sizeof(struct bintree));
     if (b_left != NULL)
@@ -47,7 +49,7 @@ void insert_left(struct bintree b, char n)
     b->left = b_left;
 }
 
-void bin_free(struct bintree b)
+void bin_free(struct bintree *b)
 {
     if (b->left != NULL) {
         bin_free(b->left);
