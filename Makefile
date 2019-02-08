@@ -53,7 +53,7 @@ DEP=$(OBJ:.o=.d)
 all: ${EXE}
 
 ${EXE}: ${BIN_DIR} ${BIN_SUBDIR} ${OBJ}
-	${CC} ${CFLAGS} -o ${EXE} ${OBJ} ${LDFLAGS} ${LDLIBS} 
+	${CC} ${CFLAGS} -o ${EXE} ${OBJ} ${LDFLAGS} ${LDLIBS} ${MOD}
 
 ${BIN_DIR}%.o: ${SRC_DIR}%.c
 	${CC} ${CFLAGS} ${CPPFLAGS} -c -o $@ $< ${MOD}
@@ -65,13 +65,14 @@ ${BIN_SUBDIR}:
 	${MKDIR} ${BIN_SUBDIR}
 
 ${TEST_DIR}%.c: ${BIN_DIR} ${BIN_SUBDIR} ${OBJ}
-	${CC} ${CFLAGS} ${CPPFLAGS} -o ${EXE}_test_$(shell basename $@ .c) $@ $(shell find ${BIN_DIR}$(shell basename $@ .c)/  -type f -name "*.o") ${LDFLAGS} ${LDLIBS} ${CRITERION_LDLIBS}
+	${CC} ${CFLAGS} ${CPPFLAGS} -o ${EXE}_test_$(shell basename $@ .c) $@ $(shell find ${BIN_DIR}$(shell basename $@ .c)/  -type f -name "*.o") ${LDFLAGS} ${LDLIBS} ${CRITERION_LDLIBS} ${MOD}
 
 clean:
 	${RM} ${OBJ}
 	${RM} ${BIN_SUBDIR}
 	${RM} ${BIN_DIR}
 	${RM} ${DEP}
+	${RM} *.gcov *.gcda *.gcno
 	${RM} ${EXE}
 	${RM} ${EXE}_*
 
