@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="UTF-8" >
+		<title>{{ title }} | Packup System 4</title> {% load static %}
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="turbolinks-cache-control" content="no-cache">
+		<link href="{% static "/css/style.css"%}" rel="stylesheet">
+		<link rel="stylesheet" href="{% static "css/materialize.min.css"%}" />
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link rel="icon" type="image/x-icon" href="{% static "images/favicon.ico"%}" />
+	</head>
+	<body>
+		<header>
+			<div class="navbar-fixed">
+				<nav class="light-blue accent-4">
+					<div class="nav-wrapper">
+						<div class="container">
+							<a href="{% url "ps4:index" %}" class="brand-logo"><img width="75" height="65" src="{% static "images/ps4logo.min.png"%}" alt="ps4 logo" /></a>
+						</div>
+						<a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+						<ul class="right hide-on-med-and-down">
+							<li class="{{ nav.home }}"><a href="{% url "ps4:index" %}">Home</a></li>
+							<li class="{{ nav.download }}"><a href="{% url "ps4:download" %}">Download</a></li>
+							<li class="{{ nav.report }}"><a href="{% url "ps4:report" %}">Report</a></li>
+							{% if connected%}
+							<li class="{{ nav.account }}"><a href="{% url "ps4:account" %}">Account</a></li>
+							<li class="{{ nav.logout }}"><a href="{% url "ps4:logout" %}">Logout</a></li>
+							{% else %}
+							<li class="{{ nav.register }}"><a href="{% url "ps4:register" %}">Register</a></li>
+							<li class="{{ nav.login }}"><a href="{% url "ps4:login" %}">Login</a></li>
+							{% endif %}
+              <li class="{{ nav.about }}"><a href="{% url "ps4:about" %}">About us</a></li>
+						</ul>
+					</div>
+				</nav>
+			</div>
+			<ul class="sidenav" id="mobile-nav">
+				<li class="{{ nav.home }}"><a href="{% url "ps4:index" %}">Home</a></li>
+				<li class="{{ nav.download }}"><a href="{% url "ps4:download" %}">Download</a></li>
+				<li class="{{ nav.report }}"><a href="{% url "ps4:report" %}">Report</a></li>
+				{% if connected%}
+				<li class="{{ nav.account }}"><a href="{% url "ps4:account" %}">Account</a></li>
+				<li class="{{ nav.logout }}"><a href="{% url "ps4:logout" %}">Logout</a></li>
+				{% else %}
+				<li class="{{ nav.register }}"><a href="{% url "ps4:register" %}">Register</a></li>
+				<li class="{{ nav.login }}"><a href="{% url "ps4:login" %}">Login</a></li>
+				{% endif %}
+				<li class="{{ nav.about }}"><a href="{% url "ps4:about" %}">About us</a></li>
+			</ul>
+		</header>
+		<br>
+		<br>
+		<main>
+			<div class="container">
+				{% block content %}
+				{% endblock %}
+			</div>
+		</main>
+		<br>
+		<br>
+		<footer class="page-footer light-blue accent-4">
+			<div class="container">
+				<div class="row">
+					<h5 class="white-text">PS4</h5>
+					<p class="grey-text text-lighten-4"></p>
+				</div>
+			</div>
+			<div class="footer-copyright">
+				<div class="container">
+				© 2019 Copyright Text
+				<a class="grey-text text-lighten-3 right" href="{% url "ps4:terms" %}">Terms</a></li>
+				</div>
+			</div>
+		</footer>
+		<script src="{% static "js/jquery.min.js"%}"></script>
+		<script src="{% static "js/materialize.min.js"%}"></script>
+		<script src="{% static "js/app.js"%}"></script>
+	</body>
+</html>
