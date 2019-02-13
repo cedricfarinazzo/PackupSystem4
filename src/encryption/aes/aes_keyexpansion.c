@@ -28,7 +28,7 @@ struct AES_matrix **AES_keyExpansion(struct AES_matrix *key)
         roundKeys[index] = AES_matrix_init();
         for (size_t x = 0; x < AES_MATRIX_DEFAULT_ROWSLENGHT; ++x)
         {
-            int tmp[AES_MATRIX_DEFAULT_COLSLENGHT];
+            uint8_t tmp[AES_MATRIX_DEFAULT_COLSLENGHT];
             size_t previous_collum_bloc = (x == 0 ? index - 1 : index);
             size_t previous_collum_x = x == 0 ? AES_MATRIX_DEFAULT_ROWSLENGHT - 1 : x - 1;
 

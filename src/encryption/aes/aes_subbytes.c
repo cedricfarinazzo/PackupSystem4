@@ -76,7 +76,7 @@ struct AES_matrix *AES_matrix_subBytes(struct AES_matrix *block)
         for (size_t x = 0; x < block->colsLenght; ++x)
         {
             char hex[9];
-            unsigned int value = AES_matrix_get(block, x, y);
+            uint8_t value = AES_matrix_get(block, x, y);
             sprintf(hex, "%08x", value);
             int xv = __charToint(hex[7]);
             int yv = __charToint(hex[6]);
@@ -91,9 +91,8 @@ struct AES_matrix *AES_matrix_subBytes(struct AES_matrix *block)
     return state;
 }
 
-int AES_matrix_subBytesInt(int v)
+int AES_matrix_subBytesInt(uint8_t value)
 {
-    unsigned int value = (unsigned int)v;
     char hex[9];        
     sprintf(hex, "%08x", value);
     int xv = __charToint(hex[7]);
@@ -114,7 +113,7 @@ struct AES_matrix *AES_matrix_InvSubBytes(struct AES_matrix *block)
         for (size_t x = 0; x < block->colsLenght; ++x)
         {
             char hex[9];
-            unsigned int value = AES_matrix_get(block, x, y);
+            uint8_t value = AES_matrix_get(block, x, y);
             value = value > 0 ? value : -value; 
             sprintf(hex, "%08x", value);
             int xv = __charToint(hex[7]);

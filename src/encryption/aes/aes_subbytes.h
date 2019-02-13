@@ -11,6 +11,6 @@ struct AES_matrix *AES_matrix_subBytes(struct AES_matrix *block);
 
 struct AES_matrix *AES_matrix_InvSubBytes(struct AES_matrix *block);
 
-int AES_matrix_subBytesInt(int v);
+int AES_matrix_subBytesInt(uint8_t value);
 
 #endif /* _SRC_ENCRYPTION_AES_AES_SUBBYTES_H_ */
