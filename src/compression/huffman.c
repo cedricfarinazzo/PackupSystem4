@@ -41,8 +41,19 @@ struct freqlist* buildFrequenceList(char dataIN[])
     return result; 
 }
 
+struct bintree *buildHuffmantree(struct freqlist Frequence)
+{
+    struct bin_list *nodes_freq = new_binlist();
+    int i = 0;
+    while (dataIN[i] != '\0')
+    {
+        insert_binlist(nodes, new_tree());
+    }
+}
+
 int principale(char dataIN[])
 {
     struct freqlist *freqList = buildFrequenceList(dataIN);
+    struct bintree *huffman = buildHuffmantree(freqlist);
     return 0;
 }
