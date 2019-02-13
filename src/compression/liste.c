@@ -7,8 +7,8 @@ struct liste *new_liste() {
     struct liste *l_new = malloc(sizeof(struct liste));
     if (l_new != NULL)
     {
-        l_new->premier = NULL;
-        l_new->dernier = NULL;
+        l_new->first = NULL;
+        l_new->last = NULL;
     }
     else
     {
@@ -17,12 +17,29 @@ struct liste *new_liste() {
     return l_new;
 }
 
+int len_list(struct liste *liste)
+{
+    if (liste->first == NULL)
+    {
+        return 0;
+    }
+    int len = 1;
+    struct element *actuel = liste->first;
+    while (actuel->next != NULL)
+    {
+        len++;
+        actuel = actuel->next;
+    }
+    free(actuel);
+    return len;
+}
+
 void insert(struct liste *liste, char n)
 {
-    struct element n_ele = malloc(sizeof(struct element));
+    struct element *n_ele = malloc(sizeof(struct element));
     n_ele->key = n;
 
-    if (liste->next == NULL)
+    if (liste->first == NULL)
     {
         n_ele->prec = NULL;
         n_ele->next = NULL;
@@ -38,11 +55,20 @@ void insert(struct liste *liste, char n)
     }
 }
 
+void element_free(struct element *ele)
+{
+    if (ele->next != NULL)
+    {
+        element_free(ele->next);
+    }
+    free(ele);
+}
+
 void liste_free(struct liste *liste)
 {
-    if (liste->premier != NULL)
+    if (liste->first != NULL)
     {
-        liste_free(liste->premier);
+        element_free(liste->first);
     }
     free(liste);
 }

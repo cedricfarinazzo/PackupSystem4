@@ -19,6 +19,8 @@ struct liste *new_liste();
 
 void insert(struct liste *liste, char n);
 
-void free(struct liste *liste);
+int len_list(struct liste *liste);
+
+void liste_free(struct liste *liste);
 
 #endif /*_SRC_COMPRESSION_LISTE_H_*/
