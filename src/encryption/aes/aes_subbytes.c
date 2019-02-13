@@ -91,6 +91,21 @@ struct AES_matrix *AES_matrix_subBytes(struct AES_matrix *block)
     return state;
 }
 
+int AES_matrix_subBytesInt(int v)
+{
+    unsigned int value = (unsigned int)v;
+    char hex[9];        
+    sprintf(hex, "%08x", value);
+    int xv = __charToint(hex[7]);
+    int yv = __charToint(hex[6]);
+    if (xv == -1 || yv == -1)
+    {
+        return NULL;
+    }
+    return __SboxGet(xv, yv);
+}
+
+
 struct AES_matrix *AES_matrix_InvSubBytes(struct AES_matrix *block)
 {
     struct AES_matrix *state = AES_matrix_init();
