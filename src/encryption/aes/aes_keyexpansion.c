@@ -23,17 +23,17 @@ struct AES_matrix **AES_keyExpansion(struct AES_matrix *key)
     AES_matrix_copy(key, roundKeys[index]);
     ++index;
 
-    for (index; index < AES_NB_ROUND_KEY + 1; ++index)
+    for (; index < AES_NB_ROUND_KEY + 1; ++index)
     {
         roundKeys[index] = AES_matrix_init();
         for (size_t x = 0; x < AES_MATRIX_DEFAULT_ROWSLENGHT; ++x)
         {
             int tmp[AES_MATRIX_DEFAULT_COLSLENGHT];
-            size_t previous_collum_bloc = x == 0 ? index - 1 : index;
+            size_t previous_collum_bloc = (x == 0 ? index - 1 : index);
             size_t previous_collum_x = x == 0 ? AES_MATRIX_DEFAULT_ROWSLENGHT - 1 : x - 1;
 
             for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                tmp[y] = AES_matrix_get(roundKeys[previous_collum_x], previous_collum_x, (y - 1 + 4) % 4);
+                tmp[y] = AES_matrix_get(roundKeys[previous_collum_bloc], previous_collum_x, (y - 1 + 4) % 4);
             for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
                 tmp[y] = AES_matrix_subBytesInt(tmp[y]); 
             for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)

@@ -5,6 +5,7 @@
 #include "aes_subbytes.h"
 #include "aes_shiftrows.h"
 #include "aes_mixcolumns.h"
+#include "aes_keyexpansion.h"
 #include "aes.h"
 
 void AES_encrypt(char *data, char *key, char **encrypt)
@@ -23,6 +24,8 @@ void AES_encrypt(char *data, char *key, char **encrypt)
     }
     struct AES_matrix *keyblock = blockskey[0];
 
+    struct AES_matrix **roundKeys = AES_keyExpansion(keyblock);
+
     struct AES_matrix **blocksdata;
     size_t countdata = 0;
     AES_matrix_text2matrix(data, &blocksdata, &countdata);
@@ -30,7 +33,7 @@ void AES_encrypt(char *data, char *key, char **encrypt)
 
     for (size_t i = 0; i < countdata; ++i)
     {
-        struct AES_matrix *state = AES_matrix_addRoundKey(blocksdata[i], keyblock);
+        struct AES_matrix *state = AES_matrix_addRoundKey(blocksdata[i], roundKeys[0]);
 
         for (size_t j = 0; j < 9; ++j)
         {
@@ -46,7 +49,7 @@ void AES_encrypt(char *data, char *key, char **encrypt)
             AES_matrix_copy(tmp2, state);
             AES_matrix_free(tmp2);
 
-            struct AES_matrix *tmp3 = AES_matrix_addRoundKey(state, keyblock);
+            struct AES_matrix *tmp3 = AES_matrix_addRoundKey(state, roundKeys[j+1]);
             AES_matrix_copy(tmp3, state);
             AES_matrix_free(tmp3);
         }
@@ -58,7 +61,7 @@ void AES_encrypt(char *data, char *key, char **encrypt)
         AES_matrix_copy(tmp5, state);
         AES_matrix_free(tmp5);
 
-        struct AES_matrix *tmp6 = AES_matrix_addRoundKey(state, keyblock);
+        struct AES_matrix *tmp6 = AES_matrix_addRoundKey(state, roundKeys[9]);
         AES_matrix_copy(tmp6, state);
         AES_matrix_free(tmp6);
 
@@ -68,6 +71,8 @@ void AES_encrypt(char *data, char *key, char **encrypt)
 
 
     AES_matrix_matrix2text(blocksdata, countdata, encrypt);
+    
+    AES_keyExpansion_free(roundKeys);
 
     for (size_t i = 0; i < countkey; ++i)
     {
@@ -96,6 +101,8 @@ void AES_decrypt(char *encrypt, char *key, char **decrypt)
         return;
     }
     struct AES_matrix *keyblock = blockskey[0];
+    
+    struct AES_matrix **roundKeys = AES_keyExpansion(keyblock);
 
     struct AES_matrix **blocksen;
     size_t counten = 0;
@@ -104,7 +111,7 @@ void AES_decrypt(char *encrypt, char *key, char **decrypt)
 
     for (size_t i = 0; i < counten; ++i)
     {
-        struct AES_matrix *state = AES_matrix_addRoundKey(blocksen[i], keyblock);
+        struct AES_matrix *state = AES_matrix_addRoundKey(blocksen[i], roundKeys[0]);
 
         for (size_t j = 0; j < 9; ++j)
         {
@@ -116,7 +123,7 @@ void AES_decrypt(char *encrypt, char *key, char **decrypt)
             AES_matrix_copy(tmp1, state);
             AES_matrix_free(tmp1);
 
-            struct AES_matrix *tmp2 = AES_matrix_addRoundKey(state, keyblock);
+            struct AES_matrix *tmp2 = AES_matrix_addRoundKey(state, roundKeys[j+1]);
             AES_matrix_copy(tmp2, state);
             AES_matrix_free(tmp2);
 
@@ -143,6 +150,8 @@ void AES_decrypt(char *encrypt, char *key, char **decrypt)
 
     AES_matrix_matrix2text(blocksen, counten, decrypt);
 
+    AES_keyExpansion_free(roundKeys);
+    
     for (size_t i = 0; i < countkey; ++i)
     {
         AES_matrix_free(blockskey[i]);
@@ -154,44 +163,3 @@ void AES_decrypt(char *encrypt, char *key, char **decrypt)
     }
     free(blocksen);
 }
-/*
-void AES_decrypt(char *encrypt, char *key, char **decrypt)
-{
-
-    struct AES_matrix **blockskey;
-    size_t countkey = 0;
-    AES_matrix_text2matrix(key, &blockskey, &countkey);
-    if (countkey != 1)
-    {
-        for (size_t i = 0; i < countkey; ++i)
-        {
-            AES_matrix_free(blockskey[i]);
-        }
-        free(blockskey);
-        return;
-    }
-    struct AES_matrix *keyblock = blockskey[0];
-
-
-    struct AES_matrix **blocksencrypt;
-    size_t countencrypt = 0;
-    AES_matrix_text2matrix(encrypt, &blocksencrypt, &countencrypt);
-
-    
-    // do something
-
-
-    AES_matrix_matrix2text(blocksencrypt, countencrypt, decrypt);
-
-    for (size_t i = 0; i < countkey; ++i)
-    {
-        AES_matrix_free(blockskey[i]);
-    }
-    free(blockskey);
-    for (size_t i = 0; i < countencrypt; ++i)
-    {
-        AES_matrix_free(blocksencrypt[i]);
-    }
-    free(blocksencrypt);
-}
-*/
