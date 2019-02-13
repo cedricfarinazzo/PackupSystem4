@@ -100,7 +100,7 @@ int AES_matrix_subBytesInt(int v)
     int yv = __charToint(hex[6]);
     if (xv == -1 || yv == -1)
     {
-        return NULL;
+        return -1;
     }
     return __SboxGet(xv, yv);
 }
