@@ -8,7 +8,7 @@
 
 void buildFrequenceList(char dataIN[])
 {
-    //char resultList
+    //char resultList[];
 }
 
 int main(int argc, char *argv[])
