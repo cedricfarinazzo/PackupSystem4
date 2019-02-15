@@ -3,6 +3,7 @@ image: cedricfarinazzo/archlinux-criterion-c:latest
 stages:
   - build
   - test
+  - webhook
 
 cache:
   paths:
@@ -28,3 +29,21 @@ job_test:
     - ./packup
     - ls | grep -e "packup_test_[a-z]*$" --color=never | sed -e 's/^/.\//' | sh
     - make clean
+
+job_success:
+    stage: webhook
+    script:
+        - wget https://gitlab.com/cedricfarinazzo/gitlab-ci-discord-webhook/raw/master/send.sh
+        - chmod +x send.sh
+        - ./send.sh success $WEBHOOK_URL
+    when: on_success
+
+
+job_failure:
+    stage: webhook
+    script:
+        - wget https://gitlab.com/cedricfarinazzo/gitlab-ci-discord-webhook/raw/master/send.sh
+        - chmod +x send.sh
+        - ./send.sh failure $WEBHOOK_URL
+    when: on_failure
+
