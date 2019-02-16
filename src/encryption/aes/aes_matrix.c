@@ -183,7 +183,7 @@ void AES_matrix_printf(struct AES_matrix *block)
         printf(" | ");
         for (size_t x = 0; x < block->colsLenght; ++x)
         {
-            printf("%d |", AES_matrix_get(block, x, y));
+            printf("%d | ", AES_matrix_get(block, x, y));
         }
         printf("\n");
     }
@@ -201,7 +201,7 @@ void AES_matrix_printfchar(struct AES_matrix *block)
         printf(" | ");
         for (size_t x = 0; x < block->colsLenght; ++x)
         {
-            printf("%c |", (char)AES_matrix_get(block, x, y));
+            printf("%c | ", (char)AES_matrix_get(block, x, y));
         }
         printf("\n");
     }
@@ -219,7 +219,7 @@ void AES_matrix_printfhex(struct AES_matrix *block)
         printf(" | ");
         for (size_t x = 0; x < block->colsLenght; ++x)
         {
-            printf("0x%02x |", AES_matrix_get(block, x, y));
+            printf("0x%02x | ", AES_matrix_get(block, x, y));
         }
         printf("\n");
     }

@@ -59,7 +59,8 @@ Test(AES, sprintf_matrix)
     char *text;
     AES_matrix_sprintf(mat, &text);
     AES_matrix_free(mat);
-    printf("%s", text);
+    cr_assert_not_null(text);
+    cr_assert_str_not_empty(text);
     free(text);
 }
 
@@ -213,13 +214,13 @@ Test(AES, Encryption)
     output = NULL;
     char key[] = "01G345a.89sbhdef";
 
-    printf("\nkey: %s  | text: %s\n", key, text);
+    //printf("\nkey: %s  | text: %s\n", key, text);
     AES_encrypt(text, key, &output);
 
     if (output == NULL)
         cr_assert_fail("output = NULL");
     
-    printf("encryption: %s\n\n", output);
+    //printf("encryption: %s\n\n", output);
  
     cr_assert_not_null(output);
     cr_assert_str_not_empty(output);
