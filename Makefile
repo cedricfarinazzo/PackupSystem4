@@ -2,7 +2,7 @@
 
 # Compiler argument
 
-CC=gcc
+CC=$(shell gcc --version > /dev/null 2>&1 && echo "gcc" || echo "clang")
 
 GTK_CFLAGS=$(shell pkg-config --cflags gtk+-3.0)
 GTK_LDLIBS=$(shell pkg-config --libs gtk+-3.0)
