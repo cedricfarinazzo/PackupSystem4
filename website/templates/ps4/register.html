@@ -1,7 +1,48 @@
 {% extends 'ps4/layout.html' %}
 
 {% block content %}
-  <h1 class="center">Register</h1>
-  <div class="divide"></<div>
+    <h1 class="center">Register</h1>
+    <div class="divide"></div>
+    <div class="contai blue-grey-text text-darken-2">
+        <div class="col s6 offset-s3">
+            <form action="{% url "ps4:register" %}" method="post">
+                {% csrf_token %}
+                <div class="row">   
+                    <div class="input-field col s12">
+                        <input id="email" type="email" name="email"
+                        class="validate" required/>
+                        <label class="active" for="email">Your Email</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="password" name="password" type="password" class="validate" required/>
+  			<label class="active" for="password">Your password</label>
+                    </div>
+                </div>
+  		<div class="row">
+                    <div class="input-field col s12">
+                        <input id="passcomfirm" name="passcomfirm" type="password" class="validate" required/>
+                        <label class="active" for="passconfirm">Password confirmation</label>
+                    </div>
+                </div>
+  		<div class="row">
+                    <div class="input-field col s6">
+                        <input id="firstname" name="firstname" type="text" class="validate" required/>
+  			<label class="active" for="firstname">Firstname</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="name" name="name" type="text" class="validate" required/>
+  			<label class="active" for="name">Name</label>
+                    </div>
+                </div>
+                <div class="center">
+                    <input class="waves-effect waves-light btn blue
+                            lighten-2" type="submit" name="submit"
+                            value="Register"/>
+                </div>
+            </form>
+        </div>
+    </div>
 
 {% endblock %}
