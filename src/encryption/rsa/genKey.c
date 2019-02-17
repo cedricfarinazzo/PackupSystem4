@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+/*
 int is_prime(unsigned long n)
 {
     if (n%2 == 0)
@@ -80,3 +81,4 @@ unsigned long RSA_genKey(unsigned long p, unsigned long q)
     return n + e;
 
 }
+*/
