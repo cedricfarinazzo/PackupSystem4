@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include "huffman.h"
 #include <string.h>
+#include "struct.h"
 
+/*
 struct element {
     char key;
     struct element *next;
@@ -21,6 +23,12 @@ struct huffele {
     char car;
     char freq;
 } huffele;
+
+struct freqlist {
+    struct liste *freq;
+    struct liste *car;
+} freqlist;
+*/
 
 struct liste *new_liste();
 

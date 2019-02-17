@@ -3,7 +3,9 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include "struct.h"
 
+/*
 struct bintree {
     unsigned char key;
     struct bintree *left;
@@ -18,6 +20,7 @@ struct binele {
     struct bintree *key;
     struct binele *next;
 } binele;
+*/
 
 struct bintree *new_tree(char n);
 

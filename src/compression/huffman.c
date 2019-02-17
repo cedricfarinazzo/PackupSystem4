@@ -4,6 +4,7 @@
 #include "bintree.h"
 #include "liste.h"
 #include "huffman.h"
+#include "struct.h"
 
 void free_freqlist(struct freqlist *Freqlist)
 {

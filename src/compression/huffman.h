@@ -5,12 +5,14 @@
 #include <stdlib.h>
 #include "bintree.h"
 #include "liste.h"
+#include "struct.h"
 
+/*
 struct freqlist {
     struct liste *freq;
     struct liste *car;
 } freqlist;
-
+*/
 void free_freqlist(struct freqlist *Freqlist);
 
 struct freqlist* buildFrequenceList(char dataIN[]);

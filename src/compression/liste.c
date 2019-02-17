@@ -3,6 +3,7 @@
 #include "huffman.h"
 #include "liste.h"
 #include <string.h>
+#include "struct.h"
 
 struct liste *new_liste() {
     struct liste *l_new = malloc(sizeof(struct liste));
