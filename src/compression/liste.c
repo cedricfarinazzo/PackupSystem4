@@ -68,7 +68,7 @@ void insertr(struct liste *liste, char *n)
 char *liste_to_string(struct liste *liste)
 {
     int len = len_list(liste);
-    char output[len];
+    char *output = malloc(sizeof((char) * len));
     struct element *actual = liste->first;
     int i = 0;
     while (actual != NULL)
@@ -121,7 +121,7 @@ struct huffele *min_pop(struct freqlist *Freq)
     del_in(m_car);
     free(f_fr);
     free(f_car);
-    return *output;
+    return output;
 }
 
 void element_free(struct element *ele)
