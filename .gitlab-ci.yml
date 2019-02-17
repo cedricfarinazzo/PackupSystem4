@@ -11,15 +11,29 @@ cache:
     - packup
     - packup_*
 
-job_build:
+job_build_gcc:
   stage: build
   before_script:
     - pacman -Syyu --noconfirm
+  variables:
+      CC: gcc
   script:
     - pwd
     - make clean
-    - make
-    - make tests/*
+    - make CC=${CC}
+    - make tests/* CC=${CC}
+
+job_build_clang:
+  stage: build
+  before_script:
+    - pacman -Syyu --noconfirm
+  variables:
+      CC: clang
+  script:
+    - pwd
+    - make clean
+    - make CC=${CC}
+    - make tests/* CC=${CC}
 
 job_test:
   stage: test
