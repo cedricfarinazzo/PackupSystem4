@@ -25,7 +25,9 @@ SECRET_KEY = '13(l1ypm!s$bz0bw2$yng6*h8h$kt0^bim^vw)i)wnct8m$w5c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'packup.hyperion.tf',
+]
 
 
 # Application definition
@@ -113,6 +115,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+#STATIC_ROOT = "home/hyperion/packupsystem4/website/static/"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -121,4 +124,5 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR + "/static/",
+    #'/home/hyperion/packupsystem4/website/static/',
 ]
