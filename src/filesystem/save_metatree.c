@@ -4,8 +4,8 @@ void FS_save_path(char *path, FILE *save)
 {
     long length = 1;
     length += strlen(path);
-    e = fwrite(&length, sizeof(char), sizeof(long), save);
-    if (e < sizeof(long))
+    int e = fwrite(&length, sizeof(char), sizeof(long), save);
+    if (e < (long) sizeof(long))
         err(33, "FS_save_path failure. fwrite failure (1).");
     e = fwrite(path, sizeof(char), length, save);
     if (e < length)
@@ -15,7 +15,7 @@ void FS_save_path(char *path, FILE *save)
 void FS_save_stats(struct stat fs, FILE *save)
 {
     int e = fwrite(&fs, 1, sizeof(struct stat), save);
-    if (e < sizeof(struct stat))
+    if (e < (long) sizeof(struct stat))
         err(33, "FS_save_stats failure. fwrite failure.");
 }
 
@@ -65,7 +65,9 @@ char *FS_restore_path(FILE *file)
 struct stat FS_restore_stats(FILE *file)
 {
     file = file;
-    return NULL;
+    struct stat fs;
+    memset(&fs, 0, sizeof(struct stat));
+    return fs;
 }
 
 struct meta_data *FS_restore_data(FILE *file)
