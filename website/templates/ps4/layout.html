@@ -24,7 +24,7 @@
 							<li class="{{ nav.home }}"><a href="{% url "ps4:index" %}">Home</a></li>
 							<li class="{{ nav.download }}"><a href="{% url "ps4:download" %}">Download</a></li>
 							<li class="{{ nav.report }}"><a href="{% url "ps4:report" %}">Report</a></li>
-							{% if connected%}
+							{% if user.is_authenticated%}
 							<li class="{{ nav.account }}"><a href="{% url "ps4:account" %}">Account</a></li>
 							<li class="{{ nav.logout }}"><a href="{% url "ps4:logout" %}">Logout</a></li>
 							{% else %}
