@@ -58,28 +58,47 @@ void FILESYSTEM_save_metatree(struct meta_tree *tree, char *path)
 
 char *FS_restore_path(FILE *file)
 {
-    file = file;
-    return NULL;
+    long len;
+    fread(&len, sizeof(long), 1, file);
+    char *path = malloc(len * sizeof(char));
+    fread(path, sizeof(char), len, file);
+    return path;
 }
 
 struct stat FS_restore_stats(FILE *file)
 {
-    file = file;
     struct stat fs;
-    memset(&fs, 0, sizeof(struct stat));
+    fread(&fs, sizeof(struct stat), 1, file);
     return fs;
 }
 
 struct meta_data *FS_restore_data(FILE *file)
 {
-    file = file;
-    return NULL;
+    char *path = FS_restore_path(file);
+    struct stat fs = FS_restore_stats(file);
+    struct meta_data *data = malloc(sizeof(struct meta_data));
+    data->path = path;
+    data->fs = fs;
+    return data;
+}
+
+char FS_restore_inheritance(FILE *file)
+{
+    char inheritance;
+    fread(&inheritance, sizeof(char), 1, file);
+    return inheritance;
 }
 
 struct meta_tree *FS_restore_tree(FILE *file)
 {
-    file = file;
-    return NULL;
+    struct meta_tree *tree = malloc(sizeof(struct meta_tree));
+    tree->data = FS_restore_data(file);
+    char inheritance = FS_restore_inheritance(file);
+    if (inheritance & FILESYSTEM_TREE_HAS_SON)
+        tree->son = FS_restore_tree(file);
+    if (inheritance & FILESYSTEM_TREE_HAS_SIBLING)
+        tree->sibling = FS_restore_tree(file);
+    return tree;
 }
 
 struct meta_tree *FILESYSTEM_restore_metatree(char *path)
