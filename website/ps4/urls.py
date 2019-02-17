@@ -5,6 +5,7 @@ from . import views
 app_name = 'ps4'
 urlpatterns = [
     path('', views.index, name='index'),
+    path('home', views.index, name='home'),
     path('download', views.download, name='download'),
     path('report', views.report, name='report'),
     path('login', views.login, name='login'),

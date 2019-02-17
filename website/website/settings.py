@@ -29,7 +29,6 @@ ALLOWED_HOSTS = [
     'packup.hyperion.tf',
 ]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -126,3 +125,8 @@ STATICFILES_DIRS = [
     BASE_DIR + "/static/",
     #'/home/hyperion/packupsystem4/website/static/',
 ]
+
+try:
+    from website.local_conf import *
+except ImportError:
+    pass
