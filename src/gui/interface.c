@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 
-    GtkBuilder *builder;
-    GtkWidget *window;
-    
+GtkBuilder *builder;
+GtkWidget *window;
+
 int interface(int argc,char *argv[])
 {
     gtk_init(&argc,&argv);
@@ -29,27 +29,27 @@ int interface(int argc,char *argv[])
 
 void on_Close_cliked()
 {
-     exit(0);
+    exit(0);
 }
 
 void on_Support_cliked()
 {
-     printf("You cliked on Support\n");
+    printf("You cliked on Support\n");
 }
 
 void on_Compr_cliked()
 {
-     printf("You cliked on Compression\n");
+    printf("You cliked on Compression\n");
 }
 
 void on_Decompr_cliked()
 {
-      printf("You cliked on Decompression\n");
+    printf("You cliked on Decompression\n");
 }
 
 void on_Chiffr_cliked()
 {
-      printf("You cliked on Chiffrement\n");
+    printf("You cliked on Chiffrement\n");
 }
 
 

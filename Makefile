@@ -10,7 +10,7 @@ GTK_LDLIBS=$(shell pkg-config --libs gtk+-3.0)
 CRITERION_CFLAGS=$(shell pkg-config --cflags criterion)
 CRITERION_LDLIBS=$(shell pkg-config --libs criterion)
 
-CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 ${GTK_CFLAGS}
+CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 -rdynamic -lpthread ${GTK_CFLAGS}
 CPPFLAGS=-MMD
 
 LDFLAGS=-lasan
@@ -52,7 +52,7 @@ DEP=$(OBJ:.o=.d)
 
 all: ${EXE}
 
-${EXE}: ${BIN_DIR} ${BIN_SUBDIR} ${OBJ}
+${EXE}: ${BIN_DIR} ${BIN_SUBDIR} ${OBJ} ${GLADE}
 	${CC} ${CFLAGS} -o ${EXE} ${OBJ} ${LDFLAGS} ${LDLIBS} ${MOD}
 
 ${BIN_DIR}%.o: ${SRC_DIR}%.c
