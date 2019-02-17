@@ -36,7 +36,7 @@ void insert(struct liste *liste, char n);
 
 void insertr(struct liste *liste, char* n);
 
-char *list_to_string(struct liste *liste);
+char *liste_to_string(struct liste *liste);
 
 void del_in(struct element *ele);
 

@@ -50,6 +50,7 @@ struct freqlist* buildFrequenceList(char dataIN[])
     result->car = charList;
     return result; 
 }
+
 /*
 void max_list_insert_tree(struct freqlist Frequ, struct bintree huffman)
 {
@@ -120,7 +121,8 @@ void __table_codage(struct liste *prefixe, struct bintree *huffman,
     if (huffman->right == NULL && huffman->left == NULL)
     {
         insert(table, huffman->key);
-        insertr(table, list_to_string(prefixe));
+        char * tmp = liste_to_string(prefixe);
+        insertr(table, tmp);
     }
     else
     {
@@ -142,7 +144,10 @@ void encode_data(struct bintree *huffman, char dataIN[],
     {
         errx(4, "The data is empty");
     }
-
+    int len = len_list(table);
+    int isOK = 1;
+    char charactere = "a";
+    struct liste *text_encode = new_liste();
 }*/
 
 int principale(char dataIN[])
