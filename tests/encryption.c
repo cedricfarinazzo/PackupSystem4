@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "../src/tools/base64.h"
+
 #include <criterion/criterion.h>
 #include <criterion/hooks.h>
 
@@ -42,6 +44,7 @@ char *rand_string(size_t size)
 ReportHook(PRE_ALL)(struct criterion_test_set *test __attribute__((unused)))
 {
     srand(time(NULL));
+    ROTNkey = rand() % 255;
 }
 
 void myfree(void *e)
@@ -77,7 +80,8 @@ Test(AES, sprintf_matrix)
     char *text;
     AES_matrix_sprintf(mat, &text);
     AES_matrix_free(mat);
-    printf("%s", text);
+    cr_assert_not_null(text);
+    cr_assert_str_not_empty(text);
     free(text);
 }
 
@@ -231,14 +235,14 @@ Test(AES, Encryption)
     output = NULL;
     char key[] = "01G345a.89sbhdef";
 
-    printf("\nkey: %s  | text: %s\n", key, text);
+    //printf("\nkey: %s  | text: %s\n", key, text);
     AES_encrypt(text, key, &output);
 
     if (output == NULL)
         cr_assert_fail("output = NULL");
-
-    printf("encryption: %s\n\n", output);
-
+    
+    //printf("encryption: %s\n\n", output);
+ 
     cr_assert_not_null(output);
     cr_assert_str_not_empty(output);
     cr_assert_str_neq(output, text);
@@ -291,7 +295,7 @@ Test(ROTN, encrypt)
 
 Test(ROTN, decrypt)
 {
-    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. é~è@¹~#{[-è_çà)^";
     size_t lentext = strlen(text);
     char data[lentext + 1];
     for (size_t i = 0; i < lentext; ++i)
@@ -305,7 +309,6 @@ Test(ROTN, decrypt)
     cr_assert_not_null(data);
     cr_assert_str_not_empty(data);
     cr_assert_str_eq(data, text);
-
 }
 
 

@@ -1,15 +1,10 @@
-#include <stdlib.h>
-#include <string.h>
-
+#include <stddef.h>
 #include "rotn.h"
 
 void ROTN_encrypt(char *data, int key)
 {
-    size_t len = strlen(data);
-    for (size_t i = 0; i < len; ++i)
-    {
+    for (size_t i = 0; data[i] != '\0'; ++i)
         data[i] += key;
-    }
 }
 
 void ROTN_decrypt(char *data, int key)
