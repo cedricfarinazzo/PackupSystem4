@@ -29,6 +29,7 @@ struct binlist *new_binlist()
     {
         errx(1, "No free memory !");
     }
+    return l_new;
 }
 
 void insert_right(struct bintree *b, char n) {
