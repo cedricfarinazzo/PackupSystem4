@@ -59,13 +59,13 @@ int main()
 
     AES_matrix_free(mat);
     AES_matrix_free(mkey);
-    
+  */  
     printf("\n\n\n============= key expansion \n\n");
 
     uint8_t key1[16] = 
     {
-        0x7b, 0x28, 0xab, 0x09, 
-        0x7e, 0xae, 0x17, 0xcf,
+        0x2b, 0x28, 0xab, 0x09, 
+        0x7e, 0xae, 0xf7, 0xcf,
         0x15, 0xd2, 0x15, 0x4f,
         0x16, 0xa6, 0x88, 0x3c
     };
@@ -82,9 +82,8 @@ int main()
 
     AES_keyExpansion_free(rb);
     AES_matrix_free(mkey1);
-    */
-
-   
+  
+  /* 
     printf("====== MIX COLUMS ONCE\n");
 
     uint8_t data2[16] = 
@@ -107,6 +106,6 @@ int main()
     AES_matrix_free(mi2);
 
     AES_matrix_free(mat1);
-
+*/
     return EXIT_SUCCESS;
 }

@@ -32,12 +32,24 @@ struct AES_matrix **AES_keyExpansion(struct AES_matrix *key)
             size_t previous_collum_bloc = (x == 0 ? index - 1 : index);
             size_t previous_collum_x = x == 0 ? AES_MATRIX_DEFAULT_ROWSLENGHT - 1 : x - 1;
 
-            for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                tmp[y] = AES_matrix_get(roundKeys[previous_collum_bloc], previous_collum_x, (y - 1 + 4) % 4);
-            for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                tmp[y] = AES_matrix_subBytesInt(tmp[y]); 
-            for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                tmp[y] = tmp[y] ^ AES_matrix_get(roundKeys[index - 1], x, y) ^ __GetRcon(index - 1, y);
+            if (x == 0)
+            {
+                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
+                    tmp[y] = AES_matrix_get(roundKeys[previous_collum_bloc], previous_collum_x, (y + 1 + 4) % 4);
+                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
+                    tmp[y] = AES_matrix_subBytesInt(tmp[y]); 
+
+                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
+                    tmp[y] = tmp[y] ^ AES_matrix_get(roundKeys[index - 1], x, y) ^ __GetRcon(index - 1, y);
+            }
+            else
+            {
+                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
+                    tmp[y] = AES_matrix_get(roundKeys[previous_collum_bloc], previous_collum_x,y % 4);
+                
+                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
+                    tmp[y] = tmp[y] ^ AES_matrix_get(roundKeys[index - 1], x, y);
+            }
             for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
                 AES_matrix_set(roundKeys[index], x, y, tmp[y]);
         }
