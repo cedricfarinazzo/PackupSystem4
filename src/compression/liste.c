@@ -68,7 +68,7 @@ void insertr(struct liste *liste, char *n)
 char *liste_to_string(struct liste *liste)
 {
     int len = len_list(liste);
-    char *output = malloc(sizeof((char) * len));
+    char *output = malloc(sizeof(char) * len);
     struct element *actual = liste->first;
     int i = 0;
     while (actual != NULL)
