@@ -132,23 +132,74 @@ void __table_codage(struct liste *prefixe, struct bintree *huffman,
         __table_codage(prefixe, huffman->right, table);
     }
 }
-/*
-void encode_data(struct bintree *huffman, char dataIN[],
-        struct liste *table)
+
+struct liste *encode_data(char dataIN[], char* table)
 {
-    if (huffman != NULL)
-    {
-        errx(4, "The tree is empty");
-    }
     if (dataIN == NULL)
     {
         errx(4, "The data is empty");
     }
-    int len = len_list(table);
+    int len = strlen(table);
+    int datalen = strlen(dataIN);
     int isOK = 1;
-    char charactere = "a";
+    int j = 0;
+    char charactere = 'a';
     struct liste *text_encode = new_liste();
-}*/
+    char *binaire = malloc(sizeof(char) * 2);
+    binaire[0] = '0';
+    binaire[1] = '1';
+    for (int i = 0; i < datalen; i++)
+    {
+        charactere = dataIN[i];
+        while (j < len && isOK)
+        {
+            if (table[j] == charactere)
+            {
+                j++;
+                while (table[j] == binaire[0] || table[j] == binaire[1])
+                {
+                    insert(text_encode, table[j]);
+                    j++;
+                }
+                isOK = 0;
+                j = 0;
+            }
+            else
+            {
+                j++;
+            }
+        }
+    }
+    return text_encode;
+}
+
+char *__to_bin(char n)
+{
+    char* binaire = malloc(sizeof(char) * 8);
+    int i = 0;
+    while (n != 0)
+    {
+        binaire[i] = (n % 2);
+        n = n / 2;
+        i++;
+    }
+    return binaire;
+}
+
+void __codage_tree(struct liste *chaine, struct bintree *huffman)
+{
+    if (huffman->right == NULL && huffman->left == NULL)
+    {
+        insert(chaine, '1');
+        insertr(chaine, __to_bin(huffman->key));
+    }
+    else
+    {
+        insert(chaine, '0');
+        __codage_tree(chaine, huffman->left);
+        __codage_tree(chaine, huffman->right);
+    }
+}
 
 int principale(char dataIN[])
 {
@@ -171,7 +222,13 @@ int principale(char dataIN[])
     {
         errx(4, "table is NULL");
     }
-
-
+    //liste chainee vers tableau pour la table
+    char* static_table = liste_to_string(table);
+    struct liste *encoding_data = new_liste();
+    encoding_data = encode_data(dataIN, static_table);
+    struct liste *encode_tree = new_liste();
+    struct bintree *root = huffman;
+    __codage_tree(encode_tree, root);
+    free(root);
     return 0;
 }
