@@ -5,7 +5,7 @@
     GtkBuilder *builder;
     GtkWidget *window;
     
-int main(int argc,char *argv[])
+int interface(int argc,char *argv[])
 {
     gtk_init(&argc,&argv);
 
