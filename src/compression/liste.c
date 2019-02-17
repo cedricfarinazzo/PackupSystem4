@@ -118,6 +118,16 @@ struct huffele *min_pop(struct freqlist *Freq)
     struct huffele *output = malloc(sizeof(struct huffele));
     output->car = m_car->key;
     output->freq = m_fr->key;
+    if (m_fr->next == NULL)
+    {
+        Freq->freq->last = Freq->freq->last->prec;
+        Freq->car->last = Freq->car->last->prec;
+    }
+    if (m_fr->prec == NULL)
+    {
+        Freq->freq->first = Freq->freq->first->next;
+        Freq->car->first = Freq->car->first->next;
+    }
     del_in(m_fr);
     del_in(m_car);
     free(f_fr);

@@ -27,14 +27,17 @@ struct freqlist* buildFrequenceList(char dataIN[])
     struct liste *frequencyList = new_liste();
     int i = 0;
     struct element *ele;
+    struct element *car;
     while (dataIN[i] != '\0')
     {
         ele = frequencyList->first;
-        while (ele != NULL && ele->key != dataIN[i])
+        car = charList->first;
+        while (car != NULL && car->key != dataIN[i])
         {
+            car = car->next;
             ele = ele->next;
         }
-        if (ele != NULL)
+        if (car != NULL)
         {
             ele->key += 1;
         }
@@ -43,34 +46,13 @@ struct freqlist* buildFrequenceList(char dataIN[])
             insert(charList, dataIN[i]);
             insert(frequencyList, 1);
         }
+        i++;
     }
-    free(ele);
     struct freqlist *result = malloc(sizeof(struct freqlist));
     result->freq = frequencyList;
     result->car = charList;
     return result; 
 }
-
-/*
-void max_list_insert_tree(struct freqlist Frequ, struct bintree huffman)
-{
-    struct element *frq = Frequ->freq->first;
-//    struct element *car = Freq->car->first;
-    char max = frq->key;
-    while (frq->next != NULL)
-    {
-        if (frq->key > max)
-        {
-            max = frq->key;
-        }
-        frq = frq->next;
-    }
-    frq = Frequ->freq->first;
-    while (frq->key != max)
-    {
-        frq = frq->next;
-    }  
-}*/
 
 struct bintree *buildHuffmantree(struct freqlist *Freq)
 {
@@ -81,6 +63,7 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
     while(Freq->freq->first != NULL)
     {
         temp = min_pop(Freq);
+        printf("temp->car = %d\ntemp->freq = %d\n", temp->car, temp->freq);
         insert(charsort, temp->car);
         insert(freqsort, temp->freq);
     }
@@ -201,22 +184,30 @@ void __codage_tree(struct liste *chaine, struct bintree *huffman)
     }
 }
 
-int principale(char dataIN[])
+int main(int argc, char **argv)
 {
+    if (argc != 2)
+    {
+        errx(EXIT_FAILURE, "2 args pls");
+    }
+    char *dataIN = argv[1];
     struct freqlist *freqList = buildFrequenceList(dataIN);
     if (freqList == NULL || freqList->freq->first == NULL ||
-            freqList->freq->first)
+            freqList->freq->first == NULL)
     {
         errx(4, "FreqList is NULL");
     }
+    printf("Freqlist success !\n");
     struct bintree *huffman = buildHuffmantree(&freqlist);
     if (huffman == NULL)
     {
         errx(4, "Huffman tree is NULL");
     }
+    printf("Huffman tree build !\n");
     struct liste *prefixe = new_liste();
     struct liste *table = new_liste();
     __table_codage(prefixe, huffman, table);
+    printf("table success !\n");
     liste_free(prefixe);
     if (table == NULL || table->first == NULL)
     {
