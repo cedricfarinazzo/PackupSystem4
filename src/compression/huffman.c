@@ -198,7 +198,7 @@ int main(int argc, char **argv)
         errx(4, "FreqList is NULL");
     }
     printf("Freqlist success !\n");
-    struct bintree *huffman = buildHuffmantree(&freqlist);
+    struct bintree *huffman = buildHuffmantree(freqList);
     if (huffman == NULL)
     {
         errx(4, "Huffman tree is NULL");
@@ -206,6 +206,7 @@ int main(int argc, char **argv)
     printf("Huffman tree build !\n");
     struct liste *prefixe = new_liste();
     struct liste *table = new_liste();
+    printf("Debut Table edit\n");
     __table_codage(prefixe, huffman, table);
     printf("table success !\n");
     liste_free(prefixe);
