@@ -320,7 +320,7 @@ void __codage_tree(struct liste *chaine, struct bintree *huffman)
     }
 }
 
-int main(int argc, char **argv)
+int principale(int argc, char **argv)
 {
     if (argc != 2)
     {
