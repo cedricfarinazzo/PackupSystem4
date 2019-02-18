@@ -2,6 +2,7 @@
 #define _SRC_ENCRYPTION_RSA_BIGINT_H_
 
 #include <stdlib.h>
+#include "tools.h"
 
 struct RSA_bigint {
     size_t capacity;

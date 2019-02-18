@@ -1,5 +1,5 @@
 #include <stdlib.h>
-
+#include "tools.h"
 #include "bigint.h"
 
 struct RSA_bigint *RSA_bigint_new()
@@ -107,5 +107,83 @@ struct RSA_bigint *RSA_bigint_from_uchar(unsigned char *s)
     RSA_bigint_ucharcpy(a, s);
     return a;
 }
+
+struct RSA_bigint *RSA_bigint_add(struct RSA_bigint *a, struct RSA_bigint *b)
+{
+    struct RSA_bigint *c = RSA_bigint_new();
+    int ret = 0;
+
+    size_t min_len = a->len < b->len ? a->len : b->len;
+    size_t max_len = a->len > b->len ? a->len : b->len;
+
+    for (size_t i = 0; i < min_len; ++i)
+    {
+        int sum = ret + a->num[i] + b->num[i];
+        ret = sum / 10;
+        sum = sum % 10;
+
+        __RSA_bigint_double_capacity(c);
+        c->num[c->len] = sum;
+        c->len++;
+    }
+
+    for (size_t i = min_len; i < max_len; ++i)
+    {
+        if (i < a->len)
+        {
+            int sum = ret + a->num[i];
+            ret = sum / 10;
+            sum = sum % 10;
+            
+            __RSA_bigint_double_capacity(c);
+            c->num[c->len] = sum;
+            c->len++;
+        }
+
+        if (i < b->len)
+        {
+            int sum = ret + a->num[i];
+            ret = sum / 10;
+            sum = sum % 10;
+            
+            __RSA_bigint_double_capacity(c);
+            c->num[c->len] = sum;
+            c->len++;
+        }
+    }
+
+    if (ret != 0)
+    {
+
+        __RSA_bigint_double_capacity(c);
+        c->num[c->len] = ret;
+        c->len++;
+    }
+
+    c->neg = a->neg || b->neg;
+
+    return c;
+}
+
+struct RSA_bigint *RSA_bigint_add_long(struct RSA_bigint *a, long b)
+{
+    struct RSA_bigint *bi = RSA_bigint_from_long(b);
+    struct RSA_bigint *c = RSA_bigint_add(a, bi);
+    RSA_bigint_free(bi);
+    return c;
+}
+
+struct RSA_bigint *RSA_bigint_add_ulong(struct RSA_bigint *a, ulong b)
+{
+    struct RSA_bigint *bi = RSA_bigint_from_ulong(b);
+    struct RSA_bigint *c = RSA_bigint_add(a, bi);
+    RSA_bigint_free(bi);
+    return c;
+}
+
+
+
+
+
 
 
