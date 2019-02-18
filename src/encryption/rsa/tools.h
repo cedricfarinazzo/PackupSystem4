@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define ulong unsigned long
+#define ulong unsigned long long
 
 ulong min(ulong a, ulong b);
 

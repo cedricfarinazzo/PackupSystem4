@@ -24,11 +24,11 @@ ulong *RSA_encode(ulong *public, char *data, size_t len)
     return encode;
 }
 
-char *RSA_decode(ulong *private, ulong *data, size_t len)
+unsigned char *RSA_decode(ulong *private, ulong *data, size_t len)
 {
-    char *decode = malloc(sizeof(char) * len);
+    unsigned char *decode = malloc(sizeof(unsigned char) * len);
     for (size_t i = 0; i < len; ++i)
-        decode[i] = (char)ulong_single_decode_rsa(private, data[i]);
+        decode[i] = (unsigned char)ulong_single_decode_rsa(private, data[i]);
     return decode;
 }
 
