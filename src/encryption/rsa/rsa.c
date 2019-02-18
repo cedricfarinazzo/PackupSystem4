@@ -2,6 +2,7 @@
 #include "genkey.h"
 #include "tools.h"
 
+/*
 ulong ulong_single_encode_rsa(ulong *public, ulong c)
 {
     ulong n = public[1];
@@ -31,4 +32,4 @@ unsigned char *RSA_decode(ulong *private, ulong *data, size_t len)
         decode[i] = (unsigned char)ulong_single_decode_rsa(private, data[i]);
     return decode;
 }
-
+*/

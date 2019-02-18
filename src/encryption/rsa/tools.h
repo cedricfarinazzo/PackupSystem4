@@ -3,19 +3,20 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <gmp.h>
 
 #define ulong unsigned long long
 
-ulong min(ulong a, ulong b);
+void min(mpz_t a, mpz_t b, mpz_t r);
 
-ulong max(ulong a, ulong b);
+void max(mpz_t a, mpz_t b, mpz_t r);
 
-ulong ipow(ulong base, ulong exp);
+mpz_t *ipow(mpz_t base, mpz_t exp);
 
-ulong square(ulong x);
+mpz_t *square(mpz_t x);
 
-int is_prime(ulong n);
+int is_prime(mpz_t n);
 
-ulong pgcd(ulong a, ulong b);
+ulong rand_a_b(ulong a, ulong b);
 
 #endif /* _SRC_ENCRYPTION_RSA_RSA_H_ */

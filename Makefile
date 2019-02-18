@@ -13,8 +13,8 @@ CRITERION_LDLIBS=$(shell pkg-config --libs criterion)
 CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 ${GTK_CFLAGS}
 CPPFLAGS=-MMD
 
-LDFLAGS=-lasan
-LDLIBS=-lm ${GTK_LDLIBS}
+LDFLAGS=
+LDLIBS=-lm -lgmp ${GTK_LDLIBS}
 
 DEBUG=-fsanitize=address -g3
 RELEASE=-Ofast -march=native

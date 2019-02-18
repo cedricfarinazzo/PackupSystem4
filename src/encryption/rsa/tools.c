@@ -1,63 +1,54 @@
 #include <stdlib.h>
 #include <time.h>
-
+#include <gmp.h>
 #include "tools.h"
 
-ulong min(ulong a, ulong b)
+void min(mpz_t a, mpz_t b, mpz_t r)
 {
-    return a <= b ? a : b;
-}
-
-ulong max(ulong a, ulong b)
-{
-    return a >= b ? a : b;
-}
-
-ulong ipow(ulong base, ulong exp)
-{
-    ulong result = 1;
-    for (;;)
+    if (mpz_cmp(a, b) < 0)
     {
-        if (exp & 1)
-            result *= base;
-        exp >>= 1;
-        if (!exp)
-            break;
-        base *= base;
+        mpz_set(r,a);
+    } else { 
+        mpz_set(r, b);
     }
-    return result;
 }
 
-ulong square(ulong x)
+void max(mpz_t a, mpz_t b, mpz_t r)
 {
-    return ipow(x, 2);
-}
-
-int is_prime(ulong n)
-{
-    if (n <= 3)
-        return n > 1;
-    else if (n % 2 == 0 || n % 3 == 0)
-        return 0;
-    ulong i = 5;
-    while (i * i <= n)
+    if (mpz_cmp(a, b) > 0)
     {
-        if (n % i == 0 || n % (i + 2) == 0)
-            return 0;
-        i += 6;
+        mpz_set(r,a);
+    } else { 
+        mpz_set(r, b);
     }
-     return 1;
 }
 
-ulong pgcd(ulong  a, ulong b)
+mpz_t *ipow(mpz_t base, mpz_t exp)
 {
-    while (b != 0)
-    {
-        ulong tmp = a%b;
-        a = b;
-        b = tmp;
-    }
+    mpz_t e;
+    mpz_set(e, exp);
+    mpz_t *r = malloc(sizeof(mpz_t));
+    mpz_init(*r);
+    mpz_set_ui(*r,1);
+    for (;mpz_sgn(e) > 0; mpz_sub_ui(e, e, 1))
+        mpz_mul(*r, *r, base);
+    mpz_clear(e);
+    return r;
+}
+
+mpz_t *square(mpz_t x)
+{ 
+    mpz_t r;
+    mpz_init(r);
+    mpz_set_ui(r,2);
+    mpz_t *a = ipow(x, r);
+    mpz_clear(r);
     return a;
+}
+
+int is_prime(mpz_t n)
+{
+    return mpz_probab_prime_p(n, 50) == 2;
 }
 
 ulong rand_a_b(ulong a, ulong b)
