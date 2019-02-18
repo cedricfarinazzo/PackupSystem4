@@ -7,17 +7,9 @@
 #include "liste.h"
 #include "struct.h"
 
-/*
-struct freqlist {
-    struct liste *freq;
-    struct liste *car;
-} freqlist;
-*/
 void free_freqlist(struct freqlist *Freqlist);
 
 struct freqlist* buildFrequenceList(char dataIN[]);
-
-//void max_list_insert_tree(struct freqlist Frequ, struct bintree huffman);
 
 struct bintree *buildHuffmantree(struct freqlist *Freq);
 

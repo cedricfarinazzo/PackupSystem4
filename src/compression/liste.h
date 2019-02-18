@@ -7,34 +7,11 @@
 #include <string.h>
 #include "struct.h"
 
-/*
-struct element {
-    char key;
-    struct element *next;
-    struct element *prec;
-} element;
-
-struct liste {
-    struct element *first;
-    struct element *last;
-} liste;
-
-struct huffele {
-    char car;
-    char freq;
-} huffele;
-
-struct freqlist {
-    struct liste *freq;
-    struct liste *car;
-} freqlist;
-*/
-
 struct liste *new_liste();
 
 void insert(struct liste *liste, char n);
 
-void insertr(struct liste *liste, char* n);
+void insertr(struct liste *liste, struct liste *n);
 
 char *liste_to_string(struct liste *liste);
 

@@ -5,23 +5,6 @@
 #include <stdlib.h>
 #include "struct.h"
 
-/*
-struct bintree {
-    unsigned char key;
-    struct bintree *left;
-    struct bintree *right;
-} bintree;
-
-struct binlist {
-    struct binele *first;
-} binlist;
-
-struct binele {
-    struct bintree *key;
-    struct binele *next;
-} binele;
-*/
-
 struct bintree *new_tree(char n);
 
 struct binlist *new_binlist();

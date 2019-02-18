@@ -4,6 +4,8 @@
 #include "liste.h"
 #include <string.h>
 #include "struct.h"
+#include <stdio.h>
+
 
 struct liste *new_liste() {
     struct liste *l_new = malloc(sizeof(struct liste));
@@ -57,12 +59,13 @@ void insert(struct liste *liste, char n)
     }
 }
 
-void insertr(struct liste *liste, char *n)
+void insertr(struct liste *liste, struct liste *n)
 {
-    int len = strlen(n);
-    for (int i = 0; i < len; i++)
+    struct element *actuel = n->first;
+    while(actuel != NULL)
     {
-        insert(liste, n[i]);
+        insert(liste, actuel->key);
+        actuel = actuel->next;
     }
 }
 
@@ -72,13 +75,16 @@ char *liste_to_string(struct liste *liste)
     char *output = calloc(len + 1, sizeof(char));
     struct element *actual = liste->first;
     int i = 0;
+    printf("Output = ");
     while (actual != NULL)
     {
         output[i] = actual->key;
         i++;
         actual = actual->next;
+        printf("%d", output[i]);
     }
-    free(actual);
+    printf("\n");
+    //free(actual);
     return output;
 }
 
@@ -101,6 +107,11 @@ void del_in(struct element *ele)
         {
             ele->next->prec = NULL;
         }
+        else
+        {
+            ele->prec->next = ele->next;
+            ele->next->prec = ele->prec;
+        }
     }
     free(ele);
 }
@@ -108,10 +119,11 @@ void del_in(struct element *ele)
 struct huffele *min_pop(struct freqlist *Freq)
 {
     struct element *f_fr = Freq->freq->first;
+    printf("%d\n", Freq->freq->first->key);
     struct element *f_car = Freq->car->first;
     struct element *m_fr = Freq->freq->first;
     struct element *m_car = Freq->car->first;
-    while (f_fr->next != NULL && f_car->next != NULL)
+    while (f_fr != NULL && f_car != NULL)
     {
         if (f_fr->key < m_fr->key)
         {
