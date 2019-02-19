@@ -156,7 +156,7 @@ void __codage_table(struct liste *table, struct liste *prefixe,
     if (pt->left == NULL && pt->right == NULL)
     {
         insert(table, pt->key);
-        insertr(table, prefixe);
+        inserts(table, prefixe, 2);
         del_last(prefixe);
     }
     else
@@ -175,30 +175,27 @@ void codage_table(struct bintree *huffman, struct liste *table)
     liste_free(prefixe);
 }
 
-struct liste *encode_data(char dataIN[], char* table)
+struct liste *encode_data(char dataIN[], char* table, int len)
 {
     if (dataIN == NULL)
     {
         errx(4, "The data is empty");
     }
-    int len = strlen(table);
     int datalen = strlen(dataIN);
     int isOK = 1;
     int j = 0;
     char charactere = 'a';
     struct liste *text_encode = new_liste();
-    char *binaire = malloc(sizeof(char) * 2);
-    binaire[0] = '0';
-    binaire[1] = '1';
     for (int i = 0; i < datalen; i++)
     {
         charactere = dataIN[i];
+        isOK = 1;
         while (j < len && isOK)
         {
             if (table[j] == charactere)
             {
                 j++;
-                while (table[j] == binaire[0] || table[j] == binaire[1])
+                while (j < len && (table[j] == 0 || table[j] == 1))
                 {
                     insert(text_encode, table[j]);
                     j++;
@@ -286,34 +283,29 @@ int main(int argc, char** argv)
     {
         errx(4, "FreqList is NULL");
     }
-    printf("Freqlist success !\n");
-    
     struct bintree *huffman = buildHuffmantree(freqList);
     if (huffman == NULL)
     {
         errx(4, "Huffman tree is NULL");
     }
-    printf("Huffman tree build !\n");
-    //struct liste *prefixe = new_liste();
     struct liste *table = new_liste();
-    printf("Debut Table edit\n");
     codage_table(huffman, table);
-    //__table_codage(prefixe, huffman, table);
+    print_listes(table);
     printf("table success !\n");
-    printf("Table = %s\n", liste_to_string(table));
-    //liste_free(prefixe);
     if (table == NULL || table->first == NULL)
     {
         errx(4, "table is NULL");
     }
     //liste chainee vers tableau pour la table
+    int len_table = len_list(table);
     char* static_table = liste_to_string(table);
     struct liste *encoding_data = new_liste();
-    encoding_data = encode_data(dataIN, static_table);
+    encoding_data = encode_data(dataIN, static_table, len_table);
     struct liste *encode_tree = new_liste();
     struct bintree *root = huffman;
     __codage_tree(encode_tree, root);
     free(root);
+    print_listes(encoding_data);
     char *dataenco = liste_to_string(encoding_data);
     char *treeenco = liste_to_string(encode_tree);
     printf("Data = %s\nTree = %s\n", dataenco, treeenco);

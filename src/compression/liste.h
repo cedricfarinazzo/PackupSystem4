@@ -9,19 +9,21 @@
 
 struct liste *new_liste();
 
+int len_list(struct liste *liste);
+
 void insert(struct liste *liste, char n);
 
 void insertr(struct liste *liste, struct liste *n);
+
+void inserts(struct liste *Liste, struct liste *n, int c);
+
+void del_last(struct liste *Liste);
 
 char *liste_to_string(struct liste *liste);
 
 void del_in(struct element *ele);
 
-void del_last(struct liste *Liste);
-
 struct huffele *min_pop(struct freqlist *Freq);
-
-int len_list(struct liste *liste);
 
 void liste_free(struct liste *liste);
 

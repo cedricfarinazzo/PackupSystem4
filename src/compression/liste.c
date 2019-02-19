@@ -34,7 +34,6 @@ int len_list(struct liste *liste)
         len++;
         actuel = actuel->next;
     }
-    //free(actuel);
     return len;
 }
 
@@ -59,13 +58,29 @@ void insert(struct liste *liste, char n)
     }
 }
 
-void insertr(struct liste *liste, struct liste *n)
+void insertr(struct liste *Liste, struct liste *n)
 {
     struct element *actuel = n->first;
     while(actuel != NULL)
     {
-        insert(liste, actuel->key);
+        insert(Liste, actuel->key);
         actuel = actuel->next;
+    }
+}
+
+void inserts(struct liste *Liste, struct liste *n, int c)
+{
+    int i = 1;
+    struct element *actual = n->first;
+    while (i != c && actual != NULL)
+    {
+        i++;
+        actual = actual->next;
+    }
+    while (actual != NULL)
+    {
+        insert(Liste, actual->key);
+        actual = actual->next;
     }
 }
 
@@ -97,9 +112,10 @@ char *liste_to_string(struct liste *liste)
     while (actual != NULL)
     {
         output[i] = actual->key;
-        i++;
+        printf("<%d> ", actual->key);
         actual = actual->next;
-        printf("%d", output[i]);
+        printf("%d | ", output[i]);
+        ++i;
     }
     printf("\n");
     //free(actual);
@@ -166,8 +182,6 @@ struct huffele *min_pop(struct freqlist *Freq)
     }
     del_in(m_fr);
     del_in(m_car);
-    //free(f_fr);
-    //free(f_car);
     return output;
 }
 

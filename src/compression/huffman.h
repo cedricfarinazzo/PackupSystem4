@@ -15,13 +15,7 @@ struct bintree *buildHuffmantree(struct freqlist *Freq);
 
 void table_codage(struct bintree *huffman, struct liste *table);
 
-/*
-void __table_codage(struct liste *prefixe, struct bintree *huffman,
-struct liste *table);
-*/
-
-struct liste *encode_data(char dataIN[],
-       char *table);
+struct liste *encode_data(char dataIN[], char *table, int len);
 
 int principale(char dataIN[]);
 
