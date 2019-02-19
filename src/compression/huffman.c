@@ -148,47 +148,21 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
     print_bintree(test);
     return H;
 }
-/*
-void __table_codage(struct liste *prefixe, struct bintree *huffman,
-        struct liste *table)
-{
-    if (huffman->right == NULL && huffman->left == NULL)
-    {
-        printf("Ici\n");
-        insert(table, huffman->key);
-        insertr(table, prefixe);
-    }
-    else
-    {
-        printf("La\n");
-        insert(prefixe, 0);
-        __table_codage(prefixe, huffman->left, table);
-        insert(prefixe, 1);
-        __table_codage(prefixe, huffman->right, table);
-    }
-}
-*/
+
 void __codage_table(struct liste *table, struct liste *prefixe,
         struct bintree *pt, char pref)
 {
     insert(prefixe, pref);
     if (pt->left == NULL && pt->right == NULL)
     {
-        insertr(table, prefixe);
         insert(table, pt->key);
-        printf("Table = ");
-        print_listes(table);
+        insertr(table, prefixe);
         del_last(prefixe);
     }
     else
     {
         __codage_table(table, prefixe, pt->left, 0);
-        printf("Prefixe = ");
-        print_listes(prefixe);
-        //del_last(prefixe);
         __codage_table(table, prefixe, pt->right, 1);
-        printf("Prefixe ante = \n");
-        print_listes(prefixe);
         del_last(prefixe);
     }
 }
@@ -198,7 +172,6 @@ void codage_table(struct bintree *huffman, struct liste *table)
     struct liste *prefixe = new_liste();
     struct bintree *pt = huffman;
     __codage_table(table, prefixe, pt, 0);
-    print_listes(table);    
     liste_free(prefixe);
 }
 
