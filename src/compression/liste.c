@@ -69,6 +69,24 @@ void insertr(struct liste *liste, struct liste *n)
     }
 }
 
+void del_last(struct liste *Liste)
+{
+    if (Liste->last == NULL)
+    {
+        errx(4, "del_first : List empty");
+    }
+    if (Liste->last != Liste->first)
+    {
+        struct element *tmp = Liste->last;
+        Liste->last = Liste->last->prec;
+    //if (Liste->last->prec != NULL)
+    //{
+        Liste->last->next = NULL;
+    //}
+        free(tmp);
+    }
+}
+
 char *liste_to_string(struct liste *liste)
 {
     int len = len_list(liste);

@@ -17,6 +17,8 @@ char *liste_to_string(struct liste *liste);
 
 void del_in(struct element *ele);
 
+void del_last(struct liste *Liste);
+
 struct huffele *min_pop(struct freqlist *Freq);
 
 int len_list(struct liste *liste);

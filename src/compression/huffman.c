@@ -111,22 +111,22 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
     struct bintree *H = new_tree(0);
     H->left = new_tree(0);
     H->right = new_tree(0);
-    struct element *pointeur = charsort->first;
-    if (pointeur->next != NULL)
+    struct element *pointeur = charsort->last;
+    if (pointeur->prec != NULL)
     {
         H->left->left = new_tree(pointeur->key);
-        H->left->right = new_tree(pointeur->next->key);
+        H->left->right = new_tree(pointeur->prec->key);
     }
-    pointeur = pointeur->next->next;
+    pointeur = pointeur->prec->prec;
     struct bintree *point_tree = H->right;
-    while (pointeur != NULL && pointeur->next != NULL)
+    while (pointeur != NULL && pointeur->prec != NULL)
     {
         point_tree->left = new_tree(0);
         point_tree->left->left = new_tree(pointeur->key);
-        point_tree->left->right = new_tree(pointeur->next->key);
+        point_tree->left->right = new_tree(pointeur->prec->key);
         point_tree->right = new_tree(0);
         point_tree = point_tree->right;
-        pointeur = pointeur->next->next;
+        pointeur = pointeur->prec->prec;
     }
     if (pointeur != NULL)
     {
@@ -147,70 +147,16 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
     struct bintree *test = H;
     print_bintree(test);
     return H;
-/*
-    //Build huffmantree
-    print_listes(charsort);
-    print_listes(freqsort);
-    struct bintree *T = new_tree(freqsort->last->key);
-    struct bintree *A = new_tree(freqsort->last->key);
-    struct bintree *B = new_tree(freqsort->last->prec->key);
-    T->left = B;
-    T->right = A;
-
-    struct bintree *huffman = new_tree(0);
-    struct element *act_car = freqsort->last;
-    while (act_car != NULL)
-    {
-        B->key = T->key;
-        B->left = T->left;
-        B->right = T->right;
-        A->key = act_car->key;
-        printf("act_car = %d\n", act_car->key);
-        T->left = A;
-        T->right = B;
-        act_car = act_car->prec;
-    }
-    huffman->right = T;
-    B->key = freqsort->first->key;
-    A->key = freqsort->first->next->key;
-    B->left = NULL;
-    B->right = NULL;
-    T->left = B;
-    T->right = A;
-    huffman->left = T;
-    //Print Bintree
-    struct bintree *test = huffman;
-    print_bintree(test);
-    return huffman;*/
 }
-
+/*
 void __table_codage(struct liste *prefixe, struct bintree *huffman,
         struct liste *table)
 {
     if (huffman->right == NULL && huffman->left == NULL)
     {
         printf("Ici\n");
-        struct element *actu = table->first;
-        printf("Table ante = ");
-        while(actu != NULL){printf("%d ", actu->key); actu = actu->next;}
-        printf("\n");
-        //Debut insert
-        //struct element *n_ele = malloc(sizeof(struct element));
-        //n_ele->key = huffman->key;
-        //n_ele->prec = table->last;
-        //n_ele->next = NULL;
-        //table->last = n_ele;
-        //Fin insert
         insert(table, huffman->key);
-        printf("Table post = ");
-        actu = table->first;
-        while(actu != NULL){printf("%d ", actu->key); actu = actu->next;}
-        printf("\n");
         insertr(table, prefixe);
-        printf("Table last = ");
-        actu = table->first;
-        while(actu != NULL){printf("%d ", actu->key); actu = actu->next;}
-        printf("\n");
     }
     else
     {
@@ -220,6 +166,40 @@ void __table_codage(struct liste *prefixe, struct bintree *huffman,
         insert(prefixe, 1);
         __table_codage(prefixe, huffman->right, table);
     }
+}
+*/
+void __codage_table(struct liste *table, struct liste *prefixe,
+        struct bintree *pt, char pref)
+{
+    insert(prefixe, pref);
+    if (pt->left == NULL && pt->right == NULL)
+    {
+        insertr(table, prefixe);
+        insert(table, pt->key);
+        printf("Table = ");
+        print_listes(table);
+        del_last(prefixe);
+    }
+    else
+    {
+        __codage_table(table, prefixe, pt->left, 0);
+        printf("Prefixe = ");
+        print_listes(prefixe);
+        //del_last(prefixe);
+        __codage_table(table, prefixe, pt->right, 1);
+        printf("Prefixe ante = \n");
+        print_listes(prefixe);
+        del_last(prefixe);
+    }
+}
+
+void codage_table(struct bintree *huffman, struct liste *table)
+{
+    struct liste *prefixe = new_liste();
+    struct bintree *pt = huffman;
+    __codage_table(table, prefixe, pt, 0);
+    print_listes(table);    
+    liste_free(prefixe);
 }
 
 struct liste *encode_data(char dataIN[], char* table)
@@ -320,7 +300,7 @@ void __codage_tree(struct liste *chaine, struct bintree *huffman)
     }
 }
 
-int principale(char dataIN[])
+int main(int argc, char** argv)
 {
     if (argc != 2)
     {
@@ -341,13 +321,14 @@ int principale(char dataIN[])
         errx(4, "Huffman tree is NULL");
     }
     printf("Huffman tree build !\n");
-    struct liste *prefixe = new_liste();
+    //struct liste *prefixe = new_liste();
     struct liste *table = new_liste();
     printf("Debut Table edit\n");
-    __table_codage(prefixe, huffman, table);
+    codage_table(huffman, table);
+    //__table_codage(prefixe, huffman, table);
     printf("table success !\n");
     printf("Table = %s\n", liste_to_string(table));
-    liste_free(prefixe);
+    //liste_free(prefixe);
     if (table == NULL || table->first == NULL)
     {
         errx(4, "table is NULL");
