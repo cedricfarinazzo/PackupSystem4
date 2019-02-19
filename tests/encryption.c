@@ -18,6 +18,8 @@
 
 #include "../src/encryption/vigenere.h"
 
+#include "../src/encryption/rsa/rsa.h"
+
 char *decrypt = NULL;
 char *output = NULL;
 char *out;
@@ -272,6 +274,76 @@ Test(AES, Decrypt)
 }
 
 // RSA
+Test(RSA, encrypt)
+{
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    size_t lentext = strlen(text);
+    char data[lentext + 1];
+    for (size_t i = 0; i < lentext; ++i)
+        data[i] = text[i];
+    data[lentext] = 0;
+
+    mpz_t p; 
+    mpz_init_set_ui(p, 1237);
+    
+    mpz_t q; 
+    mpz_init_set_ui(q, 2003);
+
+    struct RSA_publickey *pub = RSA_gen_public_key(p, q);
+    struct RSA_privatekey *pri = RSA_gen_private_key(p, q, pub);
+    
+    mpz_t *encrypt = RSA_encode(pub, data, lentext);
+    
+    cr_assert_not_null(encrypt);
+    
+    for (size_t i = 0; i < lentext; ++i)
+        mpz_clear(encrypt[i]);
+    free(encrypt);
+
+    RSA_free_public_key(pub);
+    RSA_free_private_key(pri);
+    mpz_clear(p);
+    mpz_clear(q);
+}
+
+Test(RSA, decrypt)
+{
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. é~è@¹~#{[-è_çà)^";
+    size_t lentext = strlen(text);
+    char data[lentext + 1];
+    for (size_t i = 0; i < lentext; ++i)
+        data[i] = text[i];
+    data[lentext] = 0;
+
+    mpz_t p; 
+    mpz_init_set_ui(p, 1237);
+    
+    mpz_t q; 
+    mpz_init_set_ui(q, 2003);
+
+    struct RSA_publickey *pub = RSA_gen_public_key(p, q);
+    struct RSA_privatekey *pri = RSA_gen_private_key(p, q, pub);
+    
+    mpz_t *encrypt = RSA_encode(pub, data, lentext);
+    
+    cr_assert_not_null(encrypt);
+    
+    unsigned char *decode = RSA_decode(pri, encrypt, lentext);
+    
+    cr_assert_not_null(decode);
+    cr_assert_str_not_empty(decode);
+    cr_assert_str_eq(decode, text);
+
+    for (size_t i = 0; i < lentext; ++i)
+        mpz_clear(encrypt[i]);
+    free(encrypt);
+
+    RSA_free_public_key(pub);
+    RSA_free_private_key(pri);
+    mpz_clear(p);
+    mpz_clear(q);
+}
+
 
 
 
