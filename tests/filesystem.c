@@ -28,11 +28,32 @@ void print_tree(struct meta_tree *tree, int indent)
     }
 }
 
+int cmp_data(struct meta_data *data1, struct meta_data *data2)
+{
+    int cmp = strcmp(data1->path, data2->path);
+    cmp = cmp && (data1->fs.st_atime == data2->fs.st_atime);
+    return cmp;
+}
 
+int cmp_tree(struct meta_tree *tree1, struct meta_tree *tree2)
+{
+    int cmp = cmp_data(tree1->data, tree2->data);
+    cmp = cmp && (cmp_tree(tree1->son, tree2->son));
+    cmp = cmp && (cmp_tree(tree1->sibling, tree2->sibling));
+    return cmp;
+}
 
 Test(FILESYSTEM, Build_Tree)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     print_tree(tree->son, 0);
+    FILESYSTEM_save_metatree(tree, "savedtree");
+    struct meta_tree *restored = FILESYSTEM_restore_metatree("savedtree");
+    int result = cmp_tree(tree, restored);
+    if (result)
+        printf("Tree successfully saved and restored.\n");
+    else
+        printf("Tree failed to be saved and restored.\n");
     FILESYSTEM_free_metatree(tree);
+    FILESYSTEM_free_metatree(restored);
 }

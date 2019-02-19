@@ -52,7 +52,7 @@ void FS_save_tree(FILE *save, struct meta_tree *tree)
 void FILESYSTEM_save_metatree(struct meta_tree *tree, char *path)
 {
     FILE *file = fopen(path, "w");
-    FS_save_tree(file, tree);
+    FS_save_tree(file, tree->son);
     fclose(file);
 }
 
