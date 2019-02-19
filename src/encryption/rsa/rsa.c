@@ -1,35 +1,50 @@
 #include <stdlib.h>
+#include <gmp.h>
 #include "genkey.h"
 #include "tools.h"
 
-/*
-ulong ulong_single_encode_rsa(ulong *public, ulong c)
+
+void single_encode_rsa(struct RSA_publickey *public, mpz_t c, mpz_t r)
 {
-    ulong n = public[1];
-    ulong e = public[0];
-    return ipow(c, e) % n;
+    mpz_powm_sec(r, c, *(public->e), *(public->n));
+    //ipow(c, *(public->e), r);
+    //mpz_mod(r, r, *(public->n));
 }
 
-ulong ulong_single_decode_rsa(ulong *private, ulong c)
+
+void single_decode_rsa(struct RSA_privatekey *private, mpz_t c, mpz_t r)
 {
-    ulong n = private[1];
-    ulong d = private[0];
-    return ipow(c, d) % n;
+    mpz_powm_sec(r, c, *(private->d), *(private->n));
+    //ipow(c, *(private->d), r);
+    //mpz_mod(r, r, *(private->n));
 }
 
-ulong *RSA_encode(ulong *public, char *data, size_t len)
+
+mpz_t *RSA_encode(struct RSA_publickey *public, unsigned char *data, size_t len)
 {
-    ulong *encode = malloc(sizeof(ulong) * len);
+    mpz_t *encode = malloc(sizeof(mpz_t) * len);
     for (size_t i = 0; i < len; ++i)
-        encode[i] = ulong_single_encode_rsa(public, (ulong)data[i]);
+    {   
+        mpz_t c;
+        mpz_init_set_ui(c, (unsigned char) data[i]);
+        mpz_init(encode[i]);
+        single_encode_rsa(public, c, encode[i]);
+        mpz_clear(c);
+    }
     return encode;
 }
 
-unsigned char *RSA_decode(ulong *private, ulong *data, size_t len)
+unsigned char *RSA_decode(struct RSA_privatekey *private, mpz_t *data, size_t len)
 {
-    unsigned char *decode = malloc(sizeof(unsigned char) * len);
+    unsigned char *decode = calloc(len + 1, sizeof(unsigned char));
     for (size_t i = 0; i < len; ++i)
-        decode[i] = (unsigned char)ulong_single_decode_rsa(private, data[i]);
+    {   
+        mpz_t c;
+        mpz_init(c);
+        single_decode_rsa(private, data[i], c);
+        unsigned char cc = (unsigned char) mpz_get_ui(c);
+        mpz_clear(c);
+        decode[i] = cc;
+    }
     return decode;
 }
-*/

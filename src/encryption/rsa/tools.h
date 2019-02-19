@@ -11,9 +11,9 @@ void min(mpz_t a, mpz_t b, mpz_t r);
 
 void max(mpz_t a, mpz_t b, mpz_t r);
 
-mpz_t *ipow(mpz_t base, mpz_t exp);
+void ipow(mpz_t base, mpz_t exp, mpz_t r);
 
-mpz_t *square(mpz_t x);
+void square(mpz_t x, mpz_t a);
 
 int is_prime(mpz_t n);
 

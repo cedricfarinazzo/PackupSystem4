@@ -26,7 +26,25 @@ int main()
     printf("   d = ");
     mpz_out_str(stdout, 10, *(pri->d));
     
-    //DO OTHER SHIT
+    unsigned char data[] = "Hello World";
+    size_t len = strlen(data);
+    
+    printf("\ntext: %s (size: %ld)", data, len);
+
+    mpz_t *encrypt = RSA_encode(pub, data, len);
+
+    printf("\nencode: ");
+    for (size_t i = 0; i < len; ++i)
+        gmp_printf("%A ", encrypt[i]);
+
+    unsigned char *decode = RSA_decode(pri, encrypt, len);
+    
+    printf("\n\ndecode: %s", decode);
+
+    for (size_t i = 0; i < len; ++i)
+        mpz_clear(encrypt[i]);
+    free(encrypt);
+    free(decode);
 
     RSA_free_public_key(pub);
     RSA_free_private_key(pri);
@@ -67,6 +85,5 @@ int main()
     free(private);
 
     */
-    printf("\nHello World!\n");
     return EXIT_SUCCESS;
 }
