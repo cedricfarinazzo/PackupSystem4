@@ -25,6 +25,6 @@ void output_tree(struct liste *table, struct encod_tree *output, struct bintree 
 
 void output_data(struct liste *datai, struct encod_data *output);
 
-int un_truc_explixcite(char dataIN[]);
+int un_truc_explixcite(char *dataIN[]);
 
 #endif /*_SRC_COMPRESSION_HUFFMAN_H_*/
