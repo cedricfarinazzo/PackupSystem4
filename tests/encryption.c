@@ -278,9 +278,9 @@ Test(RSA, encrypt)
 {
     char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
     size_t lentext = strlen(text);
-    char data[lentext + 1];
+    unsigned char data[lentext + 1];
     for (size_t i = 0; i < lentext; ++i)
-        data[i] = text[i];
+        data[i] = (unsigned char)text[i];
     data[lentext] = 0;
 
     mpz_t p; 
@@ -310,9 +310,9 @@ Test(RSA, decrypt)
 {
     char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. é~è@¹~#{[-è_çà)^";
     size_t lentext = strlen(text);
-    char data[lentext + 1];
+    unsigned char data[lentext + 1];
     for (size_t i = 0; i < lentext; ++i)
-        data[i] = text[i];
+        data[i] = (unsigned char)text[i];
     data[lentext] = 0;
 
     mpz_t p; 
@@ -331,8 +331,8 @@ Test(RSA, decrypt)
     unsigned char *decode = RSA_decode(pri, encrypt, lentext);
     
     cr_assert_not_null(decode);
-    cr_assert_str_not_empty(decode);
-    cr_assert_str_eq(decode, text);
+    cr_assert_str_not_empty((char*)decode);
+    cr_assert_str_eq((char*)decode, text);
 
     for (size_t i = 0; i < lentext; ++i)
         mpz_clear(encrypt[i]);

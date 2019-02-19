@@ -27,7 +27,7 @@ int main()
     mpz_out_str(stdout, 10, *(pri->d));
     
     unsigned char data[] = "Hello World";
-    size_t len = strlen(data);
+    size_t len = strlen((char*)data);
     
     printf("\ntext: %s (size: %ld)", data, len);
 
