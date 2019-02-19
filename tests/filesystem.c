@@ -52,7 +52,7 @@ Test(FILESYSTEM, Build_Tree)
     printf("Tree saved.\n");
     struct meta_tree *restored = FILESYSTEM_restore_metatree("savedtree");
     printf("Tree restored.\n");
-    int result = cmp_tree(tree, restored);
+    int result = cmp_tree(tree->son, restored->son);
     if (result)
         printf("Tree successfully saved and restored.\n");
     else
