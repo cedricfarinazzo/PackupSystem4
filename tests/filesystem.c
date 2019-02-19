@@ -47,16 +47,21 @@ Test(FILESYSTEM, Build_Tree)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     print_tree(tree->son, 0);
-    printf("First tests done.\n");
-    FILESYSTEM_save_metatree(tree, "savedtree");
-    printf("Tree saved.\n");
-    struct meta_tree *restored = FILESYSTEM_restore_metatree("savedtree");
-    printf("Tree restored.\n");
+    FILESYSTEM_free_metatree(tree);
+}
+
+Test(FILESYSTEM, save_tree)
+{
+    struct meta_tree *tree = FILESYSTEM_build_metatree(".");
+    FILESYSTEM_save_metatree(tree, "savetree");
+}
+
+Test(FILESYSTEM, restore_tree)
+{
+    struct meta_tree *tree = FILESYSTEM_build_metatree(".");
+    FILESYSTEM_save_metatree(tree, "restoretree");
+    struct meta_tree *restored = FILESYSTEM_restore_metatree("restoretree");
     int result = cmp_tree(tree->son, restored->son);
     if (result)
-        printf("Tree successfully saved and restored.\n");
-    else
-        printf("Tree failed to be saved and restored.\n");
-    FILESYSTEM_free_metatree(tree);
-    FILESYSTEM_free_metatree(restored);
+        printf("Success Restore.\n");
 }
