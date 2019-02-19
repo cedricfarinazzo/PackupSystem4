@@ -33,13 +33,16 @@ void FS_save_inheritance(struct meta_tree *tree, FILE *save)
 
 void FS_save_data(struct meta_data *data, FILE *save)
 {
-    FS_save_path(data->path, save);
-    FS_save_stats(data->fs, save);
+    if (data->path)
+        FS_save_path(data->path, save);
+    if (data->fs)
+        FS_save_stats(data->fs, save);
 }
 
 void FS_save_tree(FILE *save, struct meta_tree *tree)
 {
-    FS_save_data(tree->data, save);
+    if (tree->data)
+        FS_save_data(tree->data, save);
     FS_save_inheritance(tree, save);
     struct meta_tree *temp = tree->son;
     while (temp)
