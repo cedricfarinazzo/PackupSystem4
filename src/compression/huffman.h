@@ -17,6 +17,8 @@ void table_codage(struct bintree *huffman, struct liste *table);
 
 struct liste *encode_data(char dataIN[], char *table, int len);
 
+void codage_tree_(struct liste *output, struct bintree *huffman);
+
 int principale(char dataIN[]);
 
 #endif /*_SRC_COMPRESSION_HUFFMAN_H_*/

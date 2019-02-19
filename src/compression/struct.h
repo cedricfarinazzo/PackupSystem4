@@ -37,4 +37,17 @@ struct binele {
     struct binele *next;
 } binele;
 
+struct encod_tree {
+    char align;
+    int prof;
+    int len;
+    char *data;
+} encod_tree;
+
+struct encod_data {
+    char align;
+    int len;
+    char *data;
+} encod_data;
+
 #endif /*_SRC_COMPRESSION_STRUCT_H_*/

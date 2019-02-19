@@ -5,6 +5,7 @@
 #include "liste.h"
 #include "huffman.h"
 #include "struct.h"
+#include <math.h>
 
 void free_freqlist(struct freqlist *Freqlist)
 {
@@ -41,6 +42,15 @@ void print_listes(struct liste *listee)
     {
         printf("<%d>", test->key);
         test = test->next;
+    }
+    printf("\n");
+}
+
+void print_chare(char *output, int len)
+{
+    for (int i = 0; i < len; i++)
+    {
+        printf("%d", output[i]);
     }
     printf("\n");
 }
@@ -102,7 +112,6 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
     while(Freq->freq->first != NULL)
     {
         temp = min_pop(Freq);
-        printf("temp->car = %d\ntemp->freq = %d\n", temp->car, temp->freq);
         insert(charsort, temp->car);
         insert(freqsort, temp->freq);
     }
@@ -144,8 +153,8 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
         free(point_tree->right);
         point_tree->right = tmp;
     }
-    struct bintree *test = H;
-    print_bintree(test);
+    //struct bintree *test = H;
+    //print_bintree(test);
     return H;
 }
 
@@ -197,7 +206,7 @@ struct liste *encode_data(char dataIN[], char* table, int len)
                 j++;
                 while (j < len && (table[j] == 0 || table[j] == 1))
                 {
-                    insert(text_encode, table[j]);
+		    insert(text_encode, table[j]);
                     j++;
                 }
                 isOK = 0;
@@ -245,29 +254,178 @@ struct liste *_to_bin(char n)
     }
     while (i != 8)
     {
-        struct element *zero = malloc(sizeof(struct element));
-        zero->key = 0;
-        zero->next = output->first;
-        output->first->prec = zero;
-        output->first = zero;
-        i++;
+        output->first->prec = malloc(sizeof(struct element));
+	output->first->prec->key = 0;
+	output->first->prec->prec = NULL;
+	output->first->prec->next = output->first;
+	output->first = output->first->prec;
+	++i;
     }
     return output;
 }
 
-void __codage_tree(struct liste *chaine, struct bintree *huffman)
+void __codage_tree(struct liste *table, struct liste *prefixe,
+        struct bintree *pt, char pref)
 {
-    if (huffman->right == NULL && huffman->left == NULL)
+  
+    insert(prefixe, pref);
+    if (pt->left == NULL && pt->right == NULL)
     {
-        insert(chaine, '1');
-        insertr(chaine, _to_bin(huffman->key));
+	struct liste *temp = _to_bin(pt->key);
+        insertr(table, temp);
+	liste_free(temp);
+        inserts(table, prefixe, 2);
+        del_last(prefixe);
     }
     else
     {
-        insert(chaine, '0');
-        __codage_tree(chaine, huffman->left);
-        __codage_tree(chaine, huffman->right);
+        __codage_tree(table, prefixe, pt->left, 0);
+        __codage_tree(table, prefixe, pt->right, 1);
+        del_last(prefixe);
+	
     }
+}
+
+void codage_tree(struct bintree *huffman, struct liste *table)
+{
+    struct liste *prefixe = new_liste();
+    struct bintree *pt = huffman;
+    __codage_tree(table, prefixe, pt, 0);
+    liste_free(prefixe);
+}
+
+int max_prof(struct bintree *H)
+{
+    int max = 0;
+    while(H->right != NULL)
+    {
+        ++max;
+	H = H->right;
+    }
+    return max;
+}
+
+void output_tree(struct liste *table, struct encod_tree *output, struct bintree *H)
+{
+    int len_data = len_list(table);
+    if (len_data % 8 != 0){len_data = (len_data / 8) + 1;}
+    else {len_data = len_data / 8;}
+    char *data = calloc(len_data + 1, sizeof(char));
+    char *buf = malloc(sizeof(char) * 8);
+    char tmp = 0;
+    int i = 0;
+    int c = 0;
+    struct element *actual = table->first;
+    while (actual != NULL)
+    {
+        
+        if (i == 8)
+	{
+    	    --i;
+	    for (int j = 0; j < 8; ++j)
+	    {
+	        tmp += (pow(2, j) * buf[i]);
+		--i;
+	    }
+	    data[c] = tmp;
+	    ++c;
+	    i = 0;
+	}
+	buf[i] = actual->key;
+	++i;
+	actual = actual->next;
+    }
+    --i;
+    char align = 0;
+    while (i != 8)
+    {
+        ++align;
+        buf[i] = 0;
+	++i;
+    }
+    --i;
+    for (int j = 0; j < 8; ++j)
+    {
+        tmp += (pow(2, j) * buf[i]);
+        --i;
+    }
+    output->align = align;
+    output->prof = max_prof(H);
+    output->len = len_data;
+    output->data = data;
+}
+
+void output_data(struct liste *datai, struct encod_data *output)
+{
+    //Char to full bin
+    struct element *actual = datai->first;
+    struct element *temporaire = datai->first;
+    struct liste *liste_temp;
+    while (actual != NULL)
+    {
+        if (actual->key != 0 && actual->key != 1)
+	{
+            liste_temp = _to_bin(actual->key);
+	    temporaire = actual->next;
+	    actual->prec->next = liste_temp->first;
+	    actual->next->prec = liste_temp->last;
+	    liste_temp->first->prec = actual->prec;
+	    liste_temp->last->next = actual->next;
+            actual->next = NULL;
+	    actual->prec = NULL;
+	    free(actual);
+	    actual = temporaire;
+	}
+	else
+	{
+	    actual = actual->next;
+	}
+    }
+    int len_data = len_list(datai);
+    if (len_data % 8 != 0){len_data = (len_data / 8) + 1;}
+    else {len_data = len_data / 8;}
+    char *data = calloc(len_data + 1, sizeof(char));
+    char *buf = malloc(sizeof(char) * 8);
+    char tmp = 0;
+    int i = 0;
+    int c = 0;
+    actual = datai->first;
+    while (actual != NULL)
+    {
+        
+        if (i == 8)
+	{
+    	    --i;
+	    for (int j = 0; j < 8; ++j)
+	    {
+	        tmp += (pow(2, j) * buf[i]);
+		--i;
+	    }
+	    data[c] = tmp;
+	    ++c;
+	    i = 0;
+	}
+	buf[i] = actual->key;
+	++i;
+	actual = actual->next;
+    }
+    --i;
+    char align = 0;
+    while (i != 8)
+    {
+        ++align;
+        buf[i] = 0;
+	++i;
+    }
+    --i;
+    for (int j = 0; j < 8; ++j)
+    {
+        tmp += (pow(2, j) * buf[i]);
+        --i;
+    }
+    output->align = align;
+    output->len = len_data;
+    output->data = data;
 }
 
 int main(int argc, char** argv)
@@ -277,37 +435,78 @@ int main(int argc, char** argv)
         errx(EXIT_FAILURE, "2 args pls");
     }
     char *dataIN = argv[1];
+    
+    //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
+    //Test exception
     if (freqList == NULL || freqList->freq->first == NULL ||
             freqList->freq->first == NULL)
     {
         errx(4, "FreqList is NULL");
     }
+    //Fin Freqlist
+
+    //Debut Bintree
     struct bintree *huffman = buildHuffmantree(freqList);
+    //Test exception
     if (huffman == NULL)
     {
         errx(4, "Huffman tree is NULL");
     }
+    //Fin Bintree
+
+    //Debut table
     struct liste *table = new_liste();
     codage_table(huffman, table);
-    print_listes(table);
-    printf("table success !\n");
+    //Test exception
     if (table == NULL || table->first == NULL)
     {
         errx(4, "table is NULL");
     }
-    //liste chainee vers tableau pour la table
+    //Fin table
+
+    //Passage de la table en static
     int len_table = len_list(table);
     char* static_table = liste_to_string(table);
+    //Fin table statique
+
+    //Debut encodage donnees
     struct liste *encoding_data = new_liste();
     encoding_data = encode_data(dataIN, static_table, len_table);
-    struct liste *encode_tree = new_liste();
-    struct bintree *root = huffman;
-    __codage_tree(encode_tree, root);
-    free(root);
-    print_listes(encoding_data);
-    char *dataenco = liste_to_string(encoding_data);
-    char *treeenco = liste_to_string(encode_tree);
-    printf("Data = %s\nTree = %s\n", dataenco, treeenco);
+    //Fin encodage donnees
+
+    //Debut encodage arbre
+    struct liste *encoding_tree = new_liste();
+    codage_tree(huffman, encoding_tree);
+    //Convert bin vers char
+    struct encod_tree *char_tree = malloc(sizeof(struct encod_tree));
+    output_tree(encoding_tree, char_tree, huffman);
+    //Fin encodage arbre
+
+    //Output Data
+    struct encod_data *char_data = malloc(sizeof(struct encod_data));
+    output_data(encoding_data, char_data);
+
+    //Rendu soutenance
+    printf("\n\n");
+    printf("Input data = %s\n", dataIN);
+    printf("Output encoding data = %s\n", char_data->data);
+    printf("Output encoding tree = %s\n", char_tree->data);
+
+    int ratio = strlen(char_data->data) + strlen(char_tree->data);
+    ratio *= 100;
+    ratio = ratio / strlen(dataIN);
+    printf("Ratio = %d%%\n", ratio);
+
+    //Deallocation de toutes les struct
+    bin_free(huffman);
+    liste_free(table);
+    liste_free(encoding_data);
+    liste_free(encoding_tree);
+    free(char_tree->data);
+    free(char_tree);
+    free(char_data->data);
+    free(char_data);
+  
     return 0;
 }

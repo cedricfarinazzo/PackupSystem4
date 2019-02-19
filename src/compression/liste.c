@@ -108,17 +108,12 @@ char *liste_to_string(struct liste *liste)
     char *output = calloc(len + 1, sizeof(char));
     struct element *actual = liste->first;
     int i = 0;
-    printf("Output = ");
     while (actual != NULL)
     {
         output[i] = actual->key;
-        printf("<%d> ", actual->key);
         actual = actual->next;
-        printf("%d | ", output[i]);
         ++i;
     }
-    printf("\n");
-    //free(actual);
     return output;
 }
 
@@ -153,7 +148,6 @@ void del_in(struct element *ele)
 struct huffele *min_pop(struct freqlist *Freq)
 {
     struct element *f_fr = Freq->freq->first;
-    printf("%d\n", Freq->freq->first->key);
     struct element *f_car = Freq->car->first;
     struct element *m_fr = Freq->freq->first;
     struct element *m_car = Freq->car->first;
