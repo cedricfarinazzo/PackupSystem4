@@ -428,14 +428,8 @@ void output_data(struct liste *datai, struct encod_data *output)
     output->data = data;
 }
 
-int main(int argc, char** argv)
+int un_truc_explixcite(char *dataIN[])
 {
-    if (argc != 2)
-    {
-        errx(EXIT_FAILURE, "2 args pls");
-    }
-    char *dataIN = argv[1];
-    
     //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
     //Test exception
