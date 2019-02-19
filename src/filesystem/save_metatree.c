@@ -35,8 +35,7 @@ void FS_save_data(struct meta_data *data, FILE *save)
 {
     if (data->path)
         FS_save_path(data->path, save);
-    if (data->fs)
-        FS_save_stats(data->fs, save);
+    FS_save_stats(data->fs, save);
 }
 
 void FS_save_tree(FILE *save, struct meta_tree *tree)
