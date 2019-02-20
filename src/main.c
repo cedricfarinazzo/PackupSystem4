@@ -19,6 +19,10 @@
 #include "filesystem/build_metatree.h"
 #include "filesystem/save_metatree.h"
 
+#define VERSION "1.0"
+#define DATE "2018-02"
+#define TYPE "release"
+
 // TO MOVE IN FILESYSTEM
 void print_tree(struct meta_tree *tree, int indent)
 {
@@ -57,6 +61,8 @@ int main(int argc, char *argv[])
 
     if (argc == 2)
     {
+        if (strcmp("--version", argv[1]) == 0)
+            printf("Packup System 4 by PS4 %s v%s %s", TYPE, VERSION, DATE);
     }
 
     if (argc == 3)
