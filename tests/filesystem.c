@@ -53,16 +53,26 @@ void cmp_data(struct meta_data *data1, struct meta_data *data2)
 
 void cmp_tree(struct meta_tree *tree1, struct meta_tree *tree2)
 {
-    printf("(p1: %p) (p2: %p)", tree1, tree2);
     if (tree1->data != NULL || tree2->data != NULL)
+    {
         cr_assert_not_null(tree1->data, "tree1->data is null");
         cr_assert_not_null(tree2->data, "tree2->data is null");
         cmp_data(tree1->data, tree2->data);
-    cmp_tree(tree1->son, tree2->son);
+    
+    }
+    if (tree1->son != NULL || tree2->son != NULL)
+    {
+        cr_assert_not_null(tree1->son, "tree1->son is null");
+        cr_assert_not_null(tree2->son, "tree2->son is null");
+        cmp_tree(tree1->son, tree2->son);
+    
+    }
     if (tree1->sibling != NULL || tree2->sibling != NULL)
+    {
         cr_assert_not_null(tree1->sibling, "tree1->sibling is null");
         cr_assert_not_null(tree2->sibling, "tree2->sibling is null");
         cmp_tree(tree1->sibling, tree2->sibling);
+    }
 }
 
 Test(FILESYSTEM, Build_Tree)
