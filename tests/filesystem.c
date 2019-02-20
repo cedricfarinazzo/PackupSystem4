@@ -79,7 +79,7 @@ Test(FILESYSTEM, Build_Tree)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     cr_assert_not_null(tree);
-    //print_tree(tree->son, 0);
+    print_tree(tree->son, 0);
     FILESYSTEM_free_metatree(tree);
 }
 
@@ -89,6 +89,7 @@ Test(FILESYSTEM, save_tree)
     cr_assert_not_null(tree);
     FILESYSTEM_save_metatree(tree, "test_tree_savetree.txt");
     fileexists("test_tree_savetree.txt");
+    FILESYSTEM_free_metatree(tree);
 }
 
 Test(FILESYSTEM, restore_tree)
@@ -100,4 +101,6 @@ Test(FILESYSTEM, restore_tree)
     struct meta_tree *restored = FILESYSTEM_restore_metatree("test_tree_restoretree.txt");
     cr_assert_not_null(restored);
     cmp_tree(tree->son, restored->son);
+    FILESYSTEM_free_metatree(restored);
+    FILESYSTEM_free_metatree(tree);
 }

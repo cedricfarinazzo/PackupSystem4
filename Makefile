@@ -72,7 +72,7 @@ clean:
 	${RM} ${BIN_SUBDIR}
 	${RM} ${BIN_DIR}
 	${RM} ${DEP}
-	${RM} *.gcov *.gcda *.gcno
+	${RM} *.gcov *.gcda *.gcno test_tree*
 	${RM} ${EXE}
 	${RM} ${EXE}_*
 

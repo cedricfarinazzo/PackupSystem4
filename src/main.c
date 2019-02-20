@@ -16,6 +16,33 @@
 
 #include "compression/huffman.h"
 
+#include "filesystem/build_metatree.h"
+#include "filesystem/save_metatree.h"
+
+// TO MOVE IN FILESYSTEM
+void print_tree(struct meta_tree *tree, int indent)
+{
+    char indents[indent + 1];
+    for (int i = 0; i < indent; ++i)
+        indents[i] = ' ';
+    indents[indent] = 0;
+
+    if (tree != NULL)
+    {
+        printf("%spath:%s | ", indents, tree->data->path);
+        printf("size:%ld o | ",  tree->data->fs.st_size);
+        printf("mode: %d | ", tree->data->fs.st_mode);
+        printf("\n");
+
+        struct meta_tree *c = tree->son;
+        while (c)
+        {
+            print_tree(c, indent + 6);
+            c = c->sibling;
+        }
+    }
+}
+
 void print_ascii(char *a)
 {
     for (size_t i = 0; a[i] != 0; ++i)
@@ -38,6 +65,28 @@ int main(int argc, char *argv[])
         {
             char *text = argv[2];
             un_truc_explixcite(text);
+        }
+
+        if (strcmp("filesystem", argv[1]) == 0)
+        {
+            char *path = argv[2];
+
+            struct meta_tree *tree = FILESYSTEM_build_metatree(path);
+            printf("Scanning directory %s ...\n\n", path);
+            printf("TREE:\n");
+            print_tree(tree->son, 0);
+
+            FILESYSTEM_save_metatree(tree, "test_tree_main.txt");
+            printf("\n\nSaving tree to tree_test_main.txt\n");
+
+
+            struct meta_tree *restored = FILESYSTEM_restore_metatree("test_tree_main.txt");
+            printf("\n\nLoading tree to tree_test_main.txt\n");
+            printf("RESTORED TREE: \n");
+            print_tree(restored->son, 0);
+            
+            FILESYSTEM_free_metatree(restored);
+            FILESYSTEM_free_metatree(tree);
         }
     }
 
@@ -86,7 +135,7 @@ int main(int argc, char *argv[])
             AES_encrypt(text, key, &output);
             printf("encrypted text: %s  |   ", output);
             print_ascii(output); printf("\n");
-            
+
             AES_decrypt(output, key, &decrypt);
             printf("encrypted text: %s  |   ", decrypt);
             print_ascii(decrypt); printf("\n");
