@@ -6,6 +6,22 @@
 #include "../src/filesystem/build_metatree.h"
 #include "../src/filesystem/save_metatree.h"
 
+void teardown(void) {
+    remove("test_tree_savetree.txt");
+    remove("test_tree_restoretree.txt");
+}
+
+void fileexists(const char * filename)
+{
+    FILE *file;
+    if ((file = fopen(filename, "r")))
+    {
+        fclose(file);
+        return;
+    } 
+    cr_assert_fail("File not found %s", filename);
+}
+
 void print_tree(struct meta_tree *tree, int indent)
 {
     char indents[indent + 1];
@@ -29,24 +45,28 @@ void print_tree(struct meta_tree *tree, int indent)
     }
 }
 
-int cmp_data(struct meta_data *data1, struct meta_data *data2)
+void cmp_data(struct meta_data *data1, struct meta_data *data2)
 {
-    int cmp = strcmp(data1->path, data2->path);
-    cmp = cmp && (data1->fs.st_atime == data2->fs.st_atime);
-    return cmp;
+    cr_assert_str_eq(data1->path, data2->path);
+    cr_assert(data1->fs.st_atime == data2->fs.st_atime);
 }
 
-int cmp_tree(struct meta_tree *tree1, struct meta_tree *tree2)
+void cmp_tree(struct meta_tree *tree1, struct meta_tree *tree2)
 {
-    int cmp = cmp_data(tree1->data, tree2->data);
-    cmp = cmp && (cmp_tree(tree1->son, tree2->son));
-    cmp = cmp && (cmp_tree(tree1->sibling, tree2->sibling));
-    return cmp;
+    cmp_data(tree1->data, tree2->data);
+    cmp_tree(tree1->son, tree2->son);
+    if (tree1->sibling != NULL && tree2->sibling != NULL)
+        cmp_tree(tree1->sibling, tree2->sibling);
+    else if (tree1->sibling == NULL && tree2->sibling == NULL)
+        return;
+    else
+        cr_assert_fail();
 }
 
 Test(FILESYSTEM, Build_Tree)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
+    cr_assert_not_null(tree);
     print_tree(tree->son, 0);
     FILESYSTEM_free_metatree(tree);
 }
@@ -54,15 +74,18 @@ Test(FILESYSTEM, Build_Tree)
 Test(FILESYSTEM, save_tree)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
-    FILESYSTEM_save_metatree(tree, "savetree");
+    cr_assert_not_null(tree);
+    FILESYSTEM_save_metatree(tree, "test_tree_savetree.txt");
+    fileexists("test_tree_savetree.txt");
 }
 
 Test(FILESYSTEM, restore_tree)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
-    FILESYSTEM_save_metatree(tree, "restoretree");
-    struct meta_tree *restored = FILESYSTEM_restore_metatree("restoretree");
-    int result = cmp_tree(tree->son, restored->son);
-    if (result)
-        printf("Success Restore.\n");
+    cr_assert_not_null(tree);
+    FILESYSTEM_save_metatree(tree, "test_tree_restoretree.txt");
+    fileexists("test_tree_restoretree.txt");
+    struct meta_tree *restored = FILESYSTEM_restore_metatree("test_tree_restoretree.txt");
+    cr_assert_not_null(restored);
+    cmp_tree(tree->son, restored->son);
 }
