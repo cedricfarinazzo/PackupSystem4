@@ -50,7 +50,7 @@ void print_chare(char *output, int len)
 {
     for (int i = 0; i < len; i++)
     {
-        printf("%d", output[i]);
+        printf("%d ", output[i]);
     }
     printf("\n");
 }
@@ -484,8 +484,10 @@ int un_truc_explixcite(char *dataIN)
     //Rendu soutenance
     printf("\n\n");
     printf("Input data = %s\n", dataIN);
-    printf("Output encoding data = %s\n", char_data->data);
-    printf("Output encoding tree = %s\n", char_tree->data);
+    printf("Output encoding data = %s | ", char_data->data);
+    print_chare(char_data->data, char_data->len);
+    printf("Output encoding tree = %s | ", char_tree->data);
+    print_chare(char_tree->data, char_tree->len);
 
     int ratio = strlen(char_data->data) + strlen(char_tree->data);
     ratio *= 100;
