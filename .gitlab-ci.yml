@@ -1,0 +1,71 @@
+image: cedricfarinazzo/archlinux-criterion-c:latest
+
+stages:
+  - build
+  - test
+  - webhook
+
+cache:
+  paths:
+    - bin/
+    - packup
+    - packup_*
+
+job_build_gcc:
+  stage: build
+  before_script:
+    - pacman -Syyu --noconfirm
+  variables:
+      CC: gcc
+  script:
+    - pwd
+    - make clean
+    - make CC=${CC}
+    - make tests/* CC=${CC}
+
+job_build_clang:
+  stage: build
+  before_script:
+    - pacman -Syyu --noconfirm
+  variables:
+      CC: clang
+  script:
+    - pwd
+    - make clean
+    - make CC=${CC}
+    - make tests/* CC=${CC}
+
+job_test_main:
+  stage: test
+  before_script:
+    - pacman -Syyu --noconfirm
+  script:
+    - ./packup --version
+  allow_failure: true
+
+job_test_criterion:
+  stage: test
+  before_script:
+    - pacman -Syyu --noconfirm
+  script:
+    - ls | grep -e "packup_test_[a-z]*$" --color=never | sed -e 's/^/.\//' | sh
+
+job_success:
+    stage: webhook
+    script:
+        - make clean
+        - wget https://gitlab.com/cedricfarinazzo/gitlab-ci-discord-webhook/raw/master/send.sh
+        - chmod +x send.sh
+        - ./send.sh success $WEBHOOK_URL
+    when: on_success
+
+
+job_failure:
+    stage: webhook
+    script:
+        - make clean
+        - wget https://gitlab.com/cedricfarinazzo/gitlab-ci-discord-webhook/raw/master/send.sh
+        - chmod +x send.sh
+        - ./send.sh failure $WEBHOOK_URL
+    when: on_failure
+
