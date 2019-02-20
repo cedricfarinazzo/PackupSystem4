@@ -30,7 +30,8 @@ int main(int argc, char *argv[])
     }
 
     if (argc == 3)
-    {}
+    {
+    }
 
     if (argc == 4)
     {
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
             printf("text: %s   | key: %ld\n", text, key);
 
             ROTN_encrypt(text, key);
-            printf("encrypted text: %s | ", text);
+            printf("encrypted text: %s  |   ", text);
             print_ascii(text); printf("\n");
 
             ROTN_decrypt(text, key);
@@ -57,11 +58,34 @@ int main(int argc, char *argv[])
             printf("text: %s   | key: %s\n", text, key);
 
             VIGENERE_encrypt(text, key);
-            printf("encrypted text: %s | ", text);
+            printf("encrypted text: %s  |   ", text);
             print_ascii(text); printf("\n");
 
             VIGENERE_decrypt(text, key);
             printf("decrypted text: %s\n", text);
+        }
+
+        if (strcmp("aes", argv[1]) == 0)
+        {
+            char *text = argv[2];
+            char *key = argv[3];
+
+            printf("text: %s   | key: %s\n", text, key);
+
+            char *output = NULL;
+            char *decrypt = NULL;
+
+            AES_encrypt(text, key, &output);
+            printf("encrypted text: %s  |   ", output);
+            print_ascii(output); printf("\n");
+            
+            AES_decrypt(output, key, &decrypt);
+            printf("encrypted text: %s  |   ", decrypt);
+            print_ascii(decrypt); printf("\n");
+
+            free(output);
+            free(decrypt);
+
         }
     }
 
@@ -103,7 +127,7 @@ int main(int argc, char *argv[])
 
 
             unsigned char *decode = RSA_decode(pri, encrypt, lentext);
-            
+
             printf("\n\ntext: decode: %s", decode);
 
             for (size_t i = 0; i < lentext; ++i)
