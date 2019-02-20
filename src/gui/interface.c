@@ -24,7 +24,7 @@ int interface(int argc,char *argv[])
 
 
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void on_Close_cliked()
