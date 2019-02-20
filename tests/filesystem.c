@@ -4,6 +4,7 @@
 #include <criterion/criterion.h>
 
 #include "../src/filesystem/build_metatree.h"
+#include "../src/filesystem/save_metatree.h"
 
 void print_tree(struct meta_tree *tree, int indent)
 {
