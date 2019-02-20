@@ -14,6 +14,8 @@
 
 #include "encryption/aes/aes.h"
 
+#include "compression/huffman.h"
+
 void print_ascii(char *a)
 {
     for (size_t i = 0; a[i] != 0; ++i)
@@ -32,6 +34,11 @@ int main(int argc, char *argv[])
 
     if (argc == 3)
     {
+        if (strcmp("huffman", argv[1]) == 0)
+        {
+            char *text = argv[2];
+            un_truc_explixcite(text);
+        }
     }
 
     if (argc == 4)
