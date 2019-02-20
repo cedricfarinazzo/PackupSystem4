@@ -1,0 +1,43 @@
+\documentclass[titlepage, 14px, a4paper]{report}
+
+\input{header.tex}
+
+\begin{document}
+
+\AddToShipoutPicture*{\BackgroundPic}
+
+\maketitle
+\tableofcontents
+
+
+\newpage
+\stepcounter{chapter}
+\part{Introduction}
+    % IN FILE part/intro.tex
+    \input{part/intro.tex}
+    \newpage 
+
+\stepcounter{chapter}
+\part{Le groupe}
+    % IN FILE part/groupe.tex
+    \input{part/groupe.tex}
+    \newpage 
+
+\stepcounter{chapter}
+\part{Le projet}
+    % IN FILE part/projet.tex
+    \input{part/projet.tex}
+    \newpage 
+
+\stepcounter{chapter}
+\part{Conclusion}
+    % IN FILE part/conclu.tex
+    \input{part/conclu.tex}
+    \newpage 
+
+%stepcounter{chapter}
+%part{Annexes}
+    % IN FILE part/annexes.tex
+%   \input{part/annexes.tex} 
+
+\end{document}
