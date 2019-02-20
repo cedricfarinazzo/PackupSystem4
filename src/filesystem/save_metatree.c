@@ -93,7 +93,7 @@ char FS_restore_inheritance(FILE *file)
 
 struct meta_tree *FS_restore_tree(FILE *file)
 {
-    struct meta_tree *tree = malloc(sizeof(struct meta_tree));
+    struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
     tree->data = FS_restore_data(file);
     char inheritance = FS_restore_inheritance(file);
     if (inheritance & FILESYSTEM_TREE_HAS_SON)
