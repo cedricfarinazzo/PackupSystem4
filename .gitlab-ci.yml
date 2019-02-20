@@ -40,7 +40,7 @@ job_test_main:
   before_script:
     - pacman -Syyu --noconfirm
   script:
-    - ./packup
+    - ./packup --version
   allow_failure: true
 
 job_test_criterion:
