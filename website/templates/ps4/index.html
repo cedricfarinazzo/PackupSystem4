@@ -1,11 +1,40 @@
 {% extends 'ps4/layout.html' %}
 
 {% block content %}
-  <h1 class="center">Home</h1>
-  <div class="divide"></<div>
-  <div class="container">
-    
-  </div>  
+    <h1 class="center">Home</h1>
+    <div class="divide"></div>
+    <div class="container">
+        <h3 class="center"> Build Status </h3>
+    	<table class="striped centered responsive-table">
+    		<thead>
+    			<tr>
+    				<th>Branch</th>
+    				<th>Status</th>
+    				<th>Description</th>
+    			</tr>
+    		</thead>
+    		<tbody>
+    			<tr>
+    		        	<td>master</td>
+    				<td>
+                                    <a href="https://gitlab.com/ps4-epita/packupsystem4/commits/master">
+                                        <img alt="pipeline status" src="https://gitlab.com/ps4-epita/packupsystem4/badges/master/pipeline.svg" />
+                                    </a>
+    				</td>
+    	    			<td>Release branch</td>
+    			</tr>
+    			<tr>
+    				<td>develop</td>
+    				<td>
+                                    <a href="https://gitlab.com/ps4-epita/packupsystem4/commits/develop">
+                                        <img alt="pipeline status" src="https://gitlab.com/ps4-epita/packupsystem4/badges/develop/pipeline.svg" />
+                                    </a>
+    				</td>
+    				<td>Development branch</td>
+	    		</tr>
+		</tbody>
+            </table>
+    </div>  
 
 
 {% endblock %}
