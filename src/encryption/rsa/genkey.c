@@ -11,17 +11,17 @@ mpz_t *prime_founder(mpz_t a, mpz_t debut)
 
     while (mpz_cmp(debut, a) <= 0)
     {
-        
         mpz_t pg;
         mpz_init(pg);
         mpz_gcd(pg, a, debut);
         if (mpz_cmp_ui(pg, 1) == 0)
         {
+            mpz_clear(pg);
             mpz_set(*r, debut);
             return r;
         }
         mpz_add_ui(debut, debut, 1);
-
+        mpz_clear(pg);
     }
     
     mpz_set_si(*r, -1);
@@ -41,19 +41,17 @@ mpz_t *mod_founder(mpz_t e, mpz_t phi, mpz_t d)
         mpz_mod(pg, pg, phi);
         if (mpz_cmp_ui(pg, 1) == 0)
         {
+            mpz_clear(pg);
             mpz_set(*r, d);
             return r;
         }
 
         mpz_add_ui(d, d, 1);
+        mpz_clear(pg);
     }
 
     mpz_set_si(*r, -1);
     return r;
-
-
-    mpz_add_ui(d, d, 1);
-    return mod_founder(e, phi, d);
 }
 
 struct RSA_publickey *RSA_gen_public_key(mpz_t p, mpz_t q)
@@ -82,6 +80,8 @@ struct RSA_publickey *RSA_gen_public_key(mpz_t p, mpz_t q)
     mpz_t *e = prime_founder(phi, mi);
 
     mpz_clear(mi);
+    mpz_clear(p1);
+    mpz_clear(q1);
 
     mpz_t *ns = malloc(sizeof(mpz_t));
     mpz_init(*ns);
@@ -92,6 +92,7 @@ struct RSA_publickey *RSA_gen_public_key(mpz_t p, mpz_t q)
     public->n = ns;
 
     mpz_clear(phi);
+    mpz_clear(n);
 
     return public;
 }
@@ -132,12 +133,15 @@ struct RSA_privatekey *RSA_gen_private_key(mpz_t p, mpz_t q, struct RSA_publicke
     mpz_t *d = mod_founder(*(public->e), phi, mi);
 
     mpz_clear(mi);
+    mpz_clear(p1);
+    mpz_clear(q1);
 
     mpz_t *ns = malloc(sizeof(mpz_t));
     mpz_init(*ns);
     mpz_set(*ns, n);
 
     mpz_clear(phi);
+    mpz_clear(n);
 
     struct RSA_privatekey *private = malloc(sizeof(struct RSA_privatekey));
     private->d = d;

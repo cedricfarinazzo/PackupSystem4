@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     if (argc == 2)
     {
         if (strcmp("--version", argv[1]) == 0)
-            printf("Packup System 4 by PS4 %s v%s %s", TYPE, VERSION, DATE);
+            printf("Packup System 4 by PS4 %s v%s %s\n", TYPE, VERSION, DATE);
     }
 
     if (argc == 3)
@@ -166,11 +166,12 @@ int main(int argc, char *argv[])
             mpz_set_ui(p, lp);
             mpz_set_ui(q, lq);
 
-            printf("text: %s (size: %ld\np: %ld     | q: %ld\n", text, lentext, lp, lq);
+            printf("text: %s (size: %ld)\np: %ld     | q: %ld\n", text, lentext, lp, lq);
 
             struct RSA_publickey *pub = RSA_gen_public_key(p, q);
             struct RSA_privatekey *pri = RSA_gen_private_key(p, q, pub);
 
+            
             printf("public: n = ");
             mpz_out_str(stdout,10, *(pub->n));
             printf("   e = ");
@@ -191,17 +192,18 @@ int main(int argc, char *argv[])
 
             unsigned char *decode = RSA_decode(pri, encrypt, lentext);
 
-            printf("\n\ntext: decode: %s\n", decode);
+            printf("\n\ndecode text: %s\n", decode);
 
             for (size_t i = 0; i < lentext; ++i)
                 mpz_clear(encrypt[i]);
             free(encrypt);
 
+            free(decode);
+            
             RSA_free_public_key(pub);
             RSA_free_private_key(pri);
             mpz_clear(p);
             mpz_clear(q);
-            free(decode);
 
         }
     }

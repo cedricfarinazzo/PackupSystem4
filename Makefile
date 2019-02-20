@@ -16,7 +16,7 @@ CPPFLAGS=-MMD
 LDFLAGS=
 LDLIBS=-lm -lgmp ${GTK_LDLIBS}
 
-DEBUG=-g3 #-fsanitize=address -g3
+DEBUG=-fsanitize=address -g3
 RELEASE=-Ofast -march=native
 MOD=${DEBUG}
 
