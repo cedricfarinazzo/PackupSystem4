@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
             mpz_t *encrypt = RSA_encode(pub, (unsigned char*)text, lentext);
             printf("\nencode data: ");
             for (size_t i = 0; i < lentext; ++i)
-                gmp_printf("%A ", encrypt[i]);
+                gmp_printf("%#Zx ", encrypt[i]);
 
 
             unsigned char *decode = RSA_decode(pri, encrypt, lentext);
