@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
             print_tree(tree->son, 0);
 
             FILESYSTEM_save_metatree(tree, "test_tree_main.txt");
-            printf("\n\nSaving tree to tree_test_main.txt\n");
+            printf("\n\nSaving tree from tree_test_main.txt\n");
 
 
             struct meta_tree *restored = FILESYSTEM_restore_metatree("test_tree_main.txt");
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 
             unsigned char *decode = RSA_decode(pri, encrypt, lentext);
 
-            printf("\n\ntext: decode: %s", decode);
+            printf("\n\ntext: decode: %s\n", decode);
 
             for (size_t i = 0; i < lentext; ++i)
                 mpz_clear(encrypt[i]);
