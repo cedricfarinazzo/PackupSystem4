@@ -17,7 +17,7 @@ void FILESYSTEM_save_file_content(FILE *src, FILE *dst)
         total = w;
         while (total < r)
         {
-            w = frwite(buf, 1, r - total, dst);
+            w = fwrite(buf, 1, r - total, dst);
             total += w;
         }
         len += total;
@@ -36,6 +36,7 @@ char *FILESYSTEM_load_file_content(FILE *file, off_t offset)
     *content = 0;
     char buf[2048];
     size_t total = 0;
+    int r;
     while (total < len)
     {
         if (total + 2048 > len)
