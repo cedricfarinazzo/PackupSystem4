@@ -14,7 +14,7 @@ void free_freqlist(struct freqlist *Freqlist)
         liste_free(Freqlist->freq);
     }
     if (Freqlist->car != NULL)
-    {
+    
         liste_free(Freqlist->car);
     }
     free(Freqlist);
@@ -94,7 +94,7 @@ void print_bintree(struct bintree *tree)
 {
     if (tree != NULL)
     {
-        char tmp = tree->key;
+        unsigned char tmp = tree->key;
         printf("%d\n", tmp);
         printf("Passage a gauche\n");
         print_bintree(tree->left);
@@ -159,7 +159,7 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
 }
 
 void __codage_table(struct liste *table, struct liste *prefixe,
-        struct bintree *pt, char pref)
+        struct bintree *pt, unsigned char pref)
 {
     insert(prefixe, pref);
     if (pt->left == NULL && pt->right == NULL)
@@ -184,7 +184,7 @@ void codage_table(struct bintree *huffman, struct liste *table)
     liste_free(prefixe);
 }
 
-struct liste *encode_data(char dataIN[], char* table, int len)
+struct liste *encode_data(unsigned char dataIN[], unsigned char* table, int len)
 {
     if (dataIN == NULL)
     {
@@ -193,7 +193,7 @@ struct liste *encode_data(char dataIN[], char* table, int len)
     int datalen = strlen(dataIN);
     int isOK = 1;
     int j = 0;
-    char charactere = 'a';
+    unsigned char charactere = 'a';
     struct liste *text_encode = new_liste();
     for (int i = 0; i < datalen; i++)
     {
@@ -255,25 +255,25 @@ struct liste *_to_bin(char n)
     while (i != 8)
     {
         output->first->prec = malloc(sizeof(struct element));
-	output->first->prec->key = 0;
-	output->first->prec->prec = NULL;
-	output->first->prec->next = output->first;
-	output->first = output->first->prec;
-	++i;
+	    output->first->prec->key = 0;
+	    output->first->prec->prec = NULL;
+	    output->first->prec->next = output->first;
+	    output->first = output->first->prec;
+	    ++i;
     }
     return output;
 }
 
 void __codage_tree(struct liste *table, struct liste *prefixe,
-        struct bintree *pt, char pref)
+        struct bintree *pt, unsigned char pref)
 {
   
     insert(prefixe, pref);
     if (pt->left == NULL && pt->right == NULL)
     {
-	struct liste *temp = _to_bin(pt->key);
+	    struct liste *temp = _to_bin(pt->key);
         insertr(table, temp);
-	liste_free(temp);
+	    liste_free(temp);
         inserts(table, prefixe, 2);
         del_last(prefixe);
     }
@@ -300,7 +300,7 @@ int max_prof(struct bintree *H)
     while(H->right != NULL)
     {
         ++max;
-	H = H->right;
+        H = H->right;
     }
     return max;
 }
@@ -310,9 +310,9 @@ void output_tree(struct liste *table, struct encod_tree *output, struct bintree 
     int len_data = len_list(table);
     if (len_data % 8 != 0){len_data = (len_data / 8) + 1;}
     else {len_data = len_data / 8;}
-    char *data = calloc(len_data + 1, sizeof(char));
-    char *buf = malloc(sizeof(char) * 8);
-    char tmp = 0;
+    unsigned char *data = calloc(len_data + 1, sizeof(unsigned char));
+    unsigned char *buf = malloc(sizeof(unsigned char) * 8);
+    unsigned char tmp = 0;
     int i = 0;
     int c = 0;
     struct element *actual = table->first;
@@ -364,29 +364,29 @@ void output_data(struct liste *datai, struct encod_data *output)
     while (actual != NULL)
     {
         if (actual->key != 0 && actual->key != 1)
-	{
+    	{
             liste_temp = _to_bin(actual->key);
-	    temporaire = actual->next;
-	    actual->prec->next = liste_temp->first;
-	    actual->next->prec = liste_temp->last;
-	    liste_temp->first->prec = actual->prec;
-	    liste_temp->last->next = actual->next;
+            temporaire = actual->next;
+            actual->prec->next = liste_temp->first;
+            actual->next->prec = liste_temp->last;
+            liste_temp->first->prec = actual->prec;
+            liste_temp->last->next = actual->next;
             actual->next = NULL;
-	    actual->prec = NULL;
-	    free(actual);
-	    actual = temporaire;
-	}
-	else
-	{
-	    actual = actual->next;
-	}
+            actual->prec = NULL;
+            free(actual);
+            actual = temporaire;
+        }
+	    else
+	    {
+	        actual = actual->next;
+        }
     }
     int len_data = len_list(datai);
     if (len_data % 8 != 0){len_data = (len_data / 8) + 1;}
     else {len_data = len_data / 8;}
-    char *data = calloc(len_data + 1, sizeof(char));
-    char *buf = malloc(sizeof(char) * 8);
-    char tmp = 0;
+    unsigned char *data = calloc(len_data + 1, sizeof(char));
+    unsigned char *buf = malloc(sizeof(char) * 8);
+    unsigned char tmp = 0;
     int i = 0;
     int c = 0;
     actual = datai->first;
@@ -428,7 +428,7 @@ void output_data(struct liste *datai, struct encod_data *output)
     output->data = data;
 }
 
-int un_truc_explixcite(char *dataIN)
+int un_truc_explixcite(unsigned char *dataIN)
 {
     //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
@@ -461,7 +461,7 @@ int un_truc_explixcite(char *dataIN)
 
     //Passage de la table en static
     int len_table = len_list(table);
-    char* static_table = liste_to_string(table);
+    unsigned char* static_table = liste_to_string(table);
     //Fin table statique
 
     //Debut encodage donnees
@@ -505,4 +505,137 @@ int un_truc_explixcite(char *dataIN)
     free(char_data);
   
     return 0;
+}
+
+void insert_inplace(struct element *prec, struct element *next,
+struct liste *liste, char n)
+{
+    if (prec == NULL)
+    {
+        if (next == NULL)
+        {
+            liste->first = malloc(sizeof(struct element));
+            liste->last = liste->premier;
+            liste->first->next = NULL;
+            liste->first->prec = NULL;
+            liste->first->key = n;
+        }
+        else
+        {
+            next->prec = malloc(sizeof(struct element));
+            next->prec->prec = NULL;
+            next->prec->next-> next;
+            next->prec->key = n;
+            liste->first = next->prec;
+        }
+    } else if (next == NULL)
+    {
+        prec->next = malloc(sizeof(struct element));
+        prec->next->prec = prec;
+        prec->next->next = NULL;
+        prec->next->key = n;
+        liste->last = prec->next;
+    }
+    else
+    {
+        prec->next = malloc(sizeof(struct element));
+        prec->next->prec = prec;
+        prec->next->next = next;
+        prec->next->key = n;
+        next->prec = prec->next;
+    }
+}
+void liste_bin_to_char(struct liste *liste, struct element *debut)
+{
+    unsigned char n = 0;
+    for (int i = 7; i >= 0; --i)
+    {
+        n += (debut->key * pow(2, i);
+        debut = debut->next;
+        del_in(debut->prec);
+    }
+    insert_inplace(debut, debut->next, liste, n);
+}
+
+unsigned char bin_to_char(unsigned char *data, int actual)
+{
+    unsigned char bin = 0;
+    for (int i = 7; i >= 0; --i)
+    {
+        n += (data[actual] * pow(2, i));
+        ++actual;
+    }
+    return bin;
+}
+
+int rebuild_tree(unsigned char *data, int actual, unsigned char key,
+    struct bintree *huffman, int prof)
+{
+    int act_prof = 1;
+    struct bintree huff_act = huffman;
+    while (prof != act_prof)
+    {
+        if (data[actual] == 0 && huff_act->left == NULL)
+        {
+            insert_left(*huff_act, 0);
+            huff_act = huff_act->left;
+        }
+        if (data[actual] == 1 && huff_act->right == NULL)
+        {
+            insert_right(*huff_act, 0);
+            huff_act = huff_act->right;
+        }
+        ++act_prof;
+        ++actual;
+    }
+    if (data[actual] == 0 && huff_act->left == NULL)
+    {
+        insert_left(*huff_act, key);
+    }
+    if (data[actual] == 1 && huff_act->right == NULL)
+    {
+        insert_right(*huff_act, key);
+    }
+    else
+        errx(EXIT_FAILURE, "Probleme pendant l'insertion de la cle");
+    return actual + 1;
+}
+
+void decode_tree(char *data, int len, int prof, char align)
+{
+    int actuel = 0;
+    int actuel_prof = 2;
+    struct bintree *huffmantree = new_tree(0);
+    unsigned char key;
+    while (actuel_prof < prof)
+    {
+        key = bin_to_char(data, actuel);
+        actuel += 8;
+        actuel = rebuild_tree(data, actuel, huffmantree, actuel_prof);
+        key = bin_to_char(data, actuel);
+        actuel += 8;
+        actuel = rebuild_tree(data, actuel, huffmantree, actuel_prof);
+    }
+    while (actuel < (len - align))
+    {
+        key = bin_to_char(data, actuel);
+        actuel += 8;
+        if (((len - align) - actuel) <= prof)
+        {
+            if (((len - align) - actuel) < prof)
+                errx(EXIT_FAILURE, "Probleme sur la structude de data_tree");
+            int end_data[prof];
+            for (int i = 0; i < prof; ++i)
+            {
+                end_data[i] = data[actuel];
+                ++actuel;
+            }
+            actuel_prof = rebuild_tree(end_data, 0, key, huffman, prof);
+        }
+    }
+}
+
+int decompression(int argc, char **argv)
+{
+    
 }
