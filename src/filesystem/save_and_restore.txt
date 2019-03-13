@@ -15,7 +15,17 @@ Sixth: You have your new .rdtgs
 
 Restore:
 
-First: load last unmarked .rdtgs meta_tree
-Second: restore the files saved in it and mark them
-Third: go back to first if there are still .rdtgs unmarked
-Fourth: You have restored it all
+First: open save dir
+Second: list all save file stats
+Third: sort the list based on time (latest save last)
+Fourth: restore each save one by one until you get to the one you want to restore
+Fifth: You have restored it
+
+To restore a save:
+
+First: load the tree
+Second: for each node, if there's an offset, overwrite the file it represents if 
+        it exists, else create it and write in it
+        if node represents a directory, create it if it does not exist, else, 
+        ignore it
+Third: you have restored it
