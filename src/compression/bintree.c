@@ -33,34 +33,32 @@ struct binlist *new_binlist()
 }
 
 void insert_right(struct bintree *b, char n) {
-    struct bintree *b_right = malloc(sizeof(struct bintree));
-    if (b_right != NULL)
+    b->right = malloc(sizeof(struct bintree));
+    if (b->right != NULL)
     {
-        b_right->key = n;
-        b_right->left = NULL;
-        b_right->right = NULL;
+        b->right->key = n;
+        b->right->left = NULL;
+        b->right->right = NULL;
     }
     else
     {
         errx(1, "No free memory !");
     }
-    b->right = b_right;
 }
 
 void insert_left(struct bintree *b, char n)
 {
-    struct bintree *b_left = malloc(sizeof(struct bintree));
-    if (b_left != NULL)
+    b->left = malloc(sizeof(struct bintree));
+    if (b->left != NULL)
     {
-        b_left->key = n;
-        b_left->left = NULL;
-        b_left->right = NULL;
+        b->left->key = n;
+        b->left->left = NULL;
+        b->left->right = NULL;
     }
     else
     {
         errx(1, "No free memory !");
     }
-    b->left = b_left;
 }
 
 void insert_binlist(struct binlist *l, struct bintree *b)

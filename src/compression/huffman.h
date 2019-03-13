@@ -25,9 +25,9 @@ void output_tree(struct liste *table, struct encod_tree *output, struct bintree 
 
 void output_data(struct liste *datai, struct encod_data *output);
 
-//int compression(echar *dataIN);
+int compression(unsigned char *dataIN);
 
-int compression(int argc, char **argv);
+//int compression(int argc, char **argv);
 
-int decompression(int argc, char **argv);
+int main(int argc, char **argv);
 #endif /*_SRC_COMPRESSION_HUFFMAN_H_*/

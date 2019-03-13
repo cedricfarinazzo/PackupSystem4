@@ -14,7 +14,7 @@ void free_freqlist(struct freqlist *Freqlist)
         liste_free(Freqlist->freq);
     }
     if (Freqlist->car != NULL)
-    
+    {
         liste_free(Freqlist->car);
     }
     free(Freqlist);
@@ -46,7 +46,7 @@ void print_listes(struct liste *listee)
     printf("\n");
 }
 
-void print_chare(char *output, int len)
+void print_chare(unsigned char *output, int len)
 {
     for (int i = 0; i < len; i++)
     {
@@ -57,7 +57,7 @@ void print_chare(char *output, int len)
 
 //Compression
 
-struct freqlist* buildFrequenceList(char dataIN[])
+struct freqlist* buildFrequenceList(unsigned char dataIN[])
 {
     struct liste *charList = new_liste();
     struct liste *frequencyList = new_liste();
@@ -206,7 +206,7 @@ struct liste *encode_data(unsigned char dataIN[], unsigned char* table, int len)
                 j++;
                 while (j < len && (table[j] == 0 || table[j] == 1))
                 {
-		    insert(text_encode, table[j]);
+		            insert(text_encode, table[j]);
                     j++;
                 }
                 isOK = 0;
@@ -428,7 +428,7 @@ void output_data(struct liste *datai, struct encod_data *output)
     output->data = data;
 }
 
-int un_truc_explixcite(unsigned char *dataIN)
+int compress(unsigned char *dataIN)
 {
     //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
@@ -557,7 +557,7 @@ void liste_bin_to_char(struct liste *liste, struct element *debut)
     insert_inplace(debut, debut->next, liste, n);
 }
 
-unsigned char bin_to_char(unsigned char *data, int actual)
+unsigned char bin_to_char(char *data, int actual)
 {
     unsigned char bin = 0;
     for (int i = 7; i >= 0; --i)
@@ -568,7 +568,7 @@ unsigned char bin_to_char(unsigned char *data, int actual)
     return bin;
 }
 
-int rebuild_tree(unsigned char *data, int actual, unsigned char key,
+int rebuild_tree(char *data, int actual, unsigned char key,
     struct bintree *huffman, int prof)
 {
     int act_prof = 1;
@@ -611,10 +611,10 @@ void decode_tree(char *data, int len, int prof, char align)
     {
         key = bin_to_char(data, actuel);
         actuel += 8;
-        actuel = rebuild_tree(data, actuel, huffmantree, actuel_prof);
+        actuel = rebuild_tree(data, actuel, key,  huffmantree, actuel_prof);
         key = bin_to_char(data, actuel);
         actuel += 8;
-        actuel = rebuild_tree(data, actuel, huffmantree, actuel_prof);
+        actuel = rebuild_tree(data, actuel, key, huffmantree, actuel_prof);
     }
     while (actuel < (len - align))
     {
@@ -635,7 +635,51 @@ void decode_tree(char *data, int len, int prof, char align)
     }
 }
 
-int decompression(int argc, char **argv)
+int main(int argc, char **argv)
 {
+    if (argc != 3)
+        errx(EXIT_FAILURE, "Erreur nombre d'argument");
+    unsigned char *data[] = argv[1];
+    int len_data = argv[2];
+
+    int actual = 1;
+    if (data[0] != 1)
+        errx(EXIT_FAILURE, "Programme en cours de realisation");
     
+    struct encod_tree *huffman_cp = malloc(sizeof(struct encod_tree));
+    huffman_cp->prof = 0;
+    huffman_cp->len = 0;
+
+    //Construction de tree align - par nature align < 8
+    huffman_cp->align = data[actual];
+    ++actual;
+
+    //Construction de tree prof - par nature prof < 256
+    huffman_cp->prof += ((int)data[actual++] * 100);
+    huffman_cp->prof += ((int)data[actual++] * 10);
+    huffman_cp->prof += (int)data[actual++];
+
+    //Construction tree longueur - On part sur len < 10 000
+    huffman_cp->len += ((int)data[actual++] * 1000);
+    huffman_cp->len += ((int)data[actual++] * 100);
+    huffman_cp->len += ((int)data[actual++] * 10);
+    huffman_cp->len += (int)data[actual++];
+
+    huffman_cp->data = (data[actual]);
+
+    struct encod_data *data_cp = malloc(sizeof(struct encod_data));
+    data_cp->len = 0;
+
+    //Construction de data align - par nature align < 8
+    data_cp->align = (int)data[actual++];
+
+    //Construction de tree len - On part sur len < 10 000
+    data_cp->len += ((int)data[actual++] * 1000);
+    data_cp->len += ((int)data[actual++] * 100);
+    data_cp->len += ((int)data[actual++] * 10);
+    data_cp->len += (int)data[actual++];
+
+    data_cp->data = (data[actual]);
+    ++actual;
+    return 0;
 }
