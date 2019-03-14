@@ -7,7 +7,8 @@
 #include <stdio.h>
 
 
-struct liste *new_liste() {
+struct liste *new_liste()
+{
     struct liste *l_new = malloc(sizeof(struct liste));
     if (l_new != NULL)
     {
@@ -102,10 +103,10 @@ void del_last(struct liste *Liste)
     }
 }
 
-char *liste_to_string(struct liste *liste)
+unsigned char *liste_to_string(struct liste *liste)
 {
     int len = len_list(liste);
-    char *output = calloc(len + 1, sizeof(char));
+    unsigned char *output = calloc(len + 1, sizeof(unsigned char));
     struct element *actual = liste->first;
     int i = 0;
     while (actual != NULL)

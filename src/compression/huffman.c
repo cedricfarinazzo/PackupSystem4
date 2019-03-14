@@ -190,7 +190,7 @@ struct liste *encode_data(unsigned char dataIN[], unsigned char* table, int len)
     {
         errx(4, "The data is empty");
     }
-    int datalen = strlen(dataIN);
+    int datalen = strlen((char *)dataIN);
     int isOK = 1;
     int j = 0;
     unsigned char charactere = 'a';
@@ -428,7 +428,7 @@ void output_data(struct liste *datai, struct encod_data *output)
     output->data = data;
 }
 
-int compress(unsigned char *dataIN)
+void compress(unsigned char *dataIN)
 {
     //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
@@ -489,9 +489,9 @@ int compress(unsigned char *dataIN)
     printf("Output encoding tree = %s | ", char_tree->data);
     print_chare(char_tree->data, char_tree->len);
 
-    int ratio = strlen(char_data->data) + strlen(char_tree->data);
+    int ratio = char_data->len + char_tree->len;
     ratio *= 100;
-    ratio = ratio / strlen(dataIN);
+    ratio = ratio / strlen((char *)dataIN);
     printf("Ratio = %d%%\n", ratio);
 
     //Deallocation de toutes les struct
@@ -503,8 +503,6 @@ int compress(unsigned char *dataIN)
     free(char_tree);
     free(char_data->data);
     free(char_data);
-  
-    return 0;
 }
 
 void insert_inplace(struct element *prec, struct element *next,
@@ -515,7 +513,7 @@ struct liste *liste, char n)
         if (next == NULL)
         {
             liste->first = malloc(sizeof(struct element));
-            liste->last = liste->premier;
+            liste->last = liste->first;
             liste->first->next = NULL;
             liste->first->prec = NULL;
             liste->first->key = n;
@@ -524,7 +522,7 @@ struct liste *liste, char n)
         {
             next->prec = malloc(sizeof(struct element));
             next->prec->prec = NULL;
-            next->prec->next-> next;
+            next->prec->next = next;
             next->prec->key = n;
             liste->first = next->prec;
         }
@@ -550,7 +548,7 @@ void liste_bin_to_char(struct liste *liste, struct element *debut)
     unsigned char n = 0;
     for (int i = 7; i >= 0; --i)
     {
-        n += (debut->key * pow(2, i);
+        n += (debut->key * pow(2, i));
         debut = debut->next;
         del_in(debut->prec);
     }
@@ -559,30 +557,30 @@ void liste_bin_to_char(struct liste *liste, struct element *debut)
 
 unsigned char bin_to_char(char *data, int actual)
 {
-    unsigned char bin = 0;
+    unsigned char n = 0;
     for (int i = 7; i >= 0; --i)
     {
         n += (data[actual] * pow(2, i));
         ++actual;
     }
-    return bin;
+    return n;
 }
 
 int rebuild_tree(char *data, int actual, unsigned char key,
     struct bintree *huffman, int prof)
 {
     int act_prof = 1;
-    struct bintree huff_act = huffman;
+    struct bintree *huff_act = huffman;
     while (prof != act_prof)
     {
         if (data[actual] == 0 && huff_act->left == NULL)
         {
-            insert_left(*huff_act, 0);
+            insert_left(huff_act, 0);
             huff_act = huff_act->left;
         }
         if (data[actual] == 1 && huff_act->right == NULL)
         {
-            insert_right(*huff_act, 0);
+            insert_right(huff_act, 0);
             huff_act = huff_act->right;
         }
         ++act_prof;
@@ -590,11 +588,11 @@ int rebuild_tree(char *data, int actual, unsigned char key,
     }
     if (data[actual] == 0 && huff_act->left == NULL)
     {
-        insert_left(*huff_act, key);
+        insert_left(huff_act, key);
     }
     if (data[actual] == 1 && huff_act->right == NULL)
     {
-        insert_right(*huff_act, key);
+        insert_right(huff_act, key);
     }
     else
         errx(EXIT_FAILURE, "Probleme pendant l'insertion de la cle");
@@ -624,23 +622,24 @@ void decode_tree(char *data, int len, int prof, char align)
         {
             if (((len - align) - actuel) < prof)
                 errx(EXIT_FAILURE, "Probleme sur la structude de data_tree");
-            int end_data[prof];
+            char end_data[prof];
             for (int i = 0; i < prof; ++i)
             {
-                end_data[i] = data[actuel];
+                *(end_data + i) = data[actuel];
                 ++actuel;
             }
-            actuel_prof = rebuild_tree(end_data, 0, key, huffman, prof);
+            actuel_prof = rebuild_tree(end_data, 0, key, huffmantree, prof);
         }
     }
 }
 
-int main(int argc, char **argv)
+//int main(int argc, char **argv)
+void decompression(unsigned char *data, int len_data)
 {
-    if (argc != 3)
-        errx(EXIT_FAILURE, "Erreur nombre d'argument");
-    unsigned char *data[] = argv[1];
-    int len_data = argv[2];
+//    if (argc != 3)
+//        errx(EXIT_FAILURE, "Erreur nombre d'argument");
+//    unsigned char *data = (unsigned char *)(argv[1]);
+//    int len_data = argv[2];
 
     int actual = 1;
     if (data[0] != 1)
@@ -665,7 +664,7 @@ int main(int argc, char **argv)
     huffman_cp->len += ((int)data[actual++] * 10);
     huffman_cp->len += (int)data[actual++];
 
-    huffman_cp->data = (data[actual]);
+    huffman_cp->data = &(data[actual]);
 
     struct encod_data *data_cp = malloc(sizeof(struct encod_data));
     data_cp->len = 0;
@@ -679,7 +678,7 @@ int main(int argc, char **argv)
     data_cp->len += ((int)data[actual++] * 10);
     data_cp->len += (int)data[actual++];
 
-    data_cp->data = (data[actual]);
+    data_cp->data = &(data[actual]);
     ++actual;
-    return 0;
+//    return 0;
 }

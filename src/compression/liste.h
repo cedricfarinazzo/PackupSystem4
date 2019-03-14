@@ -19,7 +19,7 @@ void inserts(struct liste *Liste, struct liste *n, int c);
 
 void del_last(struct liste *Liste);
 
-char *liste_to_string(struct liste *liste);
+unsigned char *liste_to_string(struct liste *liste);
 
 void del_in(struct element *ele);
 

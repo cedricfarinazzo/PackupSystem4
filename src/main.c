@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
     {
         if (strcmp("huffman", argv[1]) == 0)
         {
-            char *text = argv[2];
-            un_truc_explixcite(text);
+            unsigned char *text = (unsigned char *)(argv[2]);
+            compression(text);
         }
 
         if (strcmp("filesystem", argv[1]) == 0)
