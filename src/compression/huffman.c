@@ -108,10 +108,11 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
     //Sorting liste
     struct liste *charsort = new_liste();
     struct liste *freqsort = new_liste();
-    struct huffele *temp;
+    struct huffele *temp = malloc(sizeof(struct huffele));;
     while(Freq->freq->first != NULL)
     {
-        temp = min_pop(Freq);
+        min_pop(Freq, temp);
+//        temp = min_pop(Freq);
         insert(charsort, temp->car);
         insert(freqsort, temp->freq);
     }
@@ -155,6 +156,9 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
     }
     //struct bintree *test = H;
     //print_bintree(test);
+    free(temp);
+    liste_free(freqsort);
+    liste_free(charsort);
     return H;
 }
 
@@ -353,6 +357,7 @@ void output_tree(struct liste *table, struct encod_tree *output, struct bintree 
     output->prof = max_prof(H);
     output->len = len_data;
     output->data = data;
+    free(buf);
 }
 
 void output_data(struct liste *datai, struct encod_data *output)
@@ -384,7 +389,8 @@ void output_data(struct liste *datai, struct encod_data *output)
     int len_data = len_list(datai);
     if (len_data % 8 != 0){len_data = (len_data / 8) + 1;}
     else {len_data = len_data / 8;}
-    unsigned char *data = calloc(len_data + 1, sizeof(char));
+    output->data = calloc(len_data + 1, sizeof(unsigned char));
+    //unsigned char *data = calloc(len_data + 1, sizeof(char));
     unsigned char *buf = malloc(sizeof(char) * 8);
     unsigned char tmp = 0;
     int i = 0;
@@ -401,7 +407,7 @@ void output_data(struct liste *datai, struct encod_data *output)
 	        tmp += (pow(2, j) * buf[i]);
 		--i;
 	    }
-	    data[c] = tmp;
+	    output->data[c] = tmp;
 	    ++c;
 	    i = 0;
 	}
@@ -425,10 +431,10 @@ void output_data(struct liste *datai, struct encod_data *output)
     }
     output->align = align;
     output->len = len_data;
-    output->data = data;
+    free(buf);
 }
 
-void compress(unsigned char *dataIN)
+void compression(unsigned char *dataIN)
 {
     //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
@@ -503,6 +509,7 @@ void compress(unsigned char *dataIN)
     free(char_tree);
     free(char_data->data);
     free(char_data);
+    free(static_table);
 }
 
 void insert_inplace(struct element *prec, struct element *next,

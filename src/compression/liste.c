@@ -40,22 +40,31 @@ int len_list(struct liste *liste)
 
 void insert(struct liste *liste, char n)
 {
-    struct element *n_ele = malloc(sizeof(struct element));
-    n_ele->key = n;
+    //struct element *n_ele = malloc(sizeof(struct element));
+    //n_ele->key = n;
 
     if (liste->first == NULL)
     {
-        n_ele->prec = NULL;
-        n_ele->next = NULL;
-        liste->first = n_ele;
-        liste->last = n_ele;
+        //n_ele->prec = NULL;
+        //n_ele->next = NULL;
+        liste->first = malloc(sizeof(struct element));
+        liste->first->key = n;
+        liste->first->prec = NULL;
+        liste->first->next = NULL;
+        //liste->first = n_ele;
+        liste->last = liste->first;
     }
     else
     {
-        n_ele->prec = liste->last;
-        n_ele->next = NULL;
-        liste->last->next = n_ele;
-        liste->last = n_ele;
+        liste->last->next = malloc(sizeof(struct element));
+        liste->last->next->key = n;
+        liste->last->next->next = NULL;
+        liste->last->next->prec = liste->last;
+        liste->last = liste->last->next;
+        //n_ele->prec = liste->last;
+        //n_ele->next = NULL;
+        //liste->last->next = n_ele;
+        //liste->last = n_ele;
     }
 }
 
@@ -146,7 +155,7 @@ void del_in(struct element *ele)
     free(ele);
 }
 
-struct huffele *min_pop(struct freqlist *Freq)
+void *min_pop(struct freqlist *Freq, struct huffele *output)
 {
     struct element *f_fr = Freq->freq->first;
     struct element *f_car = Freq->car->first;
@@ -162,7 +171,7 @@ struct huffele *min_pop(struct freqlist *Freq)
         f_fr = f_fr->next;
         f_car = f_car->next;
     }
-    struct huffele *output = malloc(sizeof(struct huffele));
+    //struct huffele *output = malloc(sizeof(struct huffele));
     output->car = m_car->key;
     output->freq = m_fr->key;
     if (m_fr->next == NULL)
@@ -177,7 +186,7 @@ struct huffele *min_pop(struct freqlist *Freq)
     }
     del_in(m_fr);
     del_in(m_car);
-    return output;
+    //return output;
 }
 
 void element_free(struct element *ele)

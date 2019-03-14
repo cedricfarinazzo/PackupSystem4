@@ -23,7 +23,7 @@ unsigned char *liste_to_string(struct liste *liste);
 
 void del_in(struct element *ele);
 
-struct huffele *min_pop(struct freqlist *Freq);
+void *min_pop(struct freqlist *Freq, struct huffele *output);
 
 void liste_free(struct liste *liste);
 
