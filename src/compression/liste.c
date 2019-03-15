@@ -186,7 +186,6 @@ void *min_pop(struct freqlist *Freq, struct huffele *output)
     }
     del_in(m_fr);
     del_in(m_car);
-    //return output;
 }
 
 void element_free(struct element *ele)

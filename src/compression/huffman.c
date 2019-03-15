@@ -606,7 +606,8 @@ int rebuild_tree(char *data, int actual, unsigned char key,
     return actual + 1;
 }
 
-void decode_tree(char *data, int len, int prof, char align)
+struct bintree *decode_tree(char *data, int len, int prof, char align,
+    int nb_char)
 {
     int actuel = 0;
     int actuel_prof = 2;
@@ -623,6 +624,7 @@ void decode_tree(char *data, int len, int prof, char align)
     }
     while (actuel < (len - align))
     {
+        ++nb_char;
         key = bin_to_char(data, actuel);
         actuel += 8;
         if (((len - align) - actuel) <= prof)
@@ -638,6 +640,47 @@ void decode_tree(char *data, int len, int prof, char align)
             actuel_prof = rebuild_tree(end_data, 0, key, huffmantree, prof);
         }
     }
+    return huffmantree;
+}
+/*
+void build_decode_table(unsigned char **decode_data[], int nb_char,
+        struct bintree *huffmantree)
+{
+    if (nb_char < 3)
+    {
+        errx(EXIT_FAILURE, "nb_char < 3");
+    }
+    int actual = 0;
+    decode_data->caractere[0] = unsigned char chaine[1]; 
+    decode_data->caractere[0]->chaine[0] = huffmantree->left->left->key;
+    decode_data->caractere[0] = unsigned char chaine1[2];
+    decode_data->caractere[0]->chaine1[0] = '0';
+    decode_data->caractere[0]->chaine1[1] = '0';
+}*/
+
+int decompressing_data(struct bintree *huffman, unsigned char *data,
+    int len, struct liste *decompressed)
+{
+    int actual = 0;
+    int nb_decom = 0;
+    struct bintree *actualbin = huffman;
+    while (actual < len)
+    {
+        if (data[actual] == '0')
+            actualbin = actualbin->left;
+        if (data[actual] == '1')
+            actualbin = actualbin->right;
+        else
+            errx(EXIT_FAILURE, "datatree is not binary");
+        ++actual;
+        if (actualbin->left == NULL && actualbin->right == NULL)
+        {
+            insert(decompressed, actualbin->key);
+            actualbin = huffman;
+            ++nb_decom;
+        }
+    }
+    return nb_decom; 
 }
 
 //int main(int argc, char **argv)
@@ -687,5 +730,22 @@ void decompression(unsigned char *data, int len_data)
 
     data_cp->data = &(data[actual]);
     ++actual;
+
+    //Decodage et reconstruction de l'arbre
+    struct bintree *huffmantree;
+    int nb_char = 0;
+    huffmantree = decode_tree(huffman_cp->data, huffman_cp->len,
+        huffman_cp->prof, huffman_cp->align, nb_char);
+/*
+    //Construction de la table de decodage
+    unsigned char **decode_table[2];
+    unsigned char *prefixe[nb_char];
+    unsigned char *caractere[nb_char];
+    decode_table[0] = prefixe;
+    decode_table[1] = caractere;
+*/
+
+    
+
 //    return 0;
 }
