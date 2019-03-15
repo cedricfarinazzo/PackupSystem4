@@ -112,10 +112,8 @@ void del_last(struct liste *Liste)
     }
 }
 
-unsigned char *liste_to_string(struct liste *liste)
+void liste_to_string(struct liste *liste, unsigned char *output)
 {
-    int len = len_list(liste);
-    unsigned char *output = calloc(len + 1, sizeof(unsigned char));
     struct element *actual = liste->first;
     int i = 0;
     while (actual != NULL)
@@ -124,7 +122,6 @@ unsigned char *liste_to_string(struct liste *liste)
         actual = actual->next;
         ++i;
     }
-    return output;
 }
 
 void del_in(struct element *ele)
@@ -155,7 +152,7 @@ void del_in(struct element *ele)
     free(ele);
 }
 
-void *min_pop(struct freqlist *Freq, struct huffele *output)
+void min_pop(struct freqlist *Freq, struct huffele *output)
 {
     struct element *f_fr = Freq->freq->first;
     struct element *f_car = Freq->car->first;

@@ -29,8 +29,15 @@ void output_data(struct liste *datai, struct encod_data *output);
 
 void compression(unsigned char *dataIN);
 
-//int compression(int argc, char **argv);
+int rebuild_tree(unsigned char *data, int actual, unsigned char key,
+        struct bintree *huffman, int prof);
 
-//int main(int argc, char **argv);
-void decompression(unsigned char *data, int len_data);
+struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
+        int nb_char);
+
+int decompressing_data(struct bintree *huffman, unsigned char *data,
+        int len, struct liste *decompressed);
+
+int decompression(unsigned char *data, int len_data);
+
 #endif /*_SRC_COMPRESSION_HUFFMAN_H_*/

@@ -73,6 +73,12 @@ int main(int argc, char *argv[])
             compression(text);
         }
 
+        if (strcmp("dehuffman", argv[1]) == 0)
+        {
+            unsigned char *text = (unsigned char *)(argv[2]);
+            int len = decompression(text, strlen((char *)text));
+        }
+
         if (strcmp("filesystem", argv[1]) == 0)
         {
             char *path = argv[2];

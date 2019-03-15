@@ -390,7 +390,6 @@ void output_data(struct liste *datai, struct encod_data *output)
     if (len_data % 8 != 0){len_data = (len_data / 8) + 1;}
     else {len_data = len_data / 8;}
     output->data = calloc(len_data + 1, sizeof(unsigned char));
-    //unsigned char *data = calloc(len_data + 1, sizeof(char));
     unsigned char *buf = malloc(sizeof(char) * 8);
     unsigned char tmp = 0;
     int i = 0;
@@ -467,7 +466,8 @@ void compression(unsigned char *dataIN)
 
     //Passage de la table en static
     int len_table = len_list(table);
-    unsigned char* static_table = liste_to_string(table);
+    unsigned char static_table[len_table];
+    liste_to_string(table, static_table);
     //Fin table statique
 
     //Debut encodage donnees
@@ -509,7 +509,6 @@ void compression(unsigned char *dataIN)
     free(char_tree);
     free(char_data->data);
     free(char_data);
-    free(static_table);
 }
 
 void insert_inplace(struct element *prec, struct element *next,
@@ -562,7 +561,7 @@ void liste_bin_to_char(struct liste *liste, struct element *debut)
     insert_inplace(debut, debut->next, liste, n);
 }
 
-unsigned char bin_to_char(char *data, int actual)
+unsigned char bin_to_char(unsigned char *data, int actual)
 {
     unsigned char n = 0;
     for (int i = 7; i >= 0; --i)
@@ -573,7 +572,15 @@ unsigned char bin_to_char(char *data, int actual)
     return n;
 }
 
-int rebuild_tree(char *data, int actual, unsigned char key,
+void strcpyh(unsigned char *dest, const unsigned char *src, int n)
+{
+    for (int i = 0; i < n; ++i)
+    {
+        dest[i] = src[i];
+    }
+}
+
+int rebuild_tree(unsigned char *data, int actual, unsigned char key,
     struct bintree *huffman, int prof)
 {
     int act_prof = 1;
@@ -606,7 +613,7 @@ int rebuild_tree(char *data, int actual, unsigned char key,
     return actual + 1;
 }
 
-struct bintree *decode_tree(char *data, int len, int prof, char align,
+struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     int nb_char)
 {
     int actuel = 0;
@@ -631,7 +638,7 @@ struct bintree *decode_tree(char *data, int len, int prof, char align,
         {
             if (((len - align) - actuel) < prof)
                 errx(EXIT_FAILURE, "Probleme sur la structude de data_tree");
-            char end_data[prof];
+            unsigned char end_data[prof];
             for (int i = 0; i < prof; ++i)
             {
                 *(end_data + i) = data[actuel];
@@ -684,7 +691,7 @@ int decompressing_data(struct bintree *huffman, unsigned char *data,
 }
 
 //int main(int argc, char **argv)
-void decompression(unsigned char *data, int len_data)
+int decompression(unsigned char *data, int len_data)
 {
 //    if (argc != 3)
 //        errx(EXIT_FAILURE, "Erreur nombre d'argument");
@@ -692,7 +699,8 @@ void decompression(unsigned char *data, int len_data)
 //    int len_data = argv[2];
 
     int actual = 1;
-    if (data[0] != 1)
+    printf("data[0] = %d\n", data[0]);
+    if (data[0] <= 127)
         errx(EXIT_FAILURE, "Programme en cours de realisation");
     
     struct encod_tree *huffman_cp = malloc(sizeof(struct encod_tree));
@@ -714,7 +722,7 @@ void decompression(unsigned char *data, int len_data)
     huffman_cp->len += ((int)data[actual++] * 10);
     huffman_cp->len += (int)data[actual++];
 
-    huffman_cp->data = &(data[actual]);
+    strcpyh(huffman_cp->data, &(data[actual]), huffman_cp->len);
 
     struct encod_data *data_cp = malloc(sizeof(struct encod_data));
     data_cp->len = 0;
@@ -728,7 +736,10 @@ void decompression(unsigned char *data, int len_data)
     data_cp->len += ((int)data[actual++] * 10);
     data_cp->len += (int)data[actual++];
 
-    data_cp->data = &(data[actual]);
+    if (actual + data_cp->len >= len_data) 
+        errx(4, "Attention out of range");
+
+    strcpyh(data_cp->data, &(data[actual]), data_cp->len);
     ++actual;
 
     //Decodage et reconstruction de l'arbre
@@ -736,6 +747,16 @@ void decompression(unsigned char *data, int len_data)
     int nb_char = 0;
     huffmantree = decode_tree(huffman_cp->data, huffman_cp->len,
         huffman_cp->prof, huffman_cp->align, nb_char);
+
+    //Decompression des donnees
+    struct liste *liste_out = new_liste();
+    int len_out = decompressing_data(huffmantree, data_cp->data, data_cp->len,
+        liste_out);
+    data = realloc(data, sizeof(unsigned char) * (len_out + 1));
+    data[len_out] = '\0';
+    liste_to_string(liste_out, data);
+    printf("Chaine decompressee = %s\n", data);
+    return len_out + 1;
 /*
     //Construction de la table de decodage
     unsigned char **decode_table[2];
@@ -744,8 +765,4 @@ void decompression(unsigned char *data, int len_data)
     decode_table[0] = prefixe;
     decode_table[1] = caractere;
 */
-
-    
-
-//    return 0;
 }

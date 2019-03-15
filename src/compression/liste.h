@@ -19,11 +19,11 @@ void inserts(struct liste *Liste, struct liste *n, int c);
 
 void del_last(struct liste *Liste);
 
-unsigned char *liste_to_string(struct liste *liste);
+void liste_to_string(struct liste *liste, unsigned char *output);
 
 void del_in(struct element *ele);
 
-void *min_pop(struct freqlist *Freq, struct huffele *output);
+void min_pop(struct freqlist *Freq, struct huffele *output);
 
 void liste_free(struct liste *liste);
 
