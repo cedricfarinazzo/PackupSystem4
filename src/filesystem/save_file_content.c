@@ -24,6 +24,7 @@ void FILESYSTEM_save_file_content(FILE *src, FILE *dst)
     }
     fseek(dst, 0, beginning);
     fwrite(&len, 1, sizeof(size_t), dst);
+    fseek(dst, len, SEEK_CUR);
 }
 
 char *FILESYSTEM_load_file_content(FILE *file, off_t offset)
