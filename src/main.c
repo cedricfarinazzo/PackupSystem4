@@ -86,7 +86,16 @@ int main(int argc, char *argv[])
         if (strcmp("dehuffman", argv[1]) == 0)
         {
             unsigned char *text = (unsigned char *)(argv[2]);
-            int len = decompression(text, strlen((char *)text));
+            int len = strlen(argv[2]);
+            struct huff_out *compressed = compression(text);
+            
+            struct huff_out *final = decompression(compressed->dataOUT,
+                compressed->len);
+            int len_a = strlen((char *)final->dataOUT);
+            if (len_a != len)
+                printf("Longeur differente : %d -> %d\n", len, len_a);
+            printf("Text input : %s\n", text);
+            printf("Text output : %s\n", final->dataOUT);
         }
 
         if (strcmp("filesystem", argv[1]) == 0)

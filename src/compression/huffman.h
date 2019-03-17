@@ -44,6 +44,6 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
 int decompressing_data(struct bintree *huffman, unsigned char *data,
         int len, struct liste *decompressed);
 
-int decompression(unsigned char *data, int len_data);
+struct huff_out *decompression(unsigned char *data, int len_data);
 
 #endif /*_SRC_COMPRESSION_HUFFMAN_H_*/
