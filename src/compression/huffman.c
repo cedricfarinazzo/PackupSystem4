@@ -7,6 +7,8 @@
 #include "struct.h"
 #include <math.h>
 
+#define LEN_DATA 5
+
 void free_freqlist(struct freqlist *Freqlist)
 {
     if (Freqlist->freq != NULL)
@@ -53,6 +55,14 @@ void print_chare(unsigned char *output, int len)
         printf("%d ", output[i]);
     }
     printf("\n");
+}
+
+void strcpyh(unsigned char *dest, const unsigned char *src, int n)
+{
+    for (int i = 0; i < n; ++i)
+    {
+        dest[i] = src[i];
+    }
 }
 
 //Compression
@@ -433,7 +443,7 @@ void output_data(struct liste *datai, struct encod_data *output)
     free(buf);
 }
 
-void compression(unsigned char *dataIN)
+int compression(unsigned char *dataIN)
 {
     //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
@@ -488,8 +498,8 @@ void compression(unsigned char *dataIN)
     output_data(encoding_data, char_data);
 
     //Rendu soutenance
-    printf("\n\n");
-    printf("Input data = %s\n", dataIN);
+    //printf("\n\n");
+    //printf("Input data = %s\n", dataIN);
     printf("Output encoding data = %s | ", char_data->data);
     print_chare(char_data->data, char_data->len);
     printf("Output encoding tree = %s | ", char_tree->data);
@@ -500,6 +510,42 @@ void compression(unsigned char *dataIN)
     ratio = ratio / strlen((char *)dataIN);
     printf("Ratio = %d%%\n", ratio);
 
+    //Mise en forme de la chaine output
+    //Huffman tree
+    unsigned char output[14 + char_data->len + char_tree->len];
+    output[0] = 202;
+    output[1] = char_tree->align;
+    output[2] = char_tree->prof;
+    for (int i = 1; i <= LEN_DATA; ++i)
+    {
+        output[2 + (LEN_DATA - i)] = (char_tree->len /
+            (int)pow(10, (i - 1))) % 10;
+    }
+    int actuel_out = 2 + LEN_DATA;
+    strcpyh(&(output[actuel_out]), char_tree->data, char_tree->len - 1);
+    actuel_out += char_tree->len - 1;
+
+    //Char data
+    output[actuel_out++] = char_data->align;
+    for (int i = 1; i <= LEN_DATA; ++i)
+    {
+        output[actuel_out + (LEN_DATA - i)] = (char_data->len /
+            (int)pow(10, (i - 1))) % 10;
+    }
+    actuel_out += LEN_DATA;
+    strcpyh(&(output[actuel_out]), char_data->data, char_data->len - 1);
+    actuel_out += char_data->len - 1;
+
+    printf("Output chaine : %s |", output);
+    print_chare(output, actuel_out);
+    //Realloc dataIN[]
+    dataIN = realloc(dataIN, actuel_out * sizeof(unsigned char *));
+    strcpyh(dataIN, output, actuel_out - 1);
+    //unsigned char *tmp = dataIN;
+    //*dataIN = *output;
+    //free(tmp);
+    
+
     //Deallocation de toutes les struct
     bin_free(huffman);
     liste_free(table);
@@ -509,6 +555,9 @@ void compression(unsigned char *dataIN)
     free(char_tree);
     free(char_data->data);
     free(char_data);
+    printf("actuel_out = %d; dataIN = %ld\n", actuel_out, strlen((char *)dataIN));
+    printf("Final ratio : %ld%%\n", (actuel_out / strlen((char *)dataIN)) * 10);
+    return actuel_out;
 }
 
 void insert_inplace(struct element *prec, struct element *next,
@@ -570,14 +619,6 @@ unsigned char bin_to_char(unsigned char *data, int actual)
         ++actual;
     }
     return n;
-}
-
-void strcpyh(unsigned char *dest, const unsigned char *src, int n)
-{
-    for (int i = 0; i < n; ++i)
-    {
-        dest[i] = src[i];
-    }
 }
 
 int rebuild_tree(unsigned char *data, int actual, unsigned char key,
@@ -649,21 +690,6 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     }
     return huffmantree;
 }
-/*
-void build_decode_table(unsigned char **decode_data[], int nb_char,
-        struct bintree *huffmantree)
-{
-    if (nb_char < 3)
-    {
-        errx(EXIT_FAILURE, "nb_char < 3");
-    }
-    int actual = 0;
-    decode_data->caractere[0] = unsigned char chaine[1]; 
-    decode_data->caractere[0]->chaine[0] = huffmantree->left->left->key;
-    decode_data->caractere[0] = unsigned char chaine1[2];
-    decode_data->caractere[0]->chaine1[0] = '0';
-    decode_data->caractere[0]->chaine1[1] = '0';
-}*/
 
 int decompressing_data(struct bintree *huffman, unsigned char *data,
     int len, struct liste *decompressed)
@@ -712,8 +738,6 @@ int decompression(unsigned char *data, int len_data)
     ++actual;
 
     //Construction de tree prof - par nature prof < 256
-    huffman_cp->prof += ((int)data[actual++] * 100);
-    huffman_cp->prof += ((int)data[actual++] * 10);
     huffman_cp->prof += (int)data[actual++];
 
     //Construction tree longueur - On part sur len < 10 000
