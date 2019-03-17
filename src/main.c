@@ -70,16 +70,17 @@ int main(int argc, char *argv[])
         if (strcmp("huffman", argv[1]) == 0)
         {
             int len_a = strlen(argv[2]);
+            unsigned char *text = (unsigned char *)(argv[2]);
             printf("len_a = %d\n", len_a);
-            unsigned char *text = calloc(len_a - 1, sizeof(unsigned char *));
-            strcpyh(text, (argv[2]), len_a - 1);
             printf("Text input = %s\n", text);
             printf("Compressing...\n");
-            int len = compression(text);
-            printf("Text ouput = %s | ", text);
-            print_chare(text, len - 1);
-            printf("Ratio : %d\n", (len / len_a));
-            free(text);
+            struct huff_out *compressed = compression(text);
+            printf("\nLen = %d\n", compressed->len);
+            printf("\nText ouput = %s | ", compressed->dataOUT);
+            print_chare(compressed->dataOUT, compressed->len);
+            printf("Ratio : %d\n", (compressed->len / len_a));
+            printf("\nText output[21] = %d\n", compressed->dataOUT[21]);
+            free_out(compressed);
         }
 
         if (strcmp("dehuffman", argv[1]) == 0)

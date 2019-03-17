@@ -9,6 +9,12 @@
 
 #define LEN_DATA 5
 
+void free_out(struct huff_out *data)
+{
+    free(data->dataOUT);
+    free(data);
+}
+
 void free_freqlist(struct freqlist *Freqlist)
 {
     if (Freqlist->freq != NULL)
@@ -62,6 +68,8 @@ void strcpyh(unsigned char *dest, const unsigned char *src, int n)
     for (int i = 0; i < n; ++i)
     {
         dest[i] = src[i];
+        if (dest[i] != src[i])
+            errx(EXIT_FAILURE, "Le caractere n'a pas ete deplace!");
     }
 }
 
@@ -443,7 +451,7 @@ void output_data(struct liste *datai, struct encod_data *output)
     free(buf);
 }
 
-int compression(unsigned char *dataIN)
+struct huff_out *compression(unsigned char *dataIN)
 {
     //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
@@ -512,7 +520,9 @@ int compression(unsigned char *dataIN)
 
     //Mise en forme de la chaine output
     //Huffman tree
-    unsigned char output[14 + char_data->len + char_tree->len];
+    printf("Taille ouput = %ld\n", 13 + char_data->len + char_tree->len);
+    unsigned char *output = malloc(sizeof(unsigned char *) *
+        (13 + char_data->len + char_tree->len));
     output[0] = 202;
     output[1] = char_tree->align;
     output[2] = char_tree->prof;
@@ -521,6 +531,7 @@ int compression(unsigned char *dataIN)
         output[2 + (LEN_DATA - i)] = (char_tree->len /
             (int)pow(10, (i - 1))) % 10;
     }
+    --output[6];
     int actuel_out = 2 + LEN_DATA;
     strcpyh(&(output[actuel_out]), char_tree->data, char_tree->len - 1);
     actuel_out += char_tree->len - 1;
@@ -532,20 +543,16 @@ int compression(unsigned char *dataIN)
         output[actuel_out + (LEN_DATA - i)] = (char_data->len /
             (int)pow(10, (i - 1))) % 10;
     }
+    --output[actuel_out + LEN_DATA - 1];
     actuel_out += LEN_DATA;
     strcpyh(&(output[actuel_out]), char_data->data, char_data->len - 1);
+    printf("\n%d %d\n%d", output[actuel_out + 1], char_data->data[1], actuel_out);
     actuel_out += char_data->len - 1;
 
-    printf("Output chaine : %s |", output);
-    print_chare(output, actuel_out);
-    //Realloc dataIN[]
-    dataIN = realloc(dataIN, actuel_out * sizeof(unsigned char *));
-    strcpyh(dataIN, output, actuel_out - 1);
-    //unsigned char *tmp = dataIN;
-    //*dataIN = *output;
-    //free(tmp);
-    
-
+    struct huff_out *OUTPUTE = malloc(sizeof(struct huff_out));
+    OUTPUTE->dataOUT = output;
+    printf("\nText output[21] = %d\n", OUTPUTE->dataOUT[21]);
+    OUTPUTE->len = actuel_out;
     //Deallocation de toutes les struct
     bin_free(huffman);
     liste_free(table);
@@ -555,9 +562,7 @@ int compression(unsigned char *dataIN)
     free(char_tree);
     free(char_data->data);
     free(char_data);
-    printf("actuel_out = %d; dataIN = %ld\n", actuel_out, strlen((char *)dataIN));
-    printf("Final ratio : %ld%%\n", (actuel_out / strlen((char *)dataIN)) * 10);
-    return actuel_out;
+    return OUTPUTE;
 }
 
 void insert_inplace(struct element *prec, struct element *next,

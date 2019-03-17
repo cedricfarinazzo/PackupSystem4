@@ -7,6 +7,8 @@
 #include "liste.h"
 #include "struct.h"
 
+void free_out(struct huff_out *data);
+
 void free_freqlist(struct freqlist *Freqlist);
 
 void print_chare(unsigned char *output, int len);
@@ -31,7 +33,7 @@ void output_tree(struct liste *table, struct encod_tree *output,
 
 void output_data(struct liste *datai, struct encod_data *output);
 
-int compression(unsigned char *dataIN);
+struct huff_out *compression(unsigned char *dataIN);
 
 int rebuild_tree(unsigned char *data, int actual, unsigned char key,
         struct bintree *huffman, int prof);

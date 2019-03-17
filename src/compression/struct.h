@@ -50,4 +50,8 @@ struct encod_data {
     unsigned char *data;
 } encod_data;
 
+struct huff_out {
+    unsigned char *dataOUT;
+    int len;
+} huff_out;
 #endif /*_SRC_COMPRESSION_STRUCT_H_*/
