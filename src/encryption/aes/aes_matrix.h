@@ -37,9 +37,9 @@ struct AES_matrix *AES_matrix_mul(struct AES_matrix *a, struct AES_matrix *b);
 
 void AES_matrix_copy(struct AES_matrix *in, struct AES_matrix *out);
 
-void AES_matrix_text2matrix(char *text, struct AES_matrix ***blocks, size_t *count);
+void AES_matrix_text2matrix(unsigned char *text, struct AES_matrix ***blocks, size_t *count);
 
-void AES_matrix_matrix2text(struct AES_matrix **blocks, size_t count, char **text);
+void AES_matrix_matrix2text(struct AES_matrix **blocks, size_t count, unsigned char **text);
 
 void AES_matrix_printf(struct AES_matrix *block);
 
@@ -47,7 +47,7 @@ void AES_matrix_printfchar(struct AES_matrix *block);
 
 void AES_matrix_printfhex(struct AES_matrix *block);
 
-void AES_matrix_sprintf(struct AES_matrix *block, char **text);
+void AES_matrix_sprintf(struct AES_matrix *block, unsigned char **text);
 
 void AES_matrix_feed(struct AES_matrix *block, uint8_t data[AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT]);
 

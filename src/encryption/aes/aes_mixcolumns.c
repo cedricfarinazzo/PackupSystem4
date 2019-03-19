@@ -3,25 +3,31 @@
 #include "aes_matrix.h"
 #include "aes_mixcolumns.h"
 
-uint8_t xtime(uint8_t x)
-{
-    return ((x<<1) ^ ((x>>7) & 1) * 0x1b);
+uint8_t gadd(uint8_t a, uint8_t b) {
+    return a ^ b;
 }
 
-uint8_t gf_mult(uint8_t y, uint8_t x)
-{
-    return (((y & 1) * x) ^
-            ((y>>1 & 1) * xtime(x)) ^
-            ((y>>2 & 1) * xtime(xtime(x))) ^
-            ((y>>3 & 1) * xtime(xtime(xtime(x)))) ^
-            ((y>>4 & 1) * xtime(xtime(xtime(xtime(x))))));
+uint8_t gf_mult(uint8_t a, uint8_t b) {
+    uint8_t p = 0;
+    while (a && b) {
+        if (b & 1) 
+            p ^= a;
+        if (a & 0x80) 
+            a = (a << 1) ^ 0x11b;
+        else
+            a <<= 1;
+        b >>= 1; 
+    }
+    return p;
 }
+
 
 struct AES_matrix *AES_matrix_mixColumns(struct AES_matrix *block)
 {
     struct AES_matrix *state = AES_matrix_init();
     for (size_t x = 0; x < block->rowsLenght; ++x)
     {
+
         uint8_t e0 = AES_matrix_get(block, x, 0);
         uint8_t e1 = AES_matrix_get(block, x, 1);
         uint8_t e2 = AES_matrix_get(block, x, 2);
@@ -45,6 +51,7 @@ struct AES_matrix *AES_matrix_InvMixColumns(struct AES_matrix *block)
     struct AES_matrix *state = AES_matrix_init();
     for (size_t y = 0; y < block->rowsLenght; ++y)
     {
+
         uint8_t e0 = AES_matrix_get(state, 0, y);
         uint8_t e1 = AES_matrix_get(state, 1, y);
         uint8_t e2 = AES_matrix_get(state, 2, y);

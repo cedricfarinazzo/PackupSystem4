@@ -8,7 +8,7 @@
 #include "aes_keyexpansion.h"
 #include "aes.h"
 
-void AES_encrypt(char *data, char *key, char **encrypt)
+void AES_encrypt(unsigned char *data, unsigned char *key, unsigned char **encrypt)
 {
     struct AES_matrix **blockskey;
     size_t countkey = 0;
@@ -86,7 +86,7 @@ void AES_encrypt(char *data, char *key, char **encrypt)
     free(blocksdata);
 }
 
-void AES_decrypt(char *encrypt, char *key, char **decrypt)
+void AES_decrypt(unsigned char *encrypt, unsigned char *key, unsigned char **decrypt)
 {
     struct AES_matrix **blockskey;
     size_t countkey = 0;
@@ -123,7 +123,7 @@ void AES_decrypt(char *encrypt, char *key, char **decrypt)
             AES_matrix_copy(tmp1, state);
             AES_matrix_free(tmp1);
 
-            struct AES_matrix *tmp2 = AES_matrix_addRoundKey(state, roundKeys[j+1]);
+            struct AES_matrix *tmp2 = AES_matrix_addRoundKey(state, keyblock);
             AES_matrix_copy(tmp2, state);
             AES_matrix_free(tmp2);
 

@@ -24,6 +24,7 @@
 #define TYPE "release"
 
 // TO MOVE IN FILESYSTEM
+/*
 void print_tree(struct meta_tree *tree, int indent)
 {
     char indents[indent + 1];
@@ -46,8 +47,9 @@ void print_tree(struct meta_tree *tree, int indent)
         }
     }
 }
+*/
 
-void print_ascii(char *a)
+void print_ascii(unsigned char *a)
 {
     for (size_t i = 0; a[i] != 0; ++i)
         printf("%d ", a[i]);
@@ -56,6 +58,30 @@ void print_ascii(char *a)
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
+
+    unsigned char *text = (unsigned char*)argv[1];
+    unsigned char *key = (unsigned char*)argv[2];
+
+    printf("text: %s   | key: %s\n", (char*)text, (char*)key);
+
+    unsigned char *output = NULL;
+    unsigned char *decrypt = NULL;
+
+    AES_encrypt(text, key, &output);
+    printf("\n encrypted text: ");
+    printf("\n%s\n    \n", (char*)output);
+    print_ascii(output); printf("\n");
+
+    AES_decrypt(output, key, &decrypt);
+    printf("\n decrypted text: \n%s\n    \n", (char*)decrypt);
+    print_ascii(decrypt); printf("\n");
+
+    free(output);
+    free(decrypt);
+
+
+    return EXIT_SUCCESS;
+   /* 
     if (argc == 1)
         return interface(argc, argv);
 
@@ -90,7 +116,7 @@ int main(int argc, char *argv[])
             printf("\n\nLoading tree to tree_test_main.txt\n");
             printf("RESTORED TREE: \n");
             print_tree(restored->son, 0);
-            
+
             FILESYSTEM_free_metatree(restored);
             FILESYSTEM_free_metatree(tree);
         }
@@ -171,7 +197,7 @@ int main(int argc, char *argv[])
             struct RSA_publickey *pub = RSA_gen_public_key(p, q);
             struct RSA_privatekey *pri = RSA_gen_private_key(p, q, pub);
 
-            
+
             printf("public: n = ");
             mpz_out_str(stdout,10, *(pub->n));
             printf("   e = ");
@@ -199,7 +225,7 @@ int main(int argc, char *argv[])
             free(encrypt);
 
             free(decode);
-            
+
             RSA_free_public_key(pub);
             RSA_free_private_key(pri);
             mpz_clear(p);
@@ -209,4 +235,5 @@ int main(int argc, char *argv[])
     }
 
     return EXIT_SUCCESS;
+    */
 }
