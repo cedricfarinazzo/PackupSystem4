@@ -634,10 +634,13 @@ unsigned char bin_to_char(unsigned char *data, int actual)
 int rebuild_tree(unsigned char *data, int actual, unsigned char key,
     struct bintree *huffman, int prof)
 {
+    printf("\n\n");
     int act_prof = 1;
     struct bintree *huff_act = huffman;
     while (prof != act_prof)
     {
+        printf("Act_prof = %d Prof = %d data[actual] = %d\n", act_prof, prof,
+            data[actual]);
         if (data[actual] == 0 && huff_act->left == NULL)
         {
             insert_left(huff_act, 0);
@@ -645,22 +648,24 @@ int rebuild_tree(unsigned char *data, int actual, unsigned char key,
         }
         if (data[actual] == 1 && huff_act->right == NULL)
         {
-            insert_right(huff_act, 0);
+            printf("Insertion a droite\n");
+            insert_right(huff_act, 1);
             huff_act = huff_act->right;
         }
         ++act_prof;
         ++actual;
     }
-    if (data[actual] == 0 && huff_act->left == NULL)
-    {
-        insert_left(huff_act, key);
-    }
-    if (data[actual] == 1 && huff_act->right == NULL)
-    {
-        insert_right(huff_act, key);
-    }
+    printf("Act_prof = %d data[actual] = %d\n", act_prof, data[actual]);
+    if ((data[actual] == 0 && huff_act->left != NULL) || (data[actual] == 1
+        && huff_act->right != NULL))
+        errx(4, "Houston on a un probleme!");
     else
-        errx(EXIT_FAILURE, "Probleme pendant l'insertion de la cle");
+    {
+        if (data[actual] == 0)
+            insert_left(huff_act, key);
+        else
+            insert_right(huff_act, key);
+    }
     return actual + 1;
 }
 
@@ -697,7 +702,6 @@ void data_to_bin(unsigned char *dest, unsigned char *src, int len)
 struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     int nb_char)
 {
-    int actuel = 0;
     int actuel_prof = 2;
     struct bintree *huffmantree = new_tree(0);
     unsigned char key;
@@ -705,16 +709,17 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     for (int i = 0; i < (len * 8); ++i)
         bindata[i] = 0;
     data_to_bin(bindata, data, len);
-    printf("Prof = %d, Prof-a = %d\n", prof, actuel_prof);
+    int actuel = 0;
     while (actuel_prof < prof)
     {
         key = bin_to_char(data, actuel);
-        printf("Key = %d\n", key);
+        printf("Key = %d\nActuel = %d\n", key, actuel);
         actuel += 8;
-        actuel = rebuild_tree(data, actuel, key,  huffmantree, actuel_prof);
+        actuel = rebuild_tree(bindata, actuel, key,  huffmantree, actuel_prof);
         key = bin_to_char(data, actuel);
         actuel += 8;
-        actuel = rebuild_tree(data, actuel, key, huffmantree, actuel_prof);
+        actuel = rebuild_tree(bindata, actuel, key, huffmantree, actuel_prof);
+        printf("Key = %d\nActuel = %d\n", key, actuel);
     }
     while (actuel < (len - align))
     {
@@ -825,8 +830,11 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     if (actual + data_cp->len > len_data){
         printf("Len_data = %d, actual = %d\n", len_data, (actual + data_cp->len));
         errx(4, "Attention out of range");}
-    for (int i = 0; i < data_cp->len; i++)
-        data_cp->data[i] = data[actual + i];
+
+    data_cp->data = malloc(sizeof(unsigned char *) * data_cp->len);
+    for (int i = 0; i < data_cp->len; i++){
+        printf("%d\n", actual);
+        data_cp->data[i] = data[actual + i];}
     //strcpyh(data_cp->data, &(data[actual]), data_cp->len);
     
     //++actual;
