@@ -217,8 +217,8 @@ Test(AES, shiftRows2)
     cr_assert(AES_matrix_areEqual(r, expm));
 
     AES_matrix_free(r);
+    AES_matrix_free(mat);
     AES_matrix_free(expm);
-
 }
 
 Test(AES, subBytes)
@@ -242,6 +242,37 @@ Test(AES, subBytes)
 
     AES_matrix_free(state);
     AES_matrix_free(mat);
+}
+
+Test(AES, subBytes2)
+{
+    uint8_t data[16] = 
+    {
+        0xea, 0x04, 0x65, 0x85,
+        0x83, 0x45, 0x5d, 0x96,
+        0x5c, 0x33, 0x98, 0xb0,
+        0xf0, 0x2d, 0xad, 0xc5,
+    };
+    uint8_t exp[16] = 
+    {
+        0x87, 0xf2, 0x4d, 0x97,
+        0xec, 0x6e, 0x4c, 0x90,
+        0x4a, 0xc3, 0x46, 0xe7,
+        0x8c, 0xd8, 0x95, 0xA6,
+    };
+    struct AES_matrix *mat = AES_matrix_init();
+    AES_matrix_feed(mat, data);
+
+    struct AES_matrix *expm = AES_matrix_init();
+    AES_matrix_feed(expm, exp);
+    
+    struct AES_matrix *r = AES_matrix_subBytes(mat);
+    
+    cr_assert(AES_matrix_areEqual(r, expm));
+
+    AES_matrix_free(mat);
+    AES_matrix_free(r);
+    AES_matrix_free(expm);
 }
 
 Test(AES, mixColumns)
