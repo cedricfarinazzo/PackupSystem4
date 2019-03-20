@@ -259,7 +259,18 @@ void AES_matrix_feed(struct AES_matrix *block, uint8_t data[AES_MATRIX_DEFAULT_R
     }
 }
 
-
+int AES_matrix_areEqual(struct AES_matrix *a, struct AES_matrix *b)
+{
+    int equal = a->rowsLenght == b->rowsLenght && a->colsLenght == b->colsLenght;
+    for (size_t y = 0; y < a->rowsLenght && equal; ++y)
+    {
+        for (size_t x = 0; x < a->colsLenght && equal; ++x)
+        {
+            equal = AES_matrix_get(a, x, y) == AES_matrix_get(b, x, y);
+        }
+    }
+    return equal;
+}
 
 
 

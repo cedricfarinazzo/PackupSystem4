@@ -51,4 +51,6 @@ void AES_matrix_sprintf(struct AES_matrix *block, unsigned char **text);
 
 void AES_matrix_feed(struct AES_matrix *block, uint8_t data[AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT]);
 
+int AES_matrix_areEqual(struct AES_matrix *a, struct AES_matrix *b);
+
 #endif /* _SRC_ENCRYPTION_AES_AES_MATRIX_H_ */

@@ -13,6 +13,12 @@
 #include "encryption/rsa/genkey.h"
 
 #include "encryption/aes/aes.h"
+#include "encryption/aes/aes.h"
+#include "encryption/aes/aes_matrix.h"
+#include "encryption/aes/aes_addroundkey.h"
+#include "encryption/aes/aes_shiftrows.h"
+#include "encryption/aes/aes_subbytes.h"
+#include "encryption/aes/aes_mixcolumns.h"
 
 #include "compression/huffman.h"
 
@@ -57,6 +63,49 @@ void print_ascii(unsigned char *a)
 
 int main(int argc, char *argv[])
 {
+    
+    uint8_t data[16] = 
+    {
+        0xdb, 0xf2, 0x01, 0x2d,
+        0x13, 0x0a, 0x01, 0x26,
+        0x53, 0x22, 0x01, 0x31,
+        0x45, 0x5c, 0x01, 0x4c,
+
+    };
+    uint8_t exp[16] = 
+    {
+        0x8e, 0x9f, 0x01, 0x4d,
+        0x4d, 0xdc, 0x01, 0x7e,
+        0xa1, 0x58, 0x01, 0xbd,
+        0xbc, 0x9d, 0x01, 0xf8,
+
+    };
+    struct AES_matrix *mat = AES_matrix_init();
+    AES_matrix_feed(mat, data);
+    printf("\n== Mat \n");
+    AES_matrix_printfhex(mat);
+
+    struct AES_matrix *expm = AES_matrix_init();
+    AES_matrix_feed(expm, exp);
+    
+    
+    struct AES_matrix *mi = AES_matrix_mixColumns(mat);
+    printf("\n== MIX COLUMNS \n");
+    AES_matrix_printfhex(mi);
+    
+    printf("%d", AES_matrix_areEqual(mi, expm));
+
+    AES_matrix_free(mi);
+   
+    AES_matrix_free(mat);
+    AES_matrix_free(expm);
+
+
+
+
+
+    return EXIT_SUCCESS;
+    /*
     srand(time(NULL));
 
     unsigned char *text = (unsigned char*)argv[1];
@@ -81,7 +130,7 @@ int main(int argc, char *argv[])
 
 
     return EXIT_SUCCESS;
-   /* 
+   
     if (argc == 1)
         return interface(argc, argv);
 
