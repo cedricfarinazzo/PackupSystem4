@@ -370,6 +370,7 @@ Test(RSA, decrypt)
     cr_assert_str_not_empty((char*)decode);
     cr_assert_str_eq((char*)decode, (char*)text);
 
+    free(decode);
     for (size_t i = 0; i < lentext; ++i)
         mpz_clear(encrypt[i]);
     free(encrypt);
