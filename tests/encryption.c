@@ -120,6 +120,50 @@ Test(AES, addRoundKey)
 
 }
 
+Test(AES, addRoundKey2)
+{
+
+    uint8_t data[16] = 
+    {
+        0x04, 0xe0, 0x48, 0x28,
+        0x66, 0xcb, 0xf8, 0x06,
+        0x81, 0x19, 0xd3, 0x26,
+        0xe5, 0x9a, 0x7a, 0x4c,
+    };
+    uint8_t key[16] = 
+    {
+        0xa0, 0x88, 0x23, 0x2a,
+        0xfa, 0x54, 0xa3, 0x6c,
+        0xfe, 0x2c, 0x39, 0x76,
+        0x17, 0xb1, 0x39, 0x05,
+    };
+    uint8_t exp[16] = 
+    {
+        0xa4, 0x68, 0x6b, 0x02,
+        0x9c, 0x9f, 0x5b, 0x6a,
+        0x7f, 0x35, 0xea, 0x50,
+        0xf2, 0x2b, 0x43, 0x49,
+    };
+    struct AES_matrix *mat = AES_matrix_init();
+    AES_matrix_feed(mat, data);
+
+    struct AES_matrix *expm = AES_matrix_init();
+    AES_matrix_feed(expm, exp);
+    
+    struct AES_matrix *keym = AES_matrix_init();
+    AES_matrix_feed(keym, key);
+    
+    struct AES_matrix *r = AES_matrix_addRoundKey(mat, keym);
+    
+    cr_assert(AES_matrix_areEqual(r, expm));
+
+    AES_matrix_free(r);
+   
+    AES_matrix_free(mat);
+    AES_matrix_free(keym);
+    AES_matrix_free(expm);
+}
+
 Test(AES, shiftRows)
 {
     struct AES_matrix *mat = AES_matrix_init();
@@ -144,6 +188,36 @@ Test(AES, shiftRows)
 
     AES_matrix_free(state);
     AES_matrix_free(mat);
+}
+
+Test(AES, shiftRows2)
+{
+    uint8_t data[16] = 
+    {
+        0x63, 0xeb, 0x9f, 0xa0,
+        0xc0, 0x2f, 0x93, 0x92,
+        0xab, 0x30, 0xaf, 0xc7,
+        0x20, 0xcb, 0x2b, 0xa2,
+    };
+    uint8_t exp[16] = 
+    {
+        0x63, 0xeb, 0x9f, 0xa0,
+        0x2f, 0x93, 0x92, 0xc0,
+        0xaf, 0xc7, 0xab, 0x30,
+        0xa2, 0x20, 0xcb, 0x2b,
+    };
+    struct AES_matrix *mat = AES_matrix_init();
+    AES_matrix_feed(mat, data);
+
+    struct AES_matrix *expm = AES_matrix_init();
+    AES_matrix_feed(expm, exp);
+    
+    struct AES_matrix *r = AES_matrix_shiftRows(mat);
+    
+    cr_assert(AES_matrix_areEqual(r, expm));
+
+    AES_matrix_free(r);
+    AES_matrix_free(expm);
 
 }
 

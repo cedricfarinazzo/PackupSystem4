@@ -267,6 +267,8 @@ int AES_matrix_areEqual(struct AES_matrix *a, struct AES_matrix *b)
         for (size_t x = 0; x < a->colsLenght && equal; ++x)
         {
             equal = AES_matrix_get(a, x, y) == AES_matrix_get(b, x, y);
+            if (!equal)
+                printf("%d:%d ; 0x%02x | 0x%02x\n", y, x, AES_matrix_get(a, x, y), AES_matrix_get(b, x, y));
         }
     }
     return equal;
