@@ -24,18 +24,24 @@ void AES_encrypt(unsigned char *data, unsigned char *key, unsigned char **encryp
     }
     struct AES_matrix *keyblock = blockskey[0];
 
+    //AES_matrix_printfchar(keyblock);
+
     struct AES_matrix **roundKeys = AES_keyExpansion(keyblock);
 
     struct AES_matrix **blocksdata;
     size_t countdata = 0;
     AES_matrix_text2matrix(data, &blocksdata, &countdata);
 
+    for (size_t i = 0; i <= 10; i++)
+        AES_matrix_printfhex(roundKeys[i]);
 
     for (size_t i = 0; i < countdata; ++i)
     {
+        //AES_matrix_printfchar(blocksdata[i]);
         struct AES_matrix *state = AES_matrix_addRoundKey(blocksdata[i], roundKeys[0]);
+        //AES_matrix_printfhex(roundKeys[0]);
 
-        for (size_t j = 0; j < 9; ++j)
+        for (size_t j = 0; j <= 9; ++j)
         {
             struct AES_matrix *tmp = AES_matrix_subBytes(state);
             AES_matrix_copy(tmp, state);
@@ -113,7 +119,7 @@ void AES_decrypt(unsigned char *encrypt, unsigned char *key, unsigned char **dec
     {
         struct AES_matrix *state = AES_matrix_addRoundKey(blocksen[i], roundKeys[0]);
 
-        for (size_t j = 0; j < 9; ++j)
+        for (size_t j = 0; j <= 9; ++j)
         {
             struct AES_matrix *tmp = AES_matrix_InvShiftRows(state);
             AES_matrix_copy(tmp, state);

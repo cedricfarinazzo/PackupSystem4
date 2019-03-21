@@ -13,7 +13,7 @@
 #include "../src/encryption/aes/aes_shiftrows.h"
 #include "../src/encryption/aes/aes_subbytes.h"
 #include "../src/encryption/aes/aes_mixcolumns.h"
-
+#include "../src/encryption/aes/aes_keyexpansion.h"
 #include "../src/encryption/rotn.h"
 
 #include "../src/encryption/vigenere.h"
@@ -485,8 +485,6 @@ Test(RSA, decrypt)
     mpz_clear(p);
     mpz_clear(q);
 }
-
-
 
 
 

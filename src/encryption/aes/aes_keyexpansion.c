@@ -10,15 +10,60 @@ const uint8_t rcon[40] = {
     /* 4 */     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
+void printTab(uint8_t *a)
+{
+    for (size_t i = 0; i < AES_MATRIX_DEFAULT_COLSLENGHT; ++i)
+        printf("0x%02x ", a[i]);
+    printf("\n");
+}
+
 uint8_t __GetRcon(int x, int y)
 {
     return rcon[y * 10 + x];
 }
 
+void __copyColToTab(struct AES_matrix *m, size_t k, uint8_t *out)
+{
+    for (size_t i = 0; i < AES_MATRIX_DEFAULT_COLSLENGHT; ++i)
+        out[i] = AES_matrix_get(m, k, i);
+}
+
+void __copyTabToCol(struct AES_matrix *m, size_t k, uint8_t *out)
+{
+    for (size_t i = 0; i < AES_MATRIX_DEFAULT_COLSLENGHT; ++i)
+        AES_matrix_set(m, k, i, out[i]);
+}
+
+void __rotWord(uint8_t *in, uint8_t *out)
+{
+    for (size_t i = 0; i < AES_MATRIX_DEFAULT_COLSLENGHT; ++i)
+        out[i] = in[(i+AES_MATRIX_DEFAULT_COLSLENGHT+1)%AES_MATRIX_DEFAULT_COLSLENGHT];
+}
+
+void __subBytes(uint8_t *in)
+{
+    for (size_t i = 0; i < AES_MATRIX_DEFAULT_COLSLENGHT; ++i)
+        in[i] = AES_matrix_subBytesInt(in[i]); 
+}
+
+void __xorKeyS(uint8_t *in, uint8_t *prev4, size_t keyi)
+{
+    for (size_t i = 0; i < AES_MATRIX_DEFAULT_COLSLENGHT; ++i)
+        in[i] = prev4[i] ^ in[i] ^ __GetRcon(keyi, i); 
+}
+
+void __xorKey(uint8_t *in, uint8_t *prev4)
+{
+    for (size_t i = 0; i < AES_MATRIX_DEFAULT_COLSLENGHT; ++i)
+        in[i] = prev4[i] ^ in[i]; 
+}
+
 struct AES_matrix **AES_keyExpansion(struct AES_matrix *key)
 {
+    AES_matrix_printfhex(key);
     struct AES_matrix **roundKeys = malloc(sizeof(struct AES_matrix*) * (AES_NB_ROUND_KEY + 1));
     size_t index = 0;
+    size_t col = 4;
     roundKeys[index] = AES_matrix_init();
     AES_matrix_copy(key, roundKeys[index]);
     ++index;
@@ -28,32 +73,36 @@ struct AES_matrix **AES_keyExpansion(struct AES_matrix *key)
         roundKeys[index] = AES_matrix_init();
         for (size_t x = 0; x < AES_MATRIX_DEFAULT_ROWSLENGHT; ++x)
         {
-            uint8_t tmp[AES_MATRIX_DEFAULT_COLSLENGHT];
-            size_t previous_collum_bloc = (x == 0 ? index - 1 : index);
-            size_t previous_collum_x = x == 0 ? AES_MATRIX_DEFAULT_ROWSLENGHT - 1 : x - 1;
-
+            uint8_t in[AES_MATRIX_DEFAULT_COLSLENGHT];
+            uint8_t srot[AES_MATRIX_DEFAULT_COLSLENGHT];
+            uint8_t prev4[AES_MATRIX_DEFAULT_COLSLENGHT];
+             
+            __copyColToTab(roundKeys[index - 1], x, prev4);
             if (x == 0)
-            {
-                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                    tmp[y] = AES_matrix_get(roundKeys[previous_collum_bloc], previous_collum_x, (y + 1 + 4) % 4);
-                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                    tmp[y] = AES_matrix_subBytesInt(tmp[y]); 
-
-                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                    tmp[y] = tmp[y] ^ AES_matrix_get(roundKeys[index - 1], x, y) ^ __GetRcon(index - 1, y);
-            }
+                __copyColToTab(roundKeys[index - 1], AES_MATRIX_DEFAULT_COLSLENGHT - 1, in);
             else
-            {
-                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                    tmp[y] = AES_matrix_get(roundKeys[previous_collum_bloc], previous_collum_x,y % 4);
-                
-                for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                    tmp[y] = tmp[y] ^ AES_matrix_get(roundKeys[index - 1], x, y);
+                __copyColToTab(roundKeys[index], x - 1, in);
+
+    //printTab(in);
+    //printTab(prev4);
+   // printf("\n");
+             
+
+            if (x == 0) {
+                __rotWord(in, srot);
+                __subBytes(srot);
+                __xorKeyS(srot, prev4, index - 1);
+                __copyTabToCol(roundKeys[index], x, srot);
+            } else {
+                __xorKey(in, prev4);
+                __copyTabToCol(roundKeys[index], x, in);
             }
-            for (size_t y = 0; y < AES_MATRIX_DEFAULT_COLSLENGHT; ++y)
-                AES_matrix_set(roundKeys[index], x, y, tmp[y]);
+           ++col;
         }
+        printf("\n====================== \n   %ld\n", index);
+        AES_matrix_printfhex(roundKeys[index]);
     }
+    exit(1);
     return roundKeys;
 }
 
