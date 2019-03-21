@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     print_ascii(output); printf("\n");
 
     AES_decrypt(output, key, &decrypt);
-    printf("encrypted text: %s  |   ", decrypt);
+    printf("decrypted text: %s  |   ", decrypt);
     print_ascii(decrypt); printf("\n");
 
     free(output);
