@@ -379,12 +379,15 @@ Test(AES, Encryption)
     unsigned char key[] = "01G345a.89sbhdef";
 
     //printf("\nkey: %s  | text: %s\n", key, text);
-    AES_encrypt(text, key, &output);
+    struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
+    
+    AES_encrypt(ctx, text, &output);
 
     if (output == NULL)
         cr_assert_fail("output = NULL");
     
     //printf("encryption: %s\n\n", output);
+    AES_ctx_free(ctx);
  
     cr_assert_not_null(output);
     cr_assert_str_not_empty((char*)output);
@@ -400,14 +403,16 @@ Test(AES, Decrypt)
     decrypt = NULL;
     unsigned char key[] = "01G345a.89sbhdef";
 
-    AES_encrypt(text, key, &output);
+    struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
+    AES_encrypt(ctx, text, &output);
 
     if (output == NULL)
         cr_assert_fail("output = NULL");
 
-    AES_decrypt(output, key, &decrypt);
+    AES_decrypt(ctx, output, &decrypt);
 
     free(output);
+    AES_ctx_free(ctx);
 
     cr_assert_not_null(decrypt);;
     cr_assert_str_not_empty((char*)decrypt);

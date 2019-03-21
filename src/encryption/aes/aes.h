@@ -9,8 +9,17 @@
 #include "aes_shiftrows.h"
 #include "aes_mixcolumns.h"
 
-void AES_encrypt(unsigned char *data, unsigned char *key, unsigned char **encrypt);
+struct AES_ctx {
+   struct AES_matrix *key;
+   struct AES_matrix **roundKeys;
+}AES_ctx;
 
-void AES_decrypt(unsigned char *encrypt, unsigned char *key, unsigned char **decrypt);
+struct AES_ctx *AES_init(unsigned char *key, size_t len);
+
+void AES_ctx_free(struct AES_ctx *ctx);
+
+void AES_encrypt(struct AES_ctx *ctx, unsigned char *data, unsigned char **encrypt);
+
+void AES_decrypt(struct AES_ctx *ctx, unsigned char *encrypt, unsigned char **decrypt);
 
 #endif /* _SRC_ENCRYPTION_AES_AES_H_ */

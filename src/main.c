@@ -65,24 +65,27 @@ int main(int argc, char *argv[])
 {
    
 
-    unsigned char *text = (unsigned char*)argv[1];
-    unsigned char *key = (unsigned char*)argv[2];
+    unsigned char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    unsigned char key[] = "01G345a.89sbhdef";
  
-    printf("text: %s   | key: %s\n", text, key);
+    printf("text(%ld): %s   | key: %s\n", strlen((char*)text), text, key);
 
     unsigned char *output = NULL;
     unsigned char *decrypt = NULL;
 
-    AES_encrypt(text, key, &output);
-    printf("encrypted text: %s  |   ", output);
+    struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
+
+    AES_encrypt(ctx, text, &output);
+    printf("\nencrypted text (%ld): %s  |   ", strlen((char*)output), output);
     print_ascii(output); printf("\n");
 
-    AES_decrypt(output, key, &decrypt);
-    printf("decrypted text: %s  |   ", decrypt);
+    AES_decrypt(ctx, output, &decrypt);
+    printf("\n\ndecrypted text (%ld): %s  |   ", strlen((char*)decrypt), decrypt);
     print_ascii(decrypt); printf("\n");
 
     free(output);
     free(decrypt);
+    AES_ctx_free(ctx);
 
     return EXIT_SUCCESS;
     /*
