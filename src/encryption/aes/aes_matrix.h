@@ -47,6 +47,8 @@ void AES_matrix_printfchar(struct AES_matrix *block);
 
 void AES_matrix_printfhex(struct AES_matrix *block);
 
+void AES_matrix_printfhexline(struct AES_matrix *block);
+
 void AES_matrix_sprintf(struct AES_matrix *block, unsigned char **text);
 
 void AES_matrix_feed(struct AES_matrix *block, uint8_t data[AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT]);

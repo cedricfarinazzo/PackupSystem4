@@ -227,6 +227,18 @@ void AES_matrix_printfhex(struct AES_matrix *block)
     printf("}\n");
 }
 
+void AES_matrix_printfhexline(struct AES_matrix *block)
+{
+    for (size_t y = 0; y < block->rowsLenght; ++y)
+    {
+        for (size_t x = 0; x < block->colsLenght; ++x)
+        {
+            printf("%02X ", AES_matrix_get(block, y, x));
+        }
+    }
+    printf("\n");
+}
+
 void AES_matrix_sprintf(struct AES_matrix *block, unsigned char **text)
 {
     size_t count = 4 + block->rowsLenght*((block->colsLenght * 2) + 1);
