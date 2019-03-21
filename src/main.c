@@ -71,18 +71,18 @@ int main(int argc, char *argv[])
     printf("text: %s   | key: %s\n", text, key);
 
     unsigned char *output = NULL;
-    //unsigned char *decrypt = NULL;
+    unsigned char *decrypt = NULL;
 
     AES_encrypt(text, key, &output);
     printf("encrypted text: %s  |   ", output);
     print_ascii(output); printf("\n");
 
-    //AES_decrypt(output, key, &decrypt);
-    //printf("encrypted text: %s  |   ", decrypt);
-    //print_ascii(decrypt); printf("\n");
+    AES_decrypt(output, key, &decrypt);
+    printf("encrypted text: %s  |   ", decrypt);
+    print_ascii(decrypt); printf("\n");
 
     free(output);
-    //free(decrypt);
+    free(decrypt);
 
     return EXIT_SUCCESS;
     /*

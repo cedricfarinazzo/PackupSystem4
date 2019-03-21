@@ -60,7 +60,6 @@ void __xorKey(uint8_t *in, uint8_t *prev4)
 
 struct AES_matrix **AES_keyExpansion(struct AES_matrix *key)
 {
-    AES_matrix_printfhex(key);
     struct AES_matrix **roundKeys = malloc(sizeof(struct AES_matrix*) * (AES_NB_ROUND_KEY + 1));
     size_t index = 0;
     size_t col = 4;
@@ -83,11 +82,6 @@ struct AES_matrix **AES_keyExpansion(struct AES_matrix *key)
             else
                 __copyColToTab(roundKeys[index], x - 1, in);
 
-    //printTab(in);
-    //printTab(prev4);
-   // printf("\n");
-             
-
             if (x == 0) {
                 __rotWord(in, srot);
                 __subBytes(srot);
@@ -99,10 +93,7 @@ struct AES_matrix **AES_keyExpansion(struct AES_matrix *key)
             }
            ++col;
         }
-        printf("\n====================== \n   %ld\n", index);
-        AES_matrix_printfhex(roundKeys[index]);
     }
-    exit(1);
     return roundKeys;
 }
 
