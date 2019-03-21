@@ -75,12 +75,12 @@ int main(int argc, char *argv[])
 
     struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
 
-    AES_encrypt(ctx, text, &output);
-    printf("\nencrypted text (%ld): %s  |   ", strlen((char*)output), output);
+    size_t outlen = AES_encrypt(ctx, text, strlen((char*)text), &output);
+    printf("\nencrypted text (%ld): %s  |   ", outlen, output);
     print_ascii(output); printf("\n");
 
-    AES_decrypt(ctx, output, &decrypt);
-    printf("\n\ndecrypted text (%ld): %s  |   ", strlen((char*)decrypt), decrypt);
+    size_t delen = AES_decrypt(ctx, output, outlen, &decrypt);
+    printf("\n\ndecrypted text (%ld): %s  |   ", delen, decrypt);
     print_ascii(decrypt); printf("\n");
 
     free(output);

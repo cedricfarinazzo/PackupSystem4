@@ -117,9 +117,8 @@ void AES_matrix_copy(struct AES_matrix *in, struct AES_matrix *out)
 
 }
 
-void AES_matrix_text2matrix(unsigned char *text, struct AES_matrix ***blocks, size_t *count)
+void AES_matrix_text2matrix(unsigned char *text, struct AES_matrix ***blocks, size_t *count, size_t lentext)
 {
-    size_t lentext = strlen((char*)text);
     *count = (lentext / (AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT))
         + (lentext % (AES_MATRIX_DEFAULT_ROWSLENGHT * AES_MATRIX_DEFAULT_COLSLENGHT) == 0 ? 0 : 1);
     *blocks = malloc(sizeof(struct AES_matrix*) * *count);

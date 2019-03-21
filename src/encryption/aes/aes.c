@@ -13,7 +13,7 @@ struct AES_ctx *AES_init(unsigned char *key, size_t len)
     struct AES_ctx *ctx = malloc(sizeof(struct AES_ctx));
     struct AES_matrix **blockskey;
     size_t countkey = 0;
-    AES_matrix_text2matrix(key, &blockskey, &countkey);
+    AES_matrix_text2matrix(key, &blockskey, &countkey, len);
     if (countkey != 1)
     {
         for (size_t i = 0; i < countkey; ++i)
@@ -43,11 +43,11 @@ void AES_ctx_free(struct AES_ctx *ctx)
     free(ctx);
 }
 
-void AES_encrypt(struct AES_ctx *ctx, unsigned char *data, unsigned char **encrypt)
+size_t AES_encrypt(struct AES_ctx *ctx, unsigned char *data, size_t lendata, unsigned char **encrypt)
 {
     struct AES_matrix **blocksdata;
     size_t countdata = 0;
-    AES_matrix_text2matrix(data, &blocksdata, &countdata);
+    AES_matrix_text2matrix(data, &blocksdata, &countdata, lendata);
 
     for (size_t i = 0; i < countdata; ++i)
     {
@@ -94,13 +94,14 @@ void AES_encrypt(struct AES_ctx *ctx, unsigned char *data, unsigned char **encry
         AES_matrix_free(blocksdata[i]);
     }
     free(blocksdata);
+    return 16 * countdata;
 }
 
-void AES_decrypt(struct AES_ctx *ctx, unsigned char *encrypt, unsigned char **decrypt)
+size_t AES_decrypt(struct AES_ctx *ctx, unsigned char *encrypt, size_t lendata, unsigned char **decrypt)
 {
     struct AES_matrix **blocksen;
     size_t counten = 0;
-    AES_matrix_text2matrix(encrypt, &blocksen, &counten);
+    AES_matrix_text2matrix(encrypt, &blocksen, &counten, lendata);
 
     for (size_t i = 0; i < counten; ++i)
     {
@@ -147,4 +148,5 @@ void AES_decrypt(struct AES_ctx *ctx, unsigned char *encrypt, unsigned char **de
         AES_matrix_free(blocksen[i]);
     }
     free(blocksen);
+    return 16 * counten;
 }

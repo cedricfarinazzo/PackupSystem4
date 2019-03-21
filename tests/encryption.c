@@ -338,7 +338,7 @@ Test(AES, text2matrix)
     size_t len = strlen((char*)text);
     size_t nbblock = (len / 16) + (len%16 != 0 ? 1 : 0);
 
-    AES_matrix_text2matrix(text, &blocks, &count);
+    AES_matrix_text2matrix(text, &blocks, &count, strlen((char*)text));
 
     for (size_t i = 0; i < count; ++i)
     {
@@ -356,7 +356,7 @@ Test(AES, matrix2text)
     struct AES_matrix **blocks;
     size_t count = 0;
 
-    AES_matrix_text2matrix(text, &blocks, &count);
+    AES_matrix_text2matrix(text, &blocks, &count, strlen((char*)text));
 
     out = NULL;
 
@@ -381,7 +381,7 @@ Test(AES, Encryption)
     //printf("\nkey: %s  | text: %s\n", key, text);
     struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
     
-    AES_encrypt(ctx, text, &output);
+    size_t outlen = AES_encrypt(ctx, text, strlen((char*)text), &output);
 
     if (output == NULL)
         cr_assert_fail("output = NULL");
@@ -389,6 +389,7 @@ Test(AES, Encryption)
     //printf("encryption: %s\n\n", output);
     AES_ctx_free(ctx);
  
+    cr_assert_neq(outlen, 0);
     cr_assert_not_null(output);
     cr_assert_str_not_empty((char*)output);
     cr_assert_str_neq((char*)output, (char*)text);
@@ -404,16 +405,17 @@ Test(AES, Decrypt)
     unsigned char key[] = "01G345a.89sbhdef";
 
     struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
-    AES_encrypt(ctx, text, &output);
+    size_t outlen = AES_encrypt(ctx, text, strlen((char*)text), &output);
 
     if (output == NULL)
         cr_assert_fail("output = NULL");
 
-    AES_decrypt(ctx, output, &decrypt);
+    size_t delen = AES_decrypt(ctx, output, outlen, &decrypt);
 
     free(output);
     AES_ctx_free(ctx);
 
+    cr_assert_neq(delen, 0);
     cr_assert_not_null(decrypt);;
     cr_assert_str_not_empty((char*)decrypt);
     cr_assert_str_eq((char*)decrypt, (char*)text);

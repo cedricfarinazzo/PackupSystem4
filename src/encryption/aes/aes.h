@@ -18,8 +18,8 @@ struct AES_ctx *AES_init(unsigned char *key, size_t len);
 
 void AES_ctx_free(struct AES_ctx *ctx);
 
-void AES_encrypt(struct AES_ctx *ctx, unsigned char *data, unsigned char **encrypt);
+size_t AES_encrypt(struct AES_ctx *ctx, unsigned char *data, size_t lendata, unsigned char **encrypt);
 
-void AES_decrypt(struct AES_ctx *ctx, unsigned char *encrypt, unsigned char **decrypt);
+size_t AES_decrypt(struct AES_ctx *ctx, unsigned char *encrypt, size_t lendata, unsigned char **decrypt);
 
 #endif /* _SRC_ENCRYPTION_AES_AES_H_ */
