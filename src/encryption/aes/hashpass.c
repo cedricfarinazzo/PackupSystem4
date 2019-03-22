@@ -12,16 +12,17 @@ unsigned char *AES_keyFromPass(char *pass, size_t len)
     SHA1_Update(&ctx, pass, len);
 
     unsigned char tmphash[SHA_DIGEST_LENGTH];
-    unsigned char hash[2 * SHA_DIGEST_LENGTH];
-    unsigned char *key = calloc(17, sizeof(unsigned char*));
+    unsigned char hash[SHA_DIGEST_LENGTH*3];
+    unsigned char *key = malloc(17 * sizeof(unsigned char*));
     
     SHA1_Final(tmphash, &ctx);
 
     for (size_t i = 0; i < SHA_DIGEST_LENGTH; ++i)
-        sprintf((char*)&(hash[i * 2]), "%02x", tmphash[i]);
+        sprintf((char*)&(hash[i*2]), "%02x", tmphash[i]);
     
-    for (size_t i = 0; i <= 16; ++i)
+    for (size_t i = 0; i < 16; ++i)
         key[i] = hash[i];
+    key[16] = 0;
     
     return key;
 }
