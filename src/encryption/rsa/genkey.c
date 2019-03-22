@@ -4,27 +4,11 @@
 #include "genkey.h"
 
 
-mpz_t *prime_founder(mpz_t a, mpz_t debut)
+mpz_t *prime_founder(mpz_t debut)
 {
     mpz_t *r = malloc(sizeof(mpz_t));
     mpz_init(*r);
-
-    while (mpz_cmp(debut, a) <= 0)
-    {
-        mpz_t pg;
-        mpz_init(pg);
-        mpz_gcd(pg, a, debut);
-        if (mpz_cmp_ui(pg, 1) == 0)
-        {
-            mpz_clear(pg);
-            mpz_set(*r, debut);
-            return r;
-        }
-        mpz_add_ui(debut, debut, 1);
-        mpz_clear(pg);
-    }
-    
-    mpz_set_si(*r, -1);
+    mpz_nextprime(*r, debut);
     return r;
 }
 
@@ -77,7 +61,7 @@ struct RSA_publickey *RSA_gen_public_key(mpz_t p, mpz_t q)
     mpz_t mi; mpz_init(mi);
     min(p, q, mi);
 
-    mpz_t *e = prime_founder(phi, mi);
+    mpz_t *e = prime_founder(mi);
 
     mpz_clear(mi);
     mpz_clear(p1);
