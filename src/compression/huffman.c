@@ -656,15 +656,25 @@ int rebuild_tree(unsigned char *data, int actual, unsigned char key,
     {
         printf("\nTour n%d-------------------------------------\n", tour);
         printf("Act_prof = %d data[actual] = %d\n", act_prof, data[actual]);
-        if (data[actual] == 0 && huff_act->left == NULL)
+        if (data[actual] == 0)
         {
-            insert_left(huff_act, 0);
+            if (huff_act->left == NULL)
+            {
+                printf("Insertion\n");
+                insert_left(huff_act, 0);
+            }
+            printf("Passage a gauche\n");
             huff_act = huff_act->left;
         }
-        if (data[actual] == 1 && huff_act->right == NULL)
+        if (data[actual] == 1)
         {
-            printf("Insertion a droite\n");
-            insert_right(huff_act, 1);
+            printf("Detection a droite\n");
+            if (huff_act->right == NULL)
+            {
+                insert_right(huff_act, 1);
+                printf("Insertion\n");
+            }
+            printf("Passage a droite\n");
             huff_act = huff_act->right;
         }
         tour = 1;
@@ -675,7 +685,12 @@ int rebuild_tree(unsigned char *data, int actual, unsigned char key,
     printf("Act_prof = %d data[actual] = %d\n", act_prof, data[actual]);
     if ((data[actual] == 0 && huff_act->left != NULL) || (data[actual] == 1
         && huff_act->right != NULL))
+    {
+        printf("huff_act->right->key = %d huff_act->left->key = %d\n", 
+            huff_act->right->key, huff_act->right->key);
         errx(4, "Houston on a un probleme!");
+        
+    }
     else
     {
         if (data[actual] == 0)
@@ -741,32 +756,33 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
         printf("Key = %d\nActuel = %d\n", key, actuel);
         ++actuel_prof;
     }
-    while (actuel < ((len * 8) - align))
+
+    while (actuel < ((len * 8) - align - 8 - prof))
     {
         ++nb_char;
-        printf("actual key = %d ", actuel);
-        key = bin_to_char(data, actuel);
-        printf("key = %d\n", key);
+        printf("bin key = ");
+        for (int i = 0; i < 8; ++i)
+            printf("%d ", bindata[actuel + i]);
+        printf("\n");
+        key = bin_to_char(bindata, actuel);
         actuel += 8;
-//        if ((((len * 8) - align) - actuel) <= prof)
-        if (actuel > (len - align - actuel) * 8)
-        {
-            if ((((len * 8) - align) - actuel) < prof){
-                printf("\n");
-                errx(EXIT_FAILURE, "Probleme sur la structude de data_tree");}
-            unsigned char end_data[prof];
-            for (int i = 0; i < prof; ++i)
-            {
-                *(end_data + i) = bindata[actuel];
-                ++actuel;
-            }
-            actuel_prof = rebuild_tree(end_data, 0, key, huffmantree, prof);
-        }
-        else
-        {
-            actuel = rebuild_tree(bindata, actuel, key, huffmantree, prof);
-        }
+        actuel = rebuild_tree(bindata, actuel, key, huffmantree, prof);
     }
+
+    key = bin_to_char(bindata, actuel);
+    actuel += 8;
+    unsigned char end_data[prof];
+    for (int i = 0; i < prof; ++i)
+    {
+        end_data[i] = bindata[i + prof];
+    }
+    printf("end_data =");
+    for (int i = 0; i < prof; ++i)
+    {
+        printf("%d ", end_data[i]);
+    }
+    printf("\n");
+    actuel = rebuild_tree(end_data, 0, key, huffmantree, prof);
     print_bintree(huffmantree);
     return huffmantree;
 }
@@ -783,10 +799,6 @@ int decompressing_data(struct bintree *huffman, unsigned char *data,
             actualbin = actualbin->left;
         if (data[actual] == '1')
             actualbin = actualbin->right;
-        //else{
-        //    printf("data[actual] = %d\n", data[actual]);
-        //    errx(EXIT_FAILURE, "datatree is not binary");}
-//        ++actual;
         if (actualbin->left == NULL && actualbin->right == NULL)
         {
             insert(decompressed, actualbin->key);
@@ -820,7 +832,6 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     huffman_cp->prof += (int)data[actual++];
 
     //Construction tree longueur - On part sur len < 10 000
-    printf("actualici = %d\n", actual);
     huffman_cp->len += ((int)data[actual++] * 10000);
     huffman_cp->len += ((int)data[actual++] * 1000);
     huffman_cp->len += ((int)data[actual++] * 100);
