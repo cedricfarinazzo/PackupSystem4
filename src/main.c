@@ -19,6 +19,7 @@
 #include "encryption/aes/aes_shiftrows.h"
 #include "encryption/aes/aes_subbytes.h"
 #include "encryption/aes/aes_mixcolumns.h"
+#include "encryption/aes/hashpass.h"
 
 #include "compression/huffman.h"
 
@@ -137,9 +138,11 @@ int main(int argc, char *argv[])
         if (strcmp("aes", argv[1]) == 0)
         {
             unsigned char *text = (unsigned char*)argv[2];
-            unsigned char *key = (unsigned char*)argv[3];
+            char *pass = argv[3];
 
-            printf("text(%ld): %s   | key: %s\n", strlen((char*)text), text, key);
+            unsigned char *key = AES_keyFromPass(pass, strlen(pass));
+            printf("password (%ld): %s\n", strlen(pass), pass);
+            printf("text(%ld): %s   | key: %s\n\n", strlen((char*)text), text, key);
 
             unsigned char *output = NULL;
             unsigned char *decrypt = NULL;
@@ -157,6 +160,7 @@ int main(int argc, char *argv[])
             free(output);
             free(decrypt);
             AES_ctx_free(ctx);
+            free(key);
         }
     }
 
