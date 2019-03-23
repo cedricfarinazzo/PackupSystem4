@@ -37,7 +37,7 @@ void FS_save_data(struct meta_data *data, FILE *save)
     FS_save_stats(data->fs, save);
 }
 
-void FS_save_file(char *path, char *save)
+void FS_save_file(char *path, FILE *save)
 {
     FILE *original = fopen(path, "w");
     FILESYSTEM_save_file_content(original, save);
