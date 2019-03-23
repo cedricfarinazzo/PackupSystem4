@@ -68,5 +68,8 @@ void FILESYSTEM_create_save(char *path, char *savepath)
 
 void FILESYSTEM_create_new_save(char *path, char*savepath, char *oldsave)
 {
+    path = path;
+    savepath=savepath;
+    oldsave=oldsave;
     //TODO
 }
