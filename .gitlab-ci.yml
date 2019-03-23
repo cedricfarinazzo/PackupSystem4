@@ -31,6 +31,16 @@ job_build_clang:
     - make CC=${CC}
     - make tests/* CC=${CC}
 
+job_build_scan-build_gcc:
+  stage: build
+  artifacts:
+    paths:
+      - report/*
+  variables:
+      CC: gcc
+  script:
+    - scan-build -analyze-headers -stats -maxloop 8 -o report make -j4 CC=${CC}
+    
 
 ################
 # TEST STAGE 
