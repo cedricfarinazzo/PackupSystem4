@@ -8,6 +8,8 @@
 /* //TODO
 */
 
-void FILESYSTEM_create_save(char *path);
+void FILESYSTEM_create_save(char *path, char *savepath);
+
+void FILESYSTEM_create_new_save(char *path, char *savepath, char *oldsave);
 
 #endif // _SRC_FLESYSTEM_CREATE_SAVE
