@@ -1,4 +1,4 @@
-#ifndef _SRC_ENCRYPTION_AES_HASSPASS_H__
+#ifndef _SRC_ENCRYPTION_AES_HASSPASS_H_
 #define _SRC_ENCRYPTION_AES_HASSPASS_H_
 
 #include <openssl/sha.h>
@@ -13,4 +13,4 @@
  */
 unsigned char *AES_keyFromPass(char *pass, size_t len);
 
-#endif /* _SRC_ENCRYPTION_AES_HASSPASS_H__ */
+#endif /* _SRC_ENCRYPTION_AES_HASSPASS_H_ */
