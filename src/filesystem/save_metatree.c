@@ -91,11 +91,19 @@ char FS_restore_inheritance(FILE *file)
     return inheritance;
 }
 
+void FS_skip_file_content(FILE *file)
+{
+    long len;
+    fread(&len, 1, sizeof(len), file);
+    fseek(file, len, SEEK_CUR);
+}
+
 struct meta_tree *FS_restore_tree(FILE *file)
 {
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
     tree->data = FS_restore_data(file);
     char inheritance = FS_restore_inheritance(file);
+    FS_skip_file_content(file);
     if (inheritance & FILESYSTEM_TREE_HAS_SON)
         tree->son = FS_restore_tree(file);
     if (inheritance & FILESYSTEM_TREE_HAS_SIBLING)

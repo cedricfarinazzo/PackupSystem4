@@ -2,8 +2,10 @@
 #define _SRC_FILESYSTEM_CREATE_SAVE
 
 #include "build_metatree.h"
-#include "save_metatree.h"
 #include "save_file_content.h"
+
+#define FILESYSTEM_TREE_HAS_SON 0x10
+#define FILESYSTEM_TREE_HAS_SIBLING 0x01
 
 /* //TODO
 */
