@@ -5,22 +5,21 @@
 #include <gmp.h>
 #include "tools.h"
 
-struct RSA_publickey {
+struct RSA_pubKey {
     mpz_t *n;
     mpz_t *e;
 } RSA_publickey;
 
-struct RSA_privatekey {
+struct RSA_privKey {
     mpz_t *n;
     mpz_t *d;
 } RSA_privatekey;
 
-struct RSA_publickey *RSA_gen_public_key(mpz_t p, mpz_t q);
 
-void RSA_free_public_key(struct RSA_publickey *pub);
+void RSA_generateKey(unsigned long keysize, struct RSA_privKey **privk, struct RSA_pubKey **pubk);
 
-struct RSA_privatekey *RSA_gen_private_key(mpz_t p, mpz_t q, struct RSA_publickey *public);
+void RSA_free_private_key(struct RSA_privKey *privk);
 
-void RSA_free_private_key(struct RSA_privatekey *priv);
+void RSA_free_public_key(struct RSA_pubKey *pubk);
 
 #endif /* _SRC_ENCRYPTION_RSA_GENKEY_H_ */

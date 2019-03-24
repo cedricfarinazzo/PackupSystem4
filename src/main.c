@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
     {
         if (strcmp("--version", argv[1]) == 0)
             printf("Packup System 4 by PS4 %s v%s %s\n", TYPE, VERSION, DATE);
+
     }
 
     if (argc == 3)
@@ -158,62 +159,49 @@ int main(int argc, char *argv[])
             free(decrypt);
             AES_ctx_free(ctx);
         }
-    }
 
-    if (argc == 5)
-    {
         if (strcmp("rsa", argv[1]) == 0)
         {
-            char *  text = argv[2];
+            char *text = argv[2];
             size_t lentext = strlen(text);
-            long lp = atol(argv[3]);
-            long lq = atol(argv[4]);
 
-            mpz_t p, q;
-            mpz_init(p); mpz_init(q);
-            mpz_set_ui(p, lp);
-            mpz_set_ui(q, lq);
+            unsigned long keysize = (unsigned long)atol(argv[3]);
+            
+            printf("text: %s (size: %ld) | keysize: %ld\n\n", text, lentext, keysize);
 
-            printf("text: %s (size: %ld)\np: %ld     | q: %ld\n", text, lentext, lp, lq);
+            struct RSA_pubKey *pubk;
+            struct RSA_privKey *privk;
 
-            struct RSA_publickey *pub = RSA_gen_public_key(p, q);
-            struct RSA_privatekey *pri = RSA_gen_private_key(p, q, pub);
+            RSA_generateKey(keysize, &privk, &pubk);
 
+            printf("public: n = "); mpz_out_str(stdout,10, *(pubk->n));
+            printf("   e = "); mpz_out_str(stdout, 10, *(pubk->e));
 
-            printf("public: n = ");
-            mpz_out_str(stdout,10, *(pub->n));
-            printf("   e = ");
-            mpz_out_str(stdout, 10, *(pub->e));
-
-            printf("\nprivate: n = ");
-            mpz_out_str(stdout, 10, *(pri->n));
-            printf("   d = ");
-            mpz_out_str(stdout, 10, *(pri->d));
-            printf("\n");
+            printf("\nprivate: n = "); mpz_out_str(stdout, 10, *(privk->n));
+            printf("   d = "); mpz_out_str(stdout, 10, *(privk->d)); printf("\n");
 
 
-            mpz_t *encrypt = RSA_encode(pub, (unsigned char*)text, lentext);
+            mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext);
             printf("\nencode data: ");
             for (size_t i = 0; i < lentext; ++i)
                 gmp_printf("%#Zx ", encrypt[i]);
 
-
-            unsigned char *decode = RSA_decode(pri, encrypt, lentext);
+            unsigned char *decode = RSA_decode(privk, encrypt, lentext);
 
             printf("\n\ndecode text: %s\n", decode);
 
             for (size_t i = 0; i < lentext; ++i)
                 mpz_clear(encrypt[i]);
             free(encrypt);
-
             free(decode);
-
-            RSA_free_public_key(pub);
-            RSA_free_private_key(pri);
-            mpz_clear(p);
-            mpz_clear(q);
-
+            RSA_free_public_key(pubk);
+            RSA_free_private_key(privk);
         }
+    }
+
+    if (argc == 5)
+    {
+        
     }
     return EXIT_SUCCESS;
 }
