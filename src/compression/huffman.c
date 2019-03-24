@@ -312,8 +312,6 @@ void codage_tree(struct bintree *huffman, struct liste *table)
     __codage_tree(table, prefixe, pt->left, 0);
     struct liste *prefixe2 = new_liste();
     __codage_tree(table, prefixe2, pt->right, 1);
-    printf("\n\ntable = ");
-    print_listes(table);
     liste_free(prefixe);
     liste_free(prefixe2);
 }
@@ -332,7 +330,6 @@ int max_prof(struct bintree *H)
 void output_tree(struct liste *table, struct encod_tree *output, struct bintree *H)
 {
     int len_data = len_list(table);
-    print_listes(table);
     if (len_data % 8 != 0){len_data = (len_data / 8) + 1;}
     else {len_data = len_data / 8;}
     unsigned char *data = calloc(len_data + 1, sizeof(unsigned char));
@@ -362,7 +359,6 @@ void output_tree(struct liste *table, struct encod_tree *output, struct bintree 
 	    ++i;
 	    actual = actual->next;
     }
-    printf("\n");
     char align = 0;
     while (i != 8)
     {
@@ -411,8 +407,6 @@ void output_data(struct liste *datai, struct encod_data *output)
         }
     }
     int len_data = len_list(datai);
-    printf("len_data = %d\n", len_data);
-    print_listes(datai);
     if (len_data % 8 != 0){len_data = (len_data / 8) + 1;}
     else {len_data = len_data / 8;}
     output->data = calloc(len_data + 1, sizeof(unsigned char));
@@ -426,9 +420,6 @@ void output_data(struct liste *datai, struct encod_data *output)
         
         if (i == 8)
 	    {
-            for (int k = 0; k < 8; ++k)
-                printf("%d ", buf[k]);
-            printf("\n");
     	    --i;
             tmp = 0;
 	        for (int j = 0; j < 8; ++j)
@@ -437,7 +428,6 @@ void output_data(struct liste *datai, struct encod_data *output)
 		        buf[i] = 0;
                 --i;
 	        }
-            printf("\ntmp = %d\n", tmp);
 	        output->data[c] = tmp;
 	        ++c;
 	        i = 0;
@@ -468,12 +458,6 @@ void output_data(struct liste *datai, struct encod_data *output)
 
 struct huff_out *compression(unsigned char *dataIN)
 {
-    int rien = 0;
-    while (dataIN[rien] != 0)
-    {
-        printf("%d ", dataIN[rien]);
-        ++rien;
-    }
     //Debut Freqlist
     struct freqlist *freqList = buildFrequenceList(dataIN);
     //Test exception
@@ -527,8 +511,9 @@ struct huff_out *compression(unsigned char *dataIN)
     output_data(encoding_data, char_data);
 
     //Rendu soutenance
-    printf("Output encoding data = %s | ", char_data->data);
+    printf("Output encoding data = %s | \n", char_data->data);
     print_chare(char_data->data, char_data->len);
+    printf("\n");
     printf("Output encoding tree = %s | ", char_tree->data);
     print_chare(char_tree->data, char_tree->len);
 
@@ -539,7 +524,7 @@ struct huff_out *compression(unsigned char *dataIN)
 
     //Mise en forme de la chaine output
     //Huffman tree
-    printf("Taille ouput = %ld\n", 13 + char_data->len + char_tree->len);
+    printf("Taille ouput = %d\n", 13 + char_data->len + char_tree->len);
     unsigned char *output = malloc(sizeof(unsigned char *) *
         (13 + char_data->len + char_tree->len));
     output[0] = 202;
@@ -558,7 +543,6 @@ struct huff_out *compression(unsigned char *dataIN)
     output[actuel_out++] = char_data->align;
     for (int i = 1; i <= LEN_DATA; ++i)
     {
-        printf("datalen = %d\n", (char_data->len / (int)pow(10, (i - 1))) % 10);
         output[actuel_out + (LEN_DATA - i)] = (char_data->len /
             (int)pow(10, (i - 1))) % 10;
     }
@@ -797,7 +781,6 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
         ++actuel;
         actuel = rebuild_tree(end_data, 0, key, huffmantree, prof);
     }
-    print_bintree(huffmantree);
     free(bindata);
     return huffmantree;
 }
