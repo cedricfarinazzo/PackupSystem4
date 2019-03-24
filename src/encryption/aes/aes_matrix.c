@@ -17,8 +17,16 @@ struct AES_matrix *AES_matrix_init()
     return m;
 }
 
+void AES_matrix_clear(struct AES_matrix *m)
+{
+    for (size_t y = 0; y < m->rowsLenght; ++y)
+        for (size_t x = 0; x < m->colsLenght; ++x)
+            AES_matrix_set(m, x, y, 0);
+}
+
 void AES_matrix_free(struct AES_matrix *m)
 {
+    AES_matrix_clear(m); // Clear before free: prevent leak
     for (size_t i = 0; i < m->rowsLenght; ++i)
         free(m->data[i]);
     free(m->data);

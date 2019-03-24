@@ -17,6 +17,8 @@ struct AES_matrix {
 
 struct AES_matrix *AES_matrix_init();
 
+void AES_matrix_clear(struct AES_matrix *m);
+
 void AES_matrix_free(struct AES_matrix *m);
 
 size_t AES_matrix_getRowsLenght(struct AES_matrix *m);
