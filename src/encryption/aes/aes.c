@@ -21,6 +21,7 @@ struct AES_ctx *AES_init(unsigned char *key, size_t len)
             AES_matrix_free(blockskey[i]);
         }
         free(blockskey);
+        free(ctx);
         return NULL;
     }
     ctx->key = AES_matrix_init();

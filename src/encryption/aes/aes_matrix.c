@@ -248,8 +248,8 @@ void AES_matrix_printfhexline(struct AES_matrix *block)
 
 void AES_matrix_sprintf(struct AES_matrix *block, unsigned char **text)
 {
-    size_t count = 4 + block->rowsLenght*((block->colsLenght * 2) + 1);
-    *text = malloc(sizeof(unsigned char*) * count);
+    size_t count = 4 + block->rowsLenght*((block->colsLenght * 2) + 3);
+    *text = calloc(count, sizeof(unsigned char));
 
     unsigned char *tmp = *text;
 

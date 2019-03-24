@@ -13,7 +13,7 @@ unsigned char *AES_keyFromPass(char *pass, size_t len)
 
     unsigned char tmphash[SHA_DIGEST_LENGTH];
     unsigned char hash[SHA_DIGEST_LENGTH*3];
-    unsigned char *key = malloc(17 * sizeof(unsigned char*));
+    unsigned char *key = malloc(17 * sizeof(unsigned char));
     
     SHA1_Final(tmphash, &ctx);
 

@@ -34,7 +34,7 @@ size_t AES_encrypt(struct AES_ctx *ctx, unsigned char *data, size_t lendata, uns
 ```
 
 - decrypt 
-```
+```c
 /* AES_decrypt: decrypt encrypted data with the context ctx and write the output on decrypt
  * ctx: struct AES_ctx*: an aes context initilize by AES_init
  * encrypt: char*: encrypt to decrypt
@@ -106,6 +106,6 @@ int main(int argc, char *argv[])
     AES_ctx_free(ctx); //free aes ctx
     free(key);
 
-return 0;
+    return 0;
 }
 ```
