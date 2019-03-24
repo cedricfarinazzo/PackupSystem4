@@ -637,14 +637,11 @@ void liste_bin_to_char(struct liste *liste, struct element *debut)
 unsigned char bin_to_char(unsigned char *data, int actual)
 {
     unsigned char n = 0;
-//    printf("char = ");
     for (int i = 7; i >= 0; --i)
     {
         n += (data[actual] * pow(2, i));
-  //      printf("||n=%d | data[actual]=%d", n, data[actual]);
         ++actual;
     }
-    //printf("\nn = %d\n", n);
     return n;
 }
 
@@ -659,13 +656,20 @@ int rebuild_tree(unsigned char *data, int actual, unsigned char key,
     {
         printf("\nTour n%d-------------------------------------\n", tour);
         printf("Act_prof = %d data[actual] = %d\n", act_prof, data[actual]);
+        if (huff_act->key != 0 && huff_act->key != 1)
+        {
+            printf("prof = %d, act_prof = %d\n", prof, act_prof);
+            errx(EXIT_FAILURE, "Tentative d'insertion sur une feuille");
+        }
         if (data[actual] == 0)
         {
+            printf("Detection a gauche\n");
             if (huff_act->left == NULL)
             {
                 printf("Insertion\n");
                 insert_left(huff_act, 0);
             }
+            printf("actuel key = %d\n", huff_act->key);
             printf("Passage a gauche\n");
             huff_act = huff_act->left;
         }
@@ -677,10 +681,11 @@ int rebuild_tree(unsigned char *data, int actual, unsigned char key,
                 insert_right(huff_act, 1);
                 printf("Insertion\n");
             }
+            printf("actuel key = %d\n", huff_act->key);
             printf("Passage a droite\n");
             huff_act = huff_act->right;
         }
-        tour = 1;
+        ++tour;
         ++act_prof;
         ++actual;
         printf("\nFin tour--------------------------------------\n");
@@ -738,6 +743,10 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     int nb_char)
 {
     int actuel_prof = 2;
+    printf("data_tree = ");
+    for (int i = 0; i < len; ++i)
+        printf("%d ", data[i]);
+    printf("\n");
     struct bintree *huffmantree = new_tree(0);
     unsigned char key;
     unsigned char *bindata = malloc(sizeof(unsigned char) * (len * 8));
@@ -837,9 +846,6 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     if (data[0] <= 127)
         errx(EXIT_FAILURE, "Programme en cours de realisation");
     
-    printf("dataIN to decompress : ");
-    print_chare(data, len_data);
-    printf("data[1] = %d", data[1]);
     struct encod_tree *huffman_cp = malloc(sizeof(struct encod_tree));
     huffman_cp->prof = 0;
     huffman_cp->len = 0;
@@ -857,10 +863,8 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     huffman_cp->len += ((int)data[actual++] * 100);
     huffman_cp->len += ((int)data[actual++] * 10);
     huffman_cp->len += (int)data[actual++];
-    printf("actual = %d; len = %d\n", actual, huffman_cp->len);
     huffman_cp->data = malloc(sizeof(unsigned char *) * huffman_cp->len);
-    strcpyh(huffman_cp->data, &(data[actual]), (huffman_cp->len -
-        huffman_cp->align));
+    strcpyh(huffman_cp->data, &(data[actual]), (huffman_cp->len));
     printf("tree len = %d\n", huffman_cp->len);
     actual += huffman_cp->len;
 
@@ -868,7 +872,6 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     data_cp->len = 0;
 
     //Construction de data align - par nature align < 8
-    printf("align data = %d\n", data[actual]);
     data_cp->align = (int)data[actual++];
 
     //Construction de tree len - On part sur len < 10 000
