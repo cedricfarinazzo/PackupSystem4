@@ -96,6 +96,10 @@ int main(int argc, char *argv[])
                 printf("Longeur differente : %d -> %d\n", len, len_a);
             printf("Text input : %s\n", text);
             printf("Text output : %s\n", final->dataOUT);
+            free(compressed->dataOUT);
+            free(compressed);
+            free(final->dataOUT);
+            free(final);
         }
 
         if (strcmp("filesystem", argv[1]) == 0)

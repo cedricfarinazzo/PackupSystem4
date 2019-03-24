@@ -61,10 +61,6 @@ void insert(struct liste *liste, char n)
         liste->last->next->next = NULL;
         liste->last->next->prec = liste->last;
         liste->last = liste->last->next;
-        //n_ele->prec = liste->last;
-        //n_ele->next = NULL;
-        //liste->last->next = n_ele;
-        //liste->last = n_ele;
     }
 }
 
