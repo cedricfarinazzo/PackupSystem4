@@ -760,13 +760,15 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
         ++actuel_prof;
     }
 
+    printf("\n\n\n\nactuel = %d, len = %d, seuil = %d\n\n\n\n", actuel, len * 8, (len * 8
+        - align - 8 - prof));
     while (actuel < ((len * 8) - align - 8 - prof))
     {
         ++nb_char;
         printf("bin key = ");
         for (int i = 0; i < 8; ++i)
             printf("%d ", bindata[actuel + i]);
-        printf("\n");
+        printf("\nactuel = %d\n", actuel);
         key = bin_to_char(bindata, actuel);
         actuel += 8;
         actuel = rebuild_tree(bindata, actuel, key, huffmantree, prof);
@@ -777,7 +779,7 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     unsigned char end_data[prof];
     for (int i = 0; i < prof; ++i)
     {
-        end_data[i] = bindata[i + prof + 1];
+        end_data[i] = bindata[i + actuel];
     }
     printf("end_data =");
     for (int i = 0; i < prof; ++i)
@@ -788,20 +790,33 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     ++actuel;
     actuel = rebuild_tree(end_data, 0, key, huffmantree, prof);
     print_bintree(huffmantree);
+    free(bindata);
     return huffmantree;
 }
 
 int decompressing_data(struct bintree *huffman, unsigned char *data,
-    int len, struct liste *decompressed)
+    int len, struct liste *decompressed, char align)
 {
     int actual = 0;
+    unsigned char *bindata = malloc(sizeof(unsigned char) * (len * 8));
+    for (int i = 0; i < len * 8; ++i)
+        bindata[i] = 0;
+    data_to_bin(bindata, data, len);
+    printf("Data = ");
+    for (int i = 0; i < len; ++i)
+        printf("%d ", data[i]);
+    printf("\n");
+    printf("Bindata = ");
+    for (int i = 0; i < len * 8; ++i)
+        printf("%d ", bindata[i]);
+    printf("\n");
     int nb_decom = 0;
     struct bintree *actualbin = huffman;
-    while (actual < len)
+    while (actual < len * 8 - align)
     {
-        if (data[actual] == '0')
+        if (bindata[actual] == 0)
             actualbin = actualbin->left;
-        if (data[actual] == '1')
+        if (bindata[actual] == 1)
             actualbin = actualbin->right;
         if (actualbin->left == NULL && actualbin->right == NULL)
         {
@@ -811,6 +826,7 @@ int decompressing_data(struct bintree *huffman, unsigned char *data,
         }
         ++actual;
     }
+    free(bindata);
     return nb_decom; 
 }
 
@@ -867,7 +883,7 @@ struct huff_out *decompression(unsigned char *data, int len_data)
         errx(4, "Attention out of range");}
 
     data_cp->data = malloc(sizeof(unsigned char *) * data_cp->len);
-    for (int i = 0; i < (data_cp->len - data_cp->align); i++){
+    for (int i = 0; i < (data_cp->len); i++){
         data_cp->data[i] = data[actual + i];}
     
     //Decodage et reconstruction de l'arbre
@@ -879,20 +895,11 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     //Decompression des donnees
     struct liste *liste_out = new_liste();
     int len_out = decompressing_data(huffmantree, data_cp->data, data_cp->len,
-        liste_out);
+        liste_out, data_cp->align);
     struct huff_out *retour = malloc(sizeof(struct huff_out));
     retour->dataOUT = malloc(sizeof(unsigned char) * (len_out + 1));
     retour->dataOUT[len_out] = '\0';
     liste_to_string(liste_out, retour->dataOUT);
     retour->len = len_out;
-    //printf("Chaine decompressee = %s\n", data);
     return retour;
-/*
-    //Construction de la table de decodage
-    unsigned char **decode_table[2];
-    unsigned char *prefixe[nb_char];
-    unsigned char *caractere[nb_char];
-    decode_table[0] = prefixe;
-    decode_table[1] = caractere;
-*/
 }
