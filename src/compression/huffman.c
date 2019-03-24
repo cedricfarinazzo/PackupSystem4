@@ -135,7 +135,7 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
         insert(freqsort, temp->freq);
     }
     free_freqlist(Freq);
-    //Build huffmantree2
+    //Build huffmantree
     struct bintree *H = new_tree(0);
     H->left = new_tree(0);
     H->right = new_tree(0);
@@ -739,6 +739,17 @@ void data_to_bin(unsigned char *dest, unsigned char *src, int len)
     }
 }
 
+int length_tree(int prof)
+{
+    int length = 0;
+    for (int i = 2; i <= prof; ++i)
+    {
+        length += (2 * i);
+    }
+    length += (2 * prof);
+    return length;
+}
+
 struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     int nb_char)
 {
@@ -759,45 +770,67 @@ struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
     while (actuel_prof < prof)
     {
         key = bin_to_char(bindata, actuel);
-        printf("Key = %d\nActuel = %d\n", key, actuel);
         actuel += 8;
         actuel = rebuild_tree(bindata, actuel, key,  huffmantree, actuel_prof);
         key = bin_to_char(bindata, actuel);
         actuel += 8;
         actuel = rebuild_tree(bindata, actuel, key, huffmantree, actuel_prof);
-        printf("Key = %d\nActuel = %d\n", key, actuel);
+        printf("actuel = %d, prof = %d\n", actuel, actuel_prof);
         ++actuel_prof;
     }
-
+    
     printf("\n\n\n\nactuel = %d, len = %d, seuil = %d\n\n\n\n", actuel, len * 8, (len * 8
         - align - 8 - prof));
-    while (actuel < ((len * 8) - align - 8 - prof))
+    printf("len * 8 - align = %d, length_tree(prof) = %d\n", (len * 8) - align,
+        length_tree(prof) + prof * 16);
+    if (len * 8 - align > length_tree(prof) + prof * 16)
     {
-        ++nb_char;
-        printf("bin key = ");
-        for (int i = 0; i < 8; ++i)
-            printf("%d ", bindata[actuel + i]);
-        printf("\nactuel = %d\n", actuel);
+        for (int i = 0; i < 2; ++i)
+        {
+            key = bin_to_char(bindata, actuel);
+            actuel += 8;
+            actuel = rebuild_tree(bindata, actuel, key, huffmantree, prof);
+        }
+        for (int i = 0; i < 2; ++i)
+        {
+            key = bin_to_char(bindata, actuel);
+            actuel += 8;
+            actuel = rebuild_tree(bindata, actuel, key, huffmantree, prof + 1);
+        }
         key = bin_to_char(bindata, actuel);
         actuel += 8;
         actuel = rebuild_tree(bindata, actuel, key, huffmantree, prof);
     }
+    else
+    {
+        while (actuel < ((len * 8) - align - 8 - prof))
+        {
+            ++nb_char;
+            printf("bin key = ");
+            for (int i = 0; i < 8; ++i)
+                printf("%d ", bindata[actuel + i]);
+            printf("\nactuelici = %d\n", actuel);
+            key = bin_to_char(bindata, actuel);
+            actuel += 8;
+            actuel = rebuild_tree(bindata, actuel, key, huffmantree, prof);
+        }
 
-    key = bin_to_char(bindata, actuel);
-    actuel += 8;
-    unsigned char end_data[prof];
-    for (int i = 0; i < prof; ++i)
-    {
-        end_data[i] = bindata[i + actuel];
+        key = bin_to_char(bindata, actuel);
+        actuel += 8;
+        unsigned char end_data[prof];
+        for (int i = 0; i < prof; ++i)
+        {
+            end_data[i] = bindata[i + actuel];
+        }
+        printf("end_data =");
+        for (int i = 0; i < prof; ++i)
+        {
+            printf("%d ", end_data[i]);
+        }
+        printf("\n");
+        ++actuel;
+        actuel = rebuild_tree(end_data, 0, key, huffmantree, prof);
     }
-    printf("end_data =");
-    for (int i = 0; i < prof; ++i)
-    {
-        printf("%d ", end_data[i]);
-    }
-    printf("\n");
-    ++actuel;
-    actuel = rebuild_tree(end_data, 0, key, huffmantree, prof);
     print_bintree(huffmantree);
     free(bindata);
     return huffmantree;
