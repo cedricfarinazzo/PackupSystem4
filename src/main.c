@@ -188,7 +188,13 @@ int main(int argc, char *argv[])
             mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext);
             printf("\nencode data: ");
             for (size_t i = 0; i < lentext; ++i)
-                gmp_printf("%#Zx ", encrypt[i]);
+            {
+                char *buf = mpz_get_str(NULL, 62, encrypt[i]);
+                printf("%s", buf);
+                free(buf);
+                
+                //gmp_printf("%#Zx ", encrypt[i]);
+            }
 
             unsigned char *decode = RSA_decode(privk, encrypt, lentext);
 

@@ -26,7 +26,7 @@ void max(mpz_t a, mpz_t b, mpz_t r)
 void ipow(mpz_t base, mpz_t exp, mpz_t r)
 {
     mpz_t e;
-    mpz_set(e, exp);
+    mpz_init_set(e, exp);
     mpz_set_ui(r,1);
     for (;mpz_sgn(e) > 0; mpz_sub_ui(e, e, 1))
         mpz_mul(r, r, base);

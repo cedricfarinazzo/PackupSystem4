@@ -8,6 +8,7 @@ void single_encode_rsa(struct RSA_pubKey *public, mpz_t c, mpz_t r)
 {
     //ipow(c, *(public->e), r);
     //mpz_mod(r, r, *(public->n));
+    //mpz_powm(r, c, *(public->e), *(public->n));
     mpz_powm_sec(r, c, *(public->e), *(public->n));
 }
 
@@ -16,6 +17,7 @@ void single_decode_rsa(struct RSA_privKey *private, mpz_t c, mpz_t r)
 {
     //ipow(c, *(private->d), r);
     //mpz_mod(r, r, *(private->n));
+    //mpz_powm(r, c, *(private->d), *(private->n));
     mpz_powm_sec(r, c, *(private->d), *(private->n));
 }
 

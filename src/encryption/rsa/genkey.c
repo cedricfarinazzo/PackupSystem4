@@ -60,9 +60,9 @@ mpz_t *generateLargeNumber(unsigned long keysize, gmp_randstate_t r_state)
 {
     mpz_t *r = malloc(sizeof(mpz_t)); mpz_init(*r);
     
-    mpz_urandomb(*r,r_state, keysize + 1);
+    mpz_urandomb(*r,r_state, keysize);
     
-    mpz_t n; mpz_init(n); mpz_ui_pow_ui(n, 2, keysize);
+    mpz_t n; mpz_init(n); mpz_ui_pow_ui(n, 2, keysize - 1);
     mpz_add(*r, *r, n);
     mpz_clear(n);
     return r;
@@ -75,10 +75,10 @@ mpz_t *generateLargePrime(unsigned long keysize, gmp_randstate_t r_state)
     mpz_init(*r);
     
     mpz_t rand_Num; mpz_init(rand_Num);
-    mpz_urandomb(rand_Num ,r_state, keysize + 1);
+    mpz_urandomb(rand_Num ,r_state, keysize);
     
     mpz_t n; mpz_init(n);
-    mpz_ui_pow_ui(n, 2, keysize);
+    mpz_ui_pow_ui(n, 2, keysize - 1);
     mpz_add(n, n, rand_Num);
     
     mpz_nextprime(*r, n);
