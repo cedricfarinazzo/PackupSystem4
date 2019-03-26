@@ -15,7 +15,7 @@ void print_chare(unsigned char *output, int len);
 
 void strcpyh(unsigned char *dest, const unsigned char *src, int n);
 
-struct freqlist* buildFrequenceList(unsigned char dataIN[]);
+struct freqlist* buildFrequenceList(unsigned char dataIN[], int len);
 
 struct bintree *buildHuffmantree(struct freqlist *Freq);
 
@@ -33,7 +33,7 @@ void output_tree(struct liste *table, struct encod_tree *output,
 
 void output_data(struct liste *datai, struct encod_data *output);
 
-struct huff_out *compression(unsigned char *dataIN);
+struct huff_out *compression(unsigned char *dataIN, int len);
 
 int rebuild_tree(unsigned char *data, int actual, unsigned char key,
         struct bintree *huffman, int prof);

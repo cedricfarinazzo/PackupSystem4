@@ -27,4 +27,9 @@ void min_pop(struct freqlist *Freq, struct huffele *output);
 
 void liste_free(struct liste *liste);
 
+struct list_int *new_list(void);
+
+void insertint(struct list_int *Liste, int n);
+
+void free_list_int(struct list_int *liste);
 #endif /*_SRC_COMPRESSION_LISTE_H_*/

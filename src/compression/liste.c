@@ -148,11 +148,35 @@ void del_in(struct element *ele)
     free(ele);
 }
 
+void del_inT(struct ele_int *ele)
+{
+    if (ele == NULL)
+        errx(2, "Can not free Null element");
+    if (ele->next == NULL)
+    {
+        if (ele->prec != NULL)
+            ele->prec->next = NULL;
+    }
+    else
+    {
+        if (ele->prec == NULL)
+        {
+            ele->next->prec = NULL;
+        }
+        else
+        {
+            ele->prec->next = ele->next;
+            ele->next->prec = ele->prec;
+        }
+    }
+    free(ele);
+}
+
 void min_pop(struct freqlist *Freq, struct huffele *output)
 {
-    struct element *f_fr = Freq->freq->first;
+    struct ele_int *f_fr = Freq->freq->first;
     struct element *f_car = Freq->car->first;
-    struct element *m_fr = Freq->freq->first;
+    struct ele_int *m_fr = Freq->freq->first;
     struct element *m_car = Freq->car->first;
     while (f_fr != NULL && f_car != NULL)
     {
@@ -177,7 +201,7 @@ void min_pop(struct freqlist *Freq, struct huffele *output)
         Freq->freq->first = Freq->freq->first->next;
         Freq->car->first = Freq->car->first->next;
     }
-    del_in(m_fr);
+    del_inT(m_fr);
     del_in(m_car);
 }
 
@@ -196,5 +220,51 @@ void liste_free(struct liste *liste)
     {
         element_free(liste->first);
     }
+    free(liste);
+}
+
+//List_int
+
+struct list_int *new_list()
+{
+    struct list_int *newlist = malloc(sizeof(struct list_int));
+    if (newlist == NULL)
+        errx(EXIT_FAILURE, "No free memory");
+    newlist->first = NULL;
+    newlist->last = NULL;
+    return newlist;
+}
+
+void insertint (struct list_int *Liste, int n)
+{
+    if (Liste->first == NULL)
+    {
+        Liste->first = malloc(sizeof(struct ele_int));
+        Liste->first->key = n;
+        Liste->first->prec = NULL;
+        Liste->first->next = NULL;
+        Liste->last = Liste->first;
+    }
+    else
+    {
+        Liste->last->next = malloc(sizeof(struct ele_int));
+        Liste->last->next->key = n;
+        Liste->last->next->next = NULL;
+        Liste->last->next->prec = Liste->last;
+        Liste->last = Liste->last->next;
+    }
+}
+
+void free_ele_int(struct ele_int *ele)
+{
+    if (ele->next != NULL)
+        free_ele_int(ele->next);
+    free(ele);
+}
+
+void free_list_int(struct list_int *liste)
+{
+    if (liste->first != NULL)
+        free_ele_int(liste->first);
     free(liste);
 }

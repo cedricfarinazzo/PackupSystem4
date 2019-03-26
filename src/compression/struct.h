@@ -7,10 +7,21 @@ struct element {
     struct element *prec;
 } element;
 
+struct ele_int {
+    int key;
+    struct ele_int *next;
+    struct ele_int *prec;
+} ele_int;
+
 struct liste {
     struct element *first;
     struct element *last;
 } liste;
+
+struct list_int {
+    struct ele_int *first;
+    struct ele_int *last;
+} list_int;
 
 struct huffele {
     unsigned char car;
@@ -18,7 +29,7 @@ struct huffele {
 } huffele;
 
 struct freqlist {
-    struct liste *freq;
+    struct list_int *freq;
     struct liste *car;
 } freqlist;
 

@@ -19,7 +19,7 @@ void free_freqlist(struct freqlist *Freqlist)
 {
     if (Freqlist->freq != NULL)
     {
-        liste_free(Freqlist->freq);
+        free_list_int(Freqlist->freq);
     }
     if (Freqlist->car != NULL)
     {
@@ -30,7 +30,7 @@ void free_freqlist(struct freqlist *Freqlist)
 
 void print_freqlist(struct freqlist *freqList)
 {
-    struct element *test_freq = freqList->freq->first;
+    struct ele_int *test_freq = freqList->freq->first;
     struct element *test_car = freqList->car->first; 
     printf("FreqList = ");
     while (test_freq != NULL)
@@ -75,14 +75,14 @@ void strcpyh(unsigned char *dest, const unsigned char *src, int n)
 
 //Compression
 
-struct freqlist* buildFrequenceList(unsigned char dataIN[])
+struct freqlist* buildFrequenceList(unsigned char dataIN[], int len)
 {
     struct liste *charList = new_liste();
-    struct liste *frequencyList = new_liste();
+    struct list_int *frequencyList = new_list();
     int i = 0;
-    struct element *ele;
+    struct ele_int *ele;
     struct element *car;
-    while (dataIN[i] != '\0')
+    while (i < len)
     {
         ele = frequencyList->first;
         car = charList->first;
@@ -98,7 +98,7 @@ struct freqlist* buildFrequenceList(unsigned char dataIN[])
         else
         {
             insert(charList, dataIN[i]);
-            insert(frequencyList, 1);
+            insertint(frequencyList, 1);
         }
         i++;
     }
@@ -130,7 +130,6 @@ struct bintree *buildHuffmantree(struct freqlist *Freq)
     while(Freq->freq->first != NULL)
     {
         min_pop(Freq, temp);
-//        temp = min_pop(Freq);
         insert(charsort, temp->car);
         insert(freqsort, temp->freq);
     }
@@ -456,10 +455,125 @@ void output_data(struct liste *datai, struct encod_data *output)
     free(buf);
 }
 
-struct huff_out *compression(unsigned char *dataIN)
+struct huff_out *small_compression(struct freqlist *freqList,
+        unsigned char *dataIN, int len_IN)
+{
+    int longueur = len_list(freqList->car);
+    if (longueur == 1)
+    {
+        char align = 8 - (len_IN % 8);
+        unsigned char *dataOUT;
+        if (align == 0)
+        {dataOUT = malloc(sizeof(unsigned char)*((len_IN/8) + 7));}
+        else
+        {dataOUT = malloc(sizeof(unsigned char) *((len_IN / 8) + 8));}
+        dataOUT[0] = 1;
+        for (int i = 1; i < LEN_DATA; ++i)
+        {
+            dataOUT[1 + (LEN_DATA - i)] = (len_IN /
+                (int)pow(10, (i - 1))) % 10;
+        }
+        int act = LEN_DATA;
+        if (align == 0) {dataOUT[act++] = len_IN % 10;}
+        if (align != 0) {dataOUT[act++] = (len_IN % 10) + 1;}
+        for (int i = 0; i < len_IN / 8; ++i)
+            dataOUT[i] = 0;
+        if (align != 0) {dataOUT[act + len_IN / 8] = 0;}
+        act += len_IN / 8;
+        dataOUT[++act] = freqList->car->first->key;
+        free_freqlist(freqList);
+        struct huff_out *retour = malloc(sizeof(struct huff_out));
+        if (align == 0) {retour->len = (len_IN / 8) + 7;}
+        else {retour->len = (len_IN / 8) + 8;}
+        retour->dataOUT = dataOUT;
+        return retour;
+    }
+    if (longueur == 2)
+    {
+        //Passage en full static
+        unsigned char bineq[2];
+        bineq[0] = 0;
+        bineq[1] = 1;
+        unsigned char chareq[2];
+        chareq[0] = freqList->car->first->key;
+        chareq[1] = freqList->car->last->key;
+        free_freqlist(freqList);
+
+        //Construction de la chaine de sortie
+        char align = 8 - (len_IN % 8);
+        unsigned char *dataOUT;
+        if (align == 0) {dataOUT = malloc(sizeof(unsigned char)*(len_IN/4)+7);}
+        else {dataOUT = malloc(sizeof(unsigned char) * (len_IN/4) + 8);}
+        //Nombre de caractere
+        dataOUT[0] = 2;
+        //Align
+        dataOUT[1] = align;
+        //Chaine compressee
+        unsigned char bindata[len_IN + align];
+        for (int i = 0; i < len_IN; ++i)
+        {
+            if (dataIN[i] == chareq[0])
+                bindata[i] = 0;
+            else
+                bindata[i] = 1;
+        }
+        for (int i = 0; i < align; ++i)
+            bindata[len_IN + i] = 0;
+        int act = 2;
+        //Bin to char
+        unsigned char buf[8];
+        for (int i = 0; i < len_IN + align; ++i)
+        {
+            if (i % 8 == 0 && i != 0)
+            {
+                for (int j = 0; j < 8; ++j)
+                {
+                    dataOUT[act] = 0;
+                    dataOUT[act] += ((unsigned char)(pow(2, j)) * buf[7 - j]);
+                    buf[7 - j] = 0;
+                }
+                ++act;
+            }
+            buf[i % 8] = bindata[i];
+        }
+        //Caracteres
+        dataOUT[act++] = chareq[0];
+        dataOUT[act++] = chareq[1];
+        struct huff_out *retour = malloc(sizeof(struct huff_out));
+        if (align == 0) {retour->len = (len_IN / 4) + 7;}
+        else {retour->len = (len_IN / 4) + 8;}
+        retour->dataOUT = dataOUT;
+        return retour;
+    }
+    return NULL;
+}
+/*
+struct huff_out *dual_compression(struct freqlist *Freq, unsigned char *dataIN,
+        int len_IN)
+{
+    int longueur = len_liste(Freq->car);
+    if (longueur == 3)
+    {
+        unsigned char *bineq[3];
+        for (int i = 0; i < 3; ++i)
+        {
+            for (int j = 0; j < 2; ++j)
+            {
+                if (i < 2 && j == 0)
+                    bineq[i][j] = 0;
+                if (i == 2 && j == 0)
+                    bineq[i][j] = 1;
+                bineq[i][j] = j % 2;
+            }
+        }
+        
+    }
+}*/
+
+struct huff_out *compression(unsigned char *dataIN, int len_IN)
 {
     //Debut Freqlist
-    struct freqlist *freqList = buildFrequenceList(dataIN);
+    struct freqlist *freqList = buildFrequenceList(dataIN, len_IN);
     //Test exception
     if (freqList == NULL || freqList->freq->first == NULL ||
             freqList->freq->first == NULL)
@@ -468,6 +582,12 @@ struct huff_out *compression(unsigned char *dataIN)
     }
     //Fin Freqlist
 
+    if (len_list(freqList->car) < 5)
+    {
+        if (len_list(freqList->car) < 3)
+            return small_compression(freqList, dataIN, len_IN);
+        errx(EXIT_FAILURE, "Fonction en cours de realisation");
+    }
     //Debut Bintree
     struct bintree *huffman = buildHuffmantree(freqList);
     //Test exception
@@ -611,7 +731,7 @@ void liste_bin_to_char(struct liste *liste, struct element *debut)
     unsigned char n = 0;
     for (int i = 7; i >= 0; --i)
     {
-        n += (debut->key * pow(2, i));
+        n += ((unsigned char)debut->key * pow(2, i));
         debut = debut->next;
         del_in(debut->prec);
     }

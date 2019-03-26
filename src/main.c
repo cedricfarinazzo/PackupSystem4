@@ -71,15 +71,12 @@ int main(int argc, char *argv[])
         {
             int len_a = strlen(argv[2]);
             unsigned char *text = (unsigned char *)(argv[2]);
-            printf("len_a = %d\n", len_a);
             printf("Text input = %s\n", text);
             printf("Compressing...\n");
-            struct huff_out *compressed = compression(text);
-            printf("\nLen = %d\n", compressed->len);
+            struct huff_out *compressed = compression(text, len_a);
             printf("\nText ouput = %s | ", compressed->dataOUT);
             print_chare(compressed->dataOUT, compressed->len);
-            printf("Ratio : %d\n", (compressed->len / len_a));
-            printf("\nText output[21] = %d\n", compressed->dataOUT[21]);
+            printf("Ratio : %d%%\n", ((compressed->len * 100) / len_a));
             free_out(compressed);
         }
 
@@ -87,7 +84,7 @@ int main(int argc, char *argv[])
         {
             unsigned char *text = (unsigned char *)(argv[2]);
             int len = strlen(argv[2]);
-            struct huff_out *compressed = compression(text);
+            struct huff_out *compressed = compression(text, len);
             
             struct huff_out *final = decompression(compressed->dataOUT,
                 compressed->len);
