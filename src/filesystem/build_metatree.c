@@ -12,7 +12,6 @@
 
 struct meta_tree *sub_build_mti(char *path)
 {
-    //printf("entered mti with path: %s\n", path);
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
     struct stat fs;
     struct meta_data *data = malloc(sizeof(struct meta_data));
@@ -31,8 +30,8 @@ struct meta_tree *sub_build_mti(char *path)
     if (e == -1)
         err(22, "FILESYSTEM: sub build file stat failure.");
     data->fs = fs;
+    data->file_content = 0;
     tree->data = data;
-    //printf("finished mti\n");
     return tree;
 }
 
@@ -58,6 +57,7 @@ struct meta_tree *sub_build_mtd(char *chemin)
     }
     *(data->path + k) = 0;
     data->fs = fs;
+    data->file_content = 0;
     tree->data = data;
     DIR *directory = opendir(chemin);
     struct dirent *next = readdir(directory);

@@ -1,4 +1,5 @@
 #include "create_save.h"
+#include "restore_save.h"
 
 void CS_save_path(char *path, FILE *save)
 {
