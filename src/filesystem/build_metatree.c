@@ -72,7 +72,7 @@ struct meta_tree *sub_build_mtd(char *path)
     /*
     gets stats and checks for errors
     */
-    int e = stat(chemin, &fs);
+    int e = stat(path, &fs);
     if (e == -1)
         err(23, "FILESYSTEM: sub build tree directory stat failure.");
     
