@@ -1,12 +1,6 @@
 #include "restore_save.h"
 #include "create_save.h"
 
-void FILESYSTEM_restore_save(char *save_dir)
-{
-    save_dir = save_dir;
-    //TODO
-}
-
 char *RS_restore_path(FILE *file)
 {
     /*
@@ -109,4 +103,69 @@ struct meta_tree *FILESYSTEM_SAVE_restore_metatree_from_save(FILE *file)
     tree->son = RS_restore_tree(file);
 
     return tree;
+}
+
+void FILESYSTEM_restore_save(char *save_dir)
+{
+    save_dir = save_dir;
+    //TODO
+}
+
+void RS_restore_content(FILE *src, off_t offset, FILE *dst)
+{
+    size_t length;
+    fread(&length, sizeof(size_t), 1, src);
+
+    char buf[2048];
+    int r;
+    int w;
+    size_t total = 0;
+    
+    while (total < length)
+    {
+        if (total + 2048 > length)
+        {
+            r = fread(buf, sizeof(char), length - total, src);
+            w = fwrite(buf, sizeof(char), r, dst);
+            if (w < r)
+                err(33, "RS_restore_content: failed to write all bytes");
+            break;
+        }
+        r = fread(buf, sizeof(char), 2048, src);
+        w = fwrite(buf, sizeof(char, r, dst));
+        if (w < r)
+            err(33, "RS_restore_content: failed to write all bytes");
+        total += r;
+    }
+}
+
+void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
+{
+    if (tree->son == NULL)
+    {
+        FILE *dst = fopen(tree->data->path, "w");
+        RS_restore_content(src, tree->data->offset, dst);
+        fclose(dst);
+    }
+    else
+    {
+        mkdir(tree->data->path, 0666);
+        struct meta_tree *temp = tree->son;
+        while (temp)
+        {
+            RS_restore_from_meta_tree(temp, src);
+            temp = temp->sibling;
+        }
+    }
+}
+
+void FILESYSTEM_restore_original_save(char *save)
+{
+    FILE *file = fopen(save, "r");
+    struct meta_tree *tree = FILESYSTEM_SAVE_restore_meta_tree(file);
+
+    RS_restore_from_meta_tree(tree->son, file);
+
+    fclose(file);
+    FILESYSTEM_free_metatree(tree);
 }
