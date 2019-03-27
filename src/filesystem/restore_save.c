@@ -12,7 +12,15 @@ char *RS_restore_path(FILE *file)
     /*
     reads the len of the saved path, reads said path and return it
     */
-    //TODO
+    long length;
+    fread(&length, sizeof(long), 1, file);
+    if (e < (long) sizeof(long))
+        err(33, "RS_restore_path, failed to read length");
+
+    char *path = malloc(len * sizeof(char));
+    fread(path, sizeof(char), len, file);
+
+    return path;
 }
 
 struct stat RS_restore_stats(FILE *file)
@@ -20,7 +28,10 @@ struct stat RS_restore_stats(FILE *file)
     /*
     reads in the file the saved stat struct and returns it
     */
-    //TODO
+    struct stat fs;
+    fread(&fs, sizeof(struct stat), 1, file);
+
+    return fs;
 }
 
 off_t RS_skip_file_content(FILE *file)
@@ -43,7 +54,18 @@ struct meta_data *RS_restore_data(FILE *file)
     fourth: gets offset for file_content and skips file_content
     fifth: returns pointer to allocated memory
     */
-    //TODO
+    char *path = RS_restore_path(file);
+
+    struct stat fs = RS_restore_stats(file);
+
+    struct meta_data *data = malloc(sizeof(struct meta_data));
+
+    data->path = path;
+    data->fs = fs;
+
+    data->file_content = RS_skip_file_content(file);
+
+    return data;
 }
 
 char RS_restore_inheritance(FILE *file)
@@ -51,7 +73,10 @@ char RS_restore_inheritance(FILE *file)
     /*
     reads the inheritance byte and returns it
     */
-    //TODO
+    char inheritance;
+    fread(&inheritance, sizeof(char), 1, file);
+
+    return inheritance;
 }
 
 struct meta_tree *RS_restore_tree(FILE *file)
@@ -62,12 +87,26 @@ struct meta_tree *RS_restore_tree(FILE *file)
     third: get offset for file content
     fourth: recursive calls
     */
-    //TODO
+    struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
+
+    tree->data = RS_restore_data(file);
+
+    char inheritance = RS_restore_inheritance(file);
+
+    if (inheritance & FILESYSTEM_TREE_HAS_SON)
+        tree->son = RS_restore_tree(file);
+    
+    if (inheritance & FILESYSTEM_TREE_HAS_SIBLING)
+        tree->sibling = RS_restore_tree(file);
+
+    return tree;
 }
 
 struct meta_tree *FILESYSTEM_SAVE_restore_metatree_from_save(FILE *file)
 {
-    file = file;
-    //TODO
-    return NULL;
+    struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
+
+    tree->son = RS_restore_tree(file);
+
+    return tree;
 }
