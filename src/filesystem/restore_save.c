@@ -7,11 +7,11 @@ char *RS_restore_path(FILE *file)
     reads the len of the saved path, reads said path and return it
     */
     long length;
-    fread(&length, sizeof(long), 1, file);
+    int e = fread(&length, sizeof(long), 1, file);
     if (e < (long) sizeof(long))
         err(33, "RS_restore_path, failed to read length");
 
-    char *path = malloc(len * sizeof(char));
+    char *path = malloc(length * sizeof(char));
     fread(path, sizeof(char), len, file);
 
     return path;
@@ -36,7 +36,15 @@ off_t RS_skip_file_content(FILE *file)
     if 0: returns 0, nothing to be skipped
     else: skips file content and returns saved offset
     */
-    //TODO
+    size_t length;
+    fread(&length, sizoef(size_t), 1, file);
+
+    if (length == 0)
+        return 0;
+
+    fseek(file, length, SEEK_CUR);
+
+    return length;
 }
 
 struct meta_data *RS_restore_data(FILE *file)
@@ -113,6 +121,8 @@ void FILESYSTEM_restore_save(char *save_dir)
 
 void RS_restore_content(FILE *src, off_t offset, FILE *dst)
 {
+    fseek(src, offset, SEEK_SET);
+
     size_t length;
     fread(&length, sizeof(size_t), 1, src);
 
@@ -132,7 +142,7 @@ void RS_restore_content(FILE *src, off_t offset, FILE *dst)
             break;
         }
         r = fread(buf, sizeof(char), 2048, src);
-        w = fwrite(buf, sizeof(char, r, dst));
+        w = fwrite(buf, sizeof(char), r, dst);
         if (w < r)
             err(33, "RS_restore_content: failed to write all bytes");
         total += r;
@@ -144,7 +154,7 @@ void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
     if (tree->son == NULL)
     {
         FILE *dst = fopen(tree->data->path, "w");
-        RS_restore_content(src, tree->data->offset, dst);
+        RS_restore_content(src, tree->data->file_content, dst);
         fclose(dst);
     }
     else
@@ -162,7 +172,7 @@ void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
 void FILESYSTEM_restore_original_save(char *save)
 {
     FILE *file = fopen(save, "r");
-    struct meta_tree *tree = FILESYSTEM_SAVE_restore_meta_tree(file);
+    struct meta_tree *tree = FILESYSTEM_SAVE_restore_meta_tree_from_save(file);
 
     RS_restore_from_meta_tree(tree->son, file);
 
