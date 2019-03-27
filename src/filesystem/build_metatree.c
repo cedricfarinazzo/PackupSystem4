@@ -85,7 +85,7 @@ struct meta_tree *sub_build_mtd(char *path)
     /*
     copies path to data
     */
-    strcpy(data->path, path, len);
+    strncpy(data->path, path, len);
     
     /*
     saves stats in data and initialize offset of file content to 0
