@@ -172,7 +172,7 @@ void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
 void FILESYSTEM_restore_original_save(char *save)
 {
     FILE *file = fopen(save, "r");
-    struct meta_tree *tree = FILESYSTEM_SAVE_restore_meta_tree_from_save(file);
+    struct meta_tree *tree = FILESYSTEM_SAVE_restore_metatree_from_save(file);
 
     RS_restore_from_meta_tree(tree->son, file);
 
