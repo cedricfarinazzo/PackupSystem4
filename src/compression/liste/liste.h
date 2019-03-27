@@ -3,9 +3,9 @@
 
 #include <err.h>
 #include <stdlib.h>
-#include "huffman.h"
+#include "../huffman/huffman.h"
 #include <string.h>
-#include "struct.h"
+#include "../struct.h"
 
 struct liste *new_liste();
 

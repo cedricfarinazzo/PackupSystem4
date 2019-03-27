@@ -3,8 +3,8 @@
 
 #include <err.h>
 #include <stdlib.h>
-#include "bintree.h"
-#include "liste.h"
+#include "../tree/bintree.h"
+#include "../liste/liste.h"
 #include "struct.h"
 
 void free_out(struct huff_out *data);

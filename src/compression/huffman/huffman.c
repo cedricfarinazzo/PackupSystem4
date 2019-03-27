@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <err.h>
-#include "bintree.h"
-#include "liste.h"
+#include "../tree/bintree.h"
+#include "../liste/liste.h"
 #include "huffman.h"
-#include "struct.h"
+#include "../struct.h"
 #include <math.h>
 
 #define LEN_DATA 5
@@ -566,7 +566,7 @@ struct huff_out *dual_compression(struct freqlist *Freq, unsigned char *dataIN,
                 bineq[i][j] = j % 2;
             }
         }
-        
+
     }
 }*/
 
@@ -614,7 +614,7 @@ struct huff_out *compression(unsigned char *dataIN, int len_IN)
     //Fin table statique
 
     //Debut encodage donnees
-    struct liste *encoding_data = new_liste();
+    struct liste *encoding_data;
     encoding_data = encode_data(dataIN, static_table, len_table);
     //Fin encodage donnees
 

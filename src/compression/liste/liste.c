@@ -1,9 +1,9 @@
 #include <err.h>
 #include <stdlib.h>
-#include "huffman.h"
-#include "liste.h"
+#include "../huffman/huffman.h"
+#include "../liste/liste.h"
 #include <string.h>
-#include "struct.h"
+#include "../struct.h"
 #include <stdio.h>
 
 
