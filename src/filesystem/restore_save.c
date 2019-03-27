@@ -12,7 +12,7 @@ char *RS_restore_path(FILE *file)
         err(33, "RS_restore_path, failed to read length");
 
     char *path = malloc(length * sizeof(char));
-    fread(path, sizeof(char), len, file);
+    fread(path, sizeof(char), length, file);
 
     return path;
 }
@@ -37,7 +37,7 @@ off_t RS_skip_file_content(FILE *file)
     else: skips file content and returns saved offset
     */
     size_t length;
-    fread(&length, sizoef(size_t), 1, file);
+    fread(&length, sizeof(size_t), 1, file);
 
     if (length == 0)
         return 0;
