@@ -10,28 +10,49 @@
 #include <err.h>
 #include "build_metatree.h"
 
+/*
+builds node from regular file
+*/
+
 struct meta_tree *sub_build_mti(char *path)
 {
+    /*
+    allocates memory for tree and data and declares stat struct
+    */
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
     struct stat fs;
     struct meta_data *data = malloc(sizeof(struct meta_data));
-    size_t len = 0;
-    for (char *temp = path; *temp; temp++)
-    {
-        len++;
-    }
+    
+    /*
+    determines len of path and allocate memory to save it
+    */
+    size_t len = strlen(path);
     data->path = calloc((len + 1), sizeof(char));
-    size_t p;
-    for (p = 0; *(path + p); p++)
-    {
-        *(data->path + p) = *(path + p);
-    }
+    
+    /*
+    saves path in data
+    */
+    strncpy(data->path, path, len);
+
+    /*
+    gets stats of file and checks for errors
+    */
     int e = stat(path, &fs);
     if (e == -1)
         err(22, "FILESYSTEM: sub build file stat failure.");
+    
+    /*
+    saves stats in data and initialize offset of file content
+    to 0 as this tree was not loaded from a save file
+    */
     data->fs = fs;
     data->file_content = 0;
+
+    /*
+    links meta_data to meta_tree
+    */
     tree->data = data;
+        
     return tree;
 }
 
