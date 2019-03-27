@@ -128,64 +128,141 @@ void FILESYSTEM_save_metatree(struct meta_tree *tree, char *path)
     fclose(file);
 }
 
+/*
+restores path from file
+*/
+
 char *FS_restore_path(FILE *file)
 {
+    /*
+    declares len and read it from given file
+    */
     long len;
     fread(&len, sizeof(long), 1, file);
+
+    /*
+    using len, allocating memory for path and restoring it
+    */
     char *path = malloc(len * sizeof(char));
     fread(path, sizeof(char), len, file);
+
     return path;
 }
 
+/*
+restores stat from file
+*/
+
 struct stat FS_restore_stats(FILE *file)
 {
+    /*
+    declaring stat struct and reading it from given file
+    */
     struct stat fs;
     fread(&fs, sizeof(struct stat), 1, file);
+
     return fs;
 }
 
+/*
+restores data from file
+*/
+
 struct meta_data *FS_restore_data(FILE *file)
 {
+    /*
+    restoring path
+    */
     char *path = FS_restore_path(file);
+    
+    /*
+    restoring stats
+    */
     struct stat fs = FS_restore_stats(file);
+    
+    /*
+    allocating memory for data
+    */
     struct meta_data *data = malloc(sizeof(struct meta_data));
+
+    /*
+    linking path and stats to data
+    */
     data->path = path;
     data->fs = fs;
+
+    /*
+    initializing offset of file content to 0 as this tree was not loaded from a save
+    */
+    data->file_content = 0;
+
     return data;
 }
 
+/*
+loads inheritance byte and returns it
+*/
+
 char FS_restore_inheritance(FILE *file)
 {
+    /*
+    declares inheritance byte and read it from given file
+    */
     char inheritance;
     fread(&inheritance, sizeof(char), 1, file);
+
     return inheritance;
 }
 
-void FS_skip_file_content(FILE *file)
-{
-    long len;
-    fread(&len, 1, sizeof(len), file);
-    fseek(file, len, SEEK_CUR);
-}
+/*
+subfunction to restore tree
+*/
 
 struct meta_tree *FS_restore_tree(FILE *file)
 {
+    /*
+    first allocates memory for tree struct
+    */
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
+
+    /*
+    then restores data and links it to the tree
+    */
     tree->data = FS_restore_data(file);
+
+    /*
+    then gets inheritance byte
+    */
     char inheritance = FS_restore_inheritance(file);
-    FS_skip_file_content(file);
+
+    /*
+    if there is a son, recursively restore it
+    */
     if (inheritance & FILESYSTEM_TREE_HAS_SON)
         tree->son = FS_restore_tree(file);
+
+    /*
+    if there is still a sibling, restore it
+    */
     if (inheritance & FILESYSTEM_TREE_HAS_SIBLING)
         tree->sibling = FS_restore_tree(file);
+    
     return tree;
 }
 
 struct meta_tree *FILESYSTEM_restore_metatree(char *path)
 {
+    /*
+    allocates sentinel
+    */
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
+
+    /*
+    opens file, loads tree and links it to sentinel then close file
+    */
     FILE *file = fopen(path, "r");
     tree->son = FS_restore_tree(file);
     fclose(file);
+
     return tree;
 }
