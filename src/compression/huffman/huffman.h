@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "../tree/bintree.h"
 #include "../liste/liste.h"
-#include "struct.h"
+#include "../struct.h"
 
 void free_out(struct huff_out *data);
 
