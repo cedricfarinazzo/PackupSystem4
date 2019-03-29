@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <gmp.h>
+#include <string.h>
 #include "tools.h"
 
 void min(mpz_t a, mpz_t b, mpz_t r)
@@ -51,3 +52,30 @@ ulong rand_a_b(ulong a, ulong b)
 {
     return rand() % (b - a) + a;
 }
+
+
+
+unsigned char *get_str(unsigned long base, mpz_t e, size_t *len)
+{
+    mpz_t x;
+    mpz_init_set(x, e);
+    unsigned char *out = malloc(sizeof(unsigned char));
+    *len = 1;
+
+    while (mpz_cmp_ui(x, 0) != 0) 
+    {
+        mpz_t mc; mpz_init(mc);
+        mpz_mod_ui(mc, x, base);
+        unsigned long c = mpz_get_ui(mc);
+        out[*len - 1] = (unsigned char)c;
+        
+        mpz_divexact_ui(x, x, base);
+        
+        (*len)++;
+        out = realloc(out, sizeof(unsigned char) * *len);
+        mpz_clear(mc);
+    }
+    mpz_clear(x);
+    return out;
+}
+

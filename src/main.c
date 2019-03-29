@@ -11,6 +11,7 @@
 
 #include "encryption/rsa/rsa.h"
 #include "encryption/rsa/genkey.h"
+#include "encryption/rsa/tools.h"
 
 #include "encryption/aes/aes.h"
 #include "encryption/aes/aes.h"
@@ -189,8 +190,10 @@ int main(int argc, char *argv[])
             printf("\nencode data: ");
             for (size_t i = 0; i < lentext; ++i)
             {
-                char *buf = mpz_get_str(NULL, 62, encrypt[i]);
-                printf("%s", buf);
+                size_t size;
+                char *buf = get_str(128, encrypt[i], &size);//mpz_get_str(NULL, 62, encrypt[i]);
+                //write(STDOUT_FILENO, buf, size); printf("\n");
+                printf("%ld \n\n", size);
                 free(buf);
                 
                 //gmp_printf("%#Zx ", encrypt[i]);

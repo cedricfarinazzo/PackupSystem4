@@ -60,9 +60,11 @@ mpz_t *generateLargeNumber(unsigned long keysize, gmp_randstate_t r_state)
 {
     mpz_t *r = malloc(sizeof(mpz_t)); mpz_init(*r);
     
-    mpz_urandomb(*r,r_state, keysize);
+    unsigned long sizek = keysize/2;
     
-    mpz_t n; mpz_init(n); mpz_ui_pow_ui(n, 2, keysize - 1);
+    mpz_urandomb(*r,r_state, sizek/2);
+    
+    mpz_t n; mpz_init(n); mpz_ui_pow_ui(n, 2, keysize - 2);
     mpz_add(*r, *r, n);
     mpz_clear(n);
     return r;
@@ -73,12 +75,14 @@ mpz_t *generateLargePrime(unsigned long keysize, gmp_randstate_t r_state)
 {
     mpz_t *r = malloc(sizeof(mpz_t));
     mpz_init(*r);
-    
+
+    unsigned long sizek = keysize/2;
+
     mpz_t rand_Num; mpz_init(rand_Num);
-    mpz_urandomb(rand_Num ,r_state, keysize);
+    mpz_urandomb(rand_Num ,r_state, sizek/2);
     
     mpz_t n; mpz_init(n);
-    mpz_ui_pow_ui(n, 2, keysize - 1);
+    mpz_ui_pow_ui(n, 2, sizek);
     mpz_add(n, n, rand_Num);
     
     mpz_nextprime(*r, n);
@@ -91,6 +95,8 @@ mpz_t *generateLargePrime(unsigned long keysize, gmp_randstate_t r_state)
 
 void RSA_generateKey(unsigned long keysize, struct RSA_privKey **privk, struct RSA_pubKey **pubk)
 {
+    if (keysize < 4)
+        return;
     gmp_randstate_t r_state, base; 
     gmp_randinit_default(base); mpz_t tmp, ra; mpz_init(tmp); mpz_init(ra); mpz_clear(ra);
     mpz_urandomb(tmp, base, keysize);
@@ -110,6 +116,10 @@ void RSA_generateKey(unsigned long keysize, struct RSA_privKey **privk, struct R
         }
     }
 
+
+    printf("p =  "); mpz_out_str(stdout, 10, *p); printf("\n");
+    printf("q =  "); mpz_out_str(stdout, 10, *q); printf("\n");
+    
     mpz_t n; mpz_init(n); mpz_mul(n, *p, *q);
 
     mpz_t phi; mpz_init(phi);
