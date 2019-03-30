@@ -106,11 +106,13 @@ struct meta_tree *RS_restore_tree(FILE *file)
     return tree;
 }
 
-struct meta_tree *FILESYSTEM_SAVE_restore_metatree_from_save(FILE *file)
+struct meta_tree *FILESYSTEM_SAVE_restore_metatree_from_save(char *save)
 {
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
-
+    
+    FILE *file = fopen(save, "r");
     tree->son = RS_restore_tree(file);
+    fclose(file);
 
     return tree;
 }
@@ -173,11 +175,9 @@ void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
 
 void FILESYSTEM_restore_original_save(char *save)
 {
-    FILE *file = fopen(save, "r");
-    struct meta_tree *tree = FILESYSTEM_SAVE_restore_metatree_from_save(file);
+    struct meta_tree *tree = FILESYSTEM_SAVE_restore_metatree_from_save(save);
 
     RS_restore_from_meta_tree(tree->son, file);
 
-    fclose(file);
     FILESYSTEM_free_metatree(tree);
 }
