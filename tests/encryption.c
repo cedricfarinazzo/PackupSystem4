@@ -434,19 +434,17 @@ Test(AES, encrypt_decrypt_file)
     int e = 0;
 
     e = AES_encrypt_file(fin, fout, "testai");
-    printf("encrypt: %d\n", e);
-
     close(fout);
+    cr_assert_neq(e, -1);
 
     int find = open("example/a/2",O_RDONLY);
     int foutd = open("example/a/3", O_WRONLY | O_CREAT, 0666);
     
     e = AES_decrypt_file(find, foutd, "testai");
-    printf("decrypt: %d", e);
-
     close(find);
     close(fin);
     close(foutd);
+    cr_assert_neq(e, -1);
     
     FILE *reff = fopen("example/a/1", "r");
     FILE *decf = fopen("example/a/3", "r");

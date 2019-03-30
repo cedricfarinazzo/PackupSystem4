@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
             for (size_t i = 0; i < lentext; ++i)
             {
                 size_t size;
-                char *buf = get_str(128, encrypt[i], &size);//mpz_get_str(NULL, 62, encrypt[i]);
+                unsigned char *buf = get_str(128, encrypt[i], &size);//mpz_get_str(NULL, 62, encrypt[i]);
                 //write(STDOUT_FILENO, buf, size); printf("\n");
                 printf("%ld \n\n", size);
                 free(buf);

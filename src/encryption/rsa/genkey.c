@@ -117,8 +117,8 @@ void RSA_generateKey(unsigned long keysize, struct RSA_privKey **privk, struct R
     }
 
 
-    printf("p =  "); mpz_out_str(stdout, 10, *p); printf("\n");
-    printf("q =  "); mpz_out_str(stdout, 10, *q); printf("\n");
+    //printf("p =  "); mpz_out_str(stdout, 10, *p); printf("\n");
+    //printf("q =  "); mpz_out_str(stdout, 10, *q); printf("\n");
     
     mpz_t n; mpz_init(n); mpz_mul(n, *p, *q);
 
