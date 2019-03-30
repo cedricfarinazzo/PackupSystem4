@@ -6,7 +6,8 @@
 #include "../../liste/liste.h"
 #include "../huffman.h"
 
-#define LEN_DATA 5
+#define LEN_DATA 5 //Nombre d'octets pour l'information de la longueur dans la
+//chaine compressee
 struct huff_out *one_compression(struct freqlist *freqList,
         unsigned char *dataIN, int len_IN, int longueur)
 {
@@ -70,28 +71,21 @@ struct huff_out *two_compression(struct freqlist *freqList,
     if (align != 0){dataOUT[act++] = (len_IN % 10) + 1;}
     //Chaine compressee
     unsigned char bindata[len_IN + align];
-    printf("Bindata = ");
     for (int i = 0; i < len_IN; ++i)
     {
         if (dataIN[i] == chareq[0])
         {
-            //printf("dataIN[%d] = %d ; chareq[0] = %d\n", i, dataIN[i], chareq[0]);
             bindata[i] = 0;
-            printf("bindata[%d] = 0", i);
         }
         else
         {
-            //printf("dataIN[%d] = %d ; chareq[1] = %d\n", i, dataIN[i], chareq[1]);
             bindata[i] = 1;
-            printf("bindata[%d] = 1", i);
         }
     }
     for (int i = len_IN; i < align + len_IN; ++i)
     {
         bindata[i] = 0;
     }
-    for (int i = 0; i < len_IN + align; ++i)
-        printf("bindata[%d] = %d\n", i, bindata[i]);
     unsigned char buf[8];
     for (int i = 0; i < len_IN + align; ++i)
     {
@@ -104,7 +98,6 @@ struct huff_out *two_compression(struct freqlist *freqList,
                 buf[7 - j] = 0;
             }
             ++act;
-            printf("act = %d\n", act);
         }
         buf[i % 8] = bindata[i];
     }
@@ -119,16 +112,8 @@ struct huff_out *two_compression(struct freqlist *freqList,
         ++act;
     }
     //Caracteres
-    printf("dataOUT[%d] = %d\n", act, chareq[0]);
     dataOUT[act++] = chareq[0];
-    printf("dataOUT[%d] = %d\n", act, chareq[1]);
     dataOUT[act] = chareq[1];
-    printf("dataOUT = ");
-    for (int i = 0; i < (len_IN / 4) + 8; ++i)
-    {
-        printf("%d ", dataOUT[i]);
-    }
-    printf("\n");
     struct huff_out *retour = malloc(sizeof(struct huff_out));
     if (align == 0) {retour->len = (len_IN / 4) + 8;}
     else {retour->len = (len_IN / 4) + 9;}
@@ -151,15 +136,67 @@ struct huff_out *triple_compression(struct freqlist *freqList,
     else {dataOUT = malloc(sizeof(unsigned char)*(len_IN / 2) + 8);}
     dataOUT[0] = longueur;
     dataOUT[1] = align;
-    for (int i = 2; i < LEN_DATA + 5; ++i)
+    for (int i = 2; i < LEN_DATA + 2; ++i)
     {
         dataOUT[1 + (LEN_DATA - i)] = (len_IN /
                 (int)pow(10, (i - 1))) % 10;
     }
-    int actual = LEN_DATA + 5;
-
+    int actual = LEN_DATA + 2;
+    unsigned char bindata[len_IN * 2 + align];
+    for (int i = 0; i < len_IN; ++i)
+    {
+        if (dataIN[i] != chareq[2])
+        {
+            bindata[2 * i] = 0;
+            if (dataIN[i] == chareq[0])
+                bindata[2 * i + 1] = 0;
+            else
+                bindata[2 * i + 1] = 1;
+        }
+        else 
+        {
+            bindata[2 * i] = 1;
+            bindata[2 * i + 1] = 0;
+        }
+    }
+    for (int i = 2 * len_IN; i < 2 * len_IN + align; ++i)
+    {
+        bindata[i] = 0;
+    }
+    unsigned char buf[8];
+    for (int i = 0; i < 2 * len_IN + align; ++i)
+    {
+        if (i % 8 == 0 && i != 0)
+        {
+            dataOUT[act] = 0;
+            for (int j = 0; j < 8; ++j)
+            {
+                dataOUT[act] += ((unsigned char)(pow(2, j)) * buf[7 - j]);
+                buf[7 - j] = 0;
+            }
+            ++act;
+        }
+        buf[i % 8] = bindata[i];
+    }
+    if ((len_IN + align) % 8 == 0)
+    {
+        dataOUT[act] = 0;
+        for (int j = 0; j < 8; ++j)
+        {
+            dataOUT[act] += ((unsigned char)(pow(2, j)) * buf[7 - j]);
+        }
+    }
+    ++act;
+    //Caracteres
+    dataOUT[act++] = chareq[0];
+    dataOUT[act++] = chareq[1];
+    dataOUT[act] = chareq[2];
+    struct huff_out *retour = malloc(sizeof(struct huff_out));
+    if (align == 0) {retour->len = (len_IN / 4) + 9;}
+    else {retour->len = (len_IN / 4) + 10;}
+    retour->dataOUT = dataOUT;
+    return retour;
 }
-
 
 struct huff_out *simple_compression(struct freqlist *freqList,
         unsigned char *dataIN, int len_IN)
