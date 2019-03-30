@@ -5,6 +5,8 @@
 
 #include "../src/filesystem/build_metatree.h"
 #include "../src/filesystem/save_metatree.h"
+#include "../src/filesystem/restore_save.h"
+#include "../src/filesystem/create_save.h"
 
 void teardown(void) {
     remove("test_tree_savetree.txt");
@@ -75,6 +77,20 @@ void cmp_tree(struct meta_tree *tree1, struct meta_tree *tree2)
     }
 }
 
+void remove_dir()
+{
+    remove("./testfiles/content/sub1/file4");
+    remove("./testfiles/content/sub1/file5");
+    rmdir("./testfiles/content/sub1");
+    remove("./testfiles/content/sub2/file6");
+    remove("./testfiles/content/sub2/file7");
+    rmdir("./testfiles/content/sub2");
+    remove("./testfiles/content/file1");
+    remove("./testfiles/content/file2");
+    remove("./testfiles/content/file3");
+    rmdir("./testfiles/content");
+}
+
 Test(FILESYSTEM, Build_Tree)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
@@ -103,4 +119,30 @@ Test(FILESYSTEM, restore_tree)
     cmp_tree(tree->son, restored->son);
     FILESYSTEM_free_metatree(restored);
     FILESYSTEM_free_metatree(tree);
+}
+
+Test(FILESYSTEM, create_save)
+{
+    struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
+    print_tree(tree->son, 0);
+    cr_assert_not_null(tree);
+    FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
+    fileexists("./testfiles/saves/save.rdtgs");
+    struct stat fs;
+    int e = stat("./testfiles/saves/save.rdtgs", &fs);
+    printf("Size of save: %ld Bytes\n", fs.st_size);
+    struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves/save.rdtgs");
+    cmp_tree(tree->son, tree2->son);
+    print_tree(tree2->son, 0);
+    /*remove_dir();*/
+    FILESYSTEM_free_metatree(tree);
+    FILESYSTEM_free_metatree(tree2);
+    /*FILESYSTEM_restore_original_save("./testfiles/saves/save.rdtgs");
+    fileexists("./testfiles/content/file1");
+    fileexists("./testfiles/content/file2");
+    fileexists("./testfiles/content/file3");
+    fileexists("./testfiles/content/sub1/file4");
+    fileexists("./testfiles/content/sub1/file5");
+    fileexists("./testfiles/content/sub2/file6");
+    fileexists("./testfiles/content/sub2/file7");*/
 }

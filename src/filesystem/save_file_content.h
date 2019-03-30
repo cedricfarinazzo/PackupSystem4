@@ -12,7 +12,6 @@
 #include <string.h>
 #include <err.h>
 #include "build_metatree.h"
-#include "save_metatree.h"
 
 /* FILESYSTEM_save_file_content: saves content of file src in file dst
    src: the file to be saved
