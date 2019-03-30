@@ -132,7 +132,8 @@ Test(FILESYSTEM, create_save)
     int e = stat("./testfiles/saves/save.rdtgs", &fs);
     printf("Size of save: %ld Bytes\n", fs.st_size);
     struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves/save.rdtgs");
-    //cmp_tree(tree->son, tree2->son);
+    cmp_tree(tree->son, tree2->son);
+    print_tree(tree2->son, 0);
     /*remove_dir();*/
     FILESYSTEM_free_metatree(tree);
     FILESYSTEM_free_metatree(tree2);
