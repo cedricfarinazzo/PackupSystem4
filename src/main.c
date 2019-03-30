@@ -66,29 +66,6 @@ void print_ascii(unsigned char *a)
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-    
-    int fin = open("example/a/1",O_RDONLY);
-    int fout = open("example/a/2", O_WRONLY | O_CREAT);
-    
-    int e = 0;
-
-    e = AES_encrypt_file(fin, fout, "testai");
-    printf("encrypt: %d\n", e);
-
-    close(fin);
-    close(fout);
-
-    int find = open("example/a/2",O_RDONLY);
-    int foutd = open("example/a/3", O_WRONLY | O_CREAT, 0666);
-    
-    e = AES_decrypt_file(find, foutd, "testai");
-    printf("decrypt: %d", e);
-
-    close(find);
-    close(foutd);
-    
-    
-    return EXIT_SUCCESS;
     if (argc == 1)
         return interface(argc, argv);
 
