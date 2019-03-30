@@ -95,7 +95,7 @@ struct meta_tree *RS_restore_tree(FILE *file)
 
     char inheritance = RS_restore_inheritance(file);
     
-    data->file_content = RS_skip_file_content(file);
+    tree->data->file_content = RS_skip_file_content(file);
 
     if (inheritance & FILESYSTEM_TREE_HAS_SON)
         tree->son = RS_restore_tree(file);
