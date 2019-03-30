@@ -124,6 +124,7 @@ Test(FILESYSTEM, restore_tree)
 Test(FILESYSTEM, create_save)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
+    print_tree(tree->son);
     cr_assert_not_null(tree);
     FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
     fileexists("./testfiles/saves/save.rdtgs");
@@ -133,7 +134,7 @@ Test(FILESYSTEM, create_save)
     FILE *save = fopen("./testfiles/saves/save.rdtgs", "r");
     struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save(save);
     fclose(save);
-    cmp_tree(tree, tree2);
+    cmp_tree(tree->son, tree2->son);
     /*remove_dir();*/
     FILESYSTEM_free_metatree(tree);
     FILESYSTEM_free_metatree(tree2);
