@@ -42,7 +42,10 @@ void CS_save_file(char *path, FILE *save)
 {
     FILE *original = fopen(path, "w");
     if (original == NULL)
+    {
+        printf("Failed to open file: %s\n", path);
         err(35, "CS_save_file: Failed to open source file.");
+    }
     FILESYSTEM_save_file_content(original, save);
     fclose(original);
 }
