@@ -124,7 +124,7 @@ Test(FILESYSTEM, restore_tree)
 Test(FILESYSTEM, create_save)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
-    print_tree(tree->son);
+    print_tree(tree->son, 0);
     cr_assert_not_null(tree);
     FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
     fileexists("./testfiles/saves/save.rdtgs");
