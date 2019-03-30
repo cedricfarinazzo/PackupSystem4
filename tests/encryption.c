@@ -1,4 +1,7 @@
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -6,8 +9,10 @@
 
 #include <criterion/criterion.h>
 #include <criterion/hooks.h>
+#include <criterion/redirect.h>
 
 #include "../src/encryption/aes/aes.h"
+#include "../src/encryption/aes/aes_file.h"
 #include "../src/encryption/aes/aes_matrix.h"
 #include "../src/encryption/aes/aes_addroundkey.h"
 #include "../src/encryption/aes/aes_shiftrows.h"
@@ -420,6 +425,36 @@ Test(AES, Decrypt)
     cr_assert_str_not_empty((char*)decrypt);
     cr_assert_str_eq((char*)decrypt, (char*)text);
 }
+
+Test(AES, encrypt_decrypt_file)
+{
+    int fin = open("example/a/1",O_RDONLY);
+    int fout = open("example/a/2", O_WRONLY | O_CREAT);
+    
+    int e = 0;
+
+    e = AES_encrypt_file(fin, fout, "testai");
+    printf("encrypt: %d\n", e);
+
+    close(fout);
+
+    int find = open("example/a/2",O_RDONLY);
+    int foutd = open("example/a/3", O_WRONLY | O_CREAT, 0666);
+    
+    e = AES_decrypt_file(find, foutd, "testai");
+    printf("decrypt: %d", e);
+
+    close(find);
+    close(fin);
+    close(foutd);
+    
+    FILE *reff = fopen("example/a/1", "r");
+    FILE *decf = fopen("example/a/3", "r");
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+}
+
 
 // RSA
 Test(RSA, encrypt)

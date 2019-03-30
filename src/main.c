@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <string.h>
 #include <time.h>
 
@@ -14,7 +16,7 @@
 #include "encryption/rsa/tools.h"
 
 #include "encryption/aes/aes.h"
-#include "encryption/aes/aes.h"
+#include "encryption/aes/aes_file.h"
 #include "encryption/aes/aes_matrix.h"
 #include "encryption/aes/aes_addroundkey.h"
 #include "encryption/aes/aes_shiftrows.h"
