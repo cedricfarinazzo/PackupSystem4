@@ -7,17 +7,17 @@ void CS_save_path(char *path, FILE *save)
     length += strlen(path);
     int e = fwrite(&length, 1, sizeof(long), save);
     if (e < (long)sizeof(long))
-        err(33, "FS_save_path failure. fwrite failure");
+        err(33, "CS_save_path failure. fwrite failure");
     fwrite(path, sizeof(char), length, save);
     if (e < length)
-        err(33, "FS_save_path failure. fwrite failure");
+        err(33, "CS_save_path failure. fwrite failure");
 }
 
 void CS_save_stats(struct stat fs, FILE *save)
 {
     int e = fwrite(&fs, 1, sizeof(struct stat), save);
     if (e < (long)sizeof(struct stat))
-        err(33, "FS_save_path failure. fwrite failure");
+        err(33, "CS_save_path failure. fwrite failure");
 }
 
 void CS_save_inheritance(struct meta_tree *tree, FILE *save)
@@ -29,7 +29,7 @@ void CS_save_inheritance(struct meta_tree *tree, FILE *save)
         inheritance |= FILESYSTEM_TREE_HAS_SIBLING;
     int e = fwrite(&inheritance, sizeof(char), 1, save);
     if (e < 1)
-        err(33, "FS_save_inheritance failure. fwrite failed.");
+        err(33, "CS_save_inheritance failure. fwrite failed.");
 }
 
 void CS_save_data(struct meta_data *data, FILE *save)
