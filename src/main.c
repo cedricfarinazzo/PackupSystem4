@@ -14,7 +14,7 @@
 
 #include "encryption/aes/aes.h"
 
-#include "compression/huffman.h"
+#include "compression/huffman/huffman.h"
 
 #include "filesystem/build_metatree.h"
 #include "filesystem/save_metatree.h"
