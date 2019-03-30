@@ -3,7 +3,6 @@
 
 void CS_save_path(char *path, FILE *save)
 {
-    printf("CS_save_path: saved one path\n");
     long length = 1;
     length += strlen(path);
     int e = fwrite(&length, 1, sizeof(long), save);
@@ -53,7 +52,6 @@ void CS_save_file(char *path, FILE *save)
 
 void CS_save_tree(FILE *save, struct meta_tree *tree)
 {
-    printf("CS_save_tree: saved one node\n");
     if (tree == NULL)
         err(34, "CS_save_tree: Null tree error");
     CS_save_data(tree->data, save);

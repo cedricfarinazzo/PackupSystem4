@@ -23,8 +23,8 @@ struct stat RS_restore_stats(FILE *file)
     reads in the file the saved stat struct and returns it
     */
     struct stat fs;
-    fread(&fs, sizeof(struct stat), 1, file);
-
+    int e = fread(&fs, sizeof(struct stat), 1, file);
+    if (e < (long) sizeof(struct stat))
     return fs;
 }
 
