@@ -1,8 +1,9 @@
-#include "../../tools/sha1.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "hashpass.h"
+
+#include "sha1.h"
 
 unsigned char *AES_keyFromPass(char *pass, size_t len)
 {

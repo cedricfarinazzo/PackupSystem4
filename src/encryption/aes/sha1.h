@@ -1,9 +1,9 @@
-#ifndef _SRC_TOUCH_SHA1_H_
-#define _SRC_TOUCH_SHA1_H_
+#ifndef _SRC_ENCRYPTION_AES_SHA1_H_
+#define _SRC_ENCRYPTION_AES_SHA1_H_
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>	/* for u_int*_t */
+#include <sys/types.h>
 
 typedef struct {
     u_int32_t state[5];
@@ -21,4 +21,4 @@ void SHA1Update(SHA1_CTX* context, const unsigned char* data, u_int32_t len);
 
 void SHA1Final(unsigned char digest[20], SHA1_CTX* context);
 
-#endif /* _SRC_TOUCH_SHA1_H_ */
+#endif /* _SRC_ENCRYPTION_AES_SHA1_H_ */

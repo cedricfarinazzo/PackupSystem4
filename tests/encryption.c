@@ -6,12 +6,14 @@
 #include <time.h>
 
 #include "../src/tools/base64.h"
+#include "../src/encryption/aes/sha1.h"
 
 #include <criterion/criterion.h>
 #include <criterion/hooks.h>
 #include <criterion/redirect.h>
 
 #include "../src/encryption/aes/aes.h"
+#include "../src/encryption/aes/hashpass.h"
 #include "../src/encryption/aes/aes_file.h"
 #include "../src/encryption/aes/aes_matrix.h"
 #include "../src/encryption/aes/aes_addroundkey.h"

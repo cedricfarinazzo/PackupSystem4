@@ -1,10 +1,10 @@
 #ifndef _SRC_ENCRYPTION_AES_HASSPASS_H_
 #define _SRC_ENCRYPTION_AES_HASSPASS_H_
 
-#include "../../tools/sha1.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "sha1.h"
 
 /* AES_keyFromPass: generate an aes key from password
  * pass: char*: a password
