@@ -25,6 +25,7 @@ struct stat RS_restore_stats(FILE *file)
     struct stat fs;
     int e = fread(&fs, sizeof(struct stat), 1, file);
     if (e < (long) sizeof(struct stat))
+        err(34, "RS_restore_stats: failed to read stats");
     return fs;
 }
 
