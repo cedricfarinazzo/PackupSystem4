@@ -56,9 +56,9 @@ struct meta_data *RS_restore_data(FILE *file)
     fourth: gets offset for file_content and skips file_content
     fifth: returns pointer to allocated memory
     */
-    char *path = RS_restore_path(file);
-
     struct stat fs = RS_restore_stats(file);
+
+    char *path = RS_restore_path(file);
 
     struct meta_data *data = malloc(sizeof(struct meta_data));
 
