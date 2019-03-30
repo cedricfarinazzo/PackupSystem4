@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
             size_t lentext = strlen(text);
 
             unsigned long keysize = (unsigned long)atol(argv[3]);
-            
+
             printf("text: %s (size: %ld) | keysize: %ld\n\n", text, lentext, keysize);
 
             struct RSA_pubKey *pubk;
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
                 //write(STDOUT_FILENO, buf, size); printf("\n");
                 printf("%ld \n\n", size);
                 free(buf);
-                
+
                 //gmp_printf("%#Zx ", encrypt[i]);
             }
 
@@ -216,7 +216,27 @@ int main(int argc, char *argv[])
 
     if (argc == 5)
     {
+        if (strcmp("aes-file-enc", argv[1]) == 0)
+        {
+            int fin = open(argv[2],O_RDONLY);
+            int fout = open(argv[3], O_WRONLY | O_CREAT);
+            int e = AES_encrypt_file(fin, fout, argv[4]);
+            if (e == -1)
+                err(e, "aes file enc: error ");
+            close(fout);
+            close(fin);
+        }
         
+        if (strcmp("aes-file-dec", argv[1]) == 0)
+        {
+            int fin = open(argv[2],O_RDONLY);
+            int fout = open(argv[3], O_WRONLY | O_CREAT);
+            int e = AES_decrypt_file(fin, fout, argv[4]);
+            if (e == -1)
+                err(e, "aes file dec: error ");
+            close(fout);
+            close(fin);
+        }
     }
     return EXIT_SUCCESS;
 }
