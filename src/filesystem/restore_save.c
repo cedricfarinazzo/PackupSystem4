@@ -8,7 +8,7 @@ char *RS_restore_path(FILE *file)
     */
     long length;
     int e = fread(&length, sizeof(long), 1, file);
-    if (e < (long) sizeof(long))
+    if (e < 1)
         err(33, "RS_restore_path, failed to read length");
 
     char *path = malloc(length * sizeof(char));
@@ -24,7 +24,7 @@ struct stat RS_restore_stats(FILE *file)
     */
     struct stat fs;
     int e = fread(&fs, sizeof(struct stat), 1, file);
-    if (e < (long) sizeof(struct stat))
+    if (e < 1)
         err(34, "RS_restore_stats: failed to read stats");
     return fs;
 }
