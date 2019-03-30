@@ -31,7 +31,7 @@ ALLOWED_HOSTS = [
 
 # Application definition
 
-INSTALLED_APPS = [
+DEFAULT_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+OTHERS_APPS = [
+        
+]
+
+LOCAL_APPS = [
+       'ps4',
+]
+
+INSTALLED_APPS = DEFAULT_APPS + OTHERS_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -52,6 +62,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'website.urls'
 
+LOCAL_CONTEXT_PROCESSORS = [
+       'ps4.context_processors.nav',
+       'ps4.context_processors.title',
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -63,7 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ],
+            ] + LOCAL_CONTEXT_PROCESSORS,
         },
     },
 ]

@@ -4,12 +4,6 @@
     <h1 class="center">Register</h1>
     <div class="divide"></div>
     <div class="contai blue-grey-text text-darken-2">
-        {% if user.is_authenticated %}
-        <div class="container">
-            <p>You are already registered and connected!</p>
-            <p>Back to <a href="{% url "ps4:home" %}">Home</a></p>
-        </div>
-        {% else %}
         <div class="col s6 offset-s3">
             <form action="{% url "ps4:register" %}" method="post">
                 {% csrf_token %}
@@ -42,6 +36,13 @@
   			<label class="active" for="name">Name</label>
                     </div>
                 </div>
+                <div class="row">   
+                    <div class="input-field col s12">
+                        <input id="username" type="text" name="username"
+                        class="validate" required/>
+                        <label class="active" for="username">Your username</label>
+                    </div>
+                </div>
                 <div class="center">
                     <input class="waves-effect waves-light btn blue
                             lighten-2" type="submit" name="submit"
@@ -49,7 +50,6 @@
                 </div>
             </form>
         </div>
-        {% endif %}
     </div>
 
 {% endblock %}
