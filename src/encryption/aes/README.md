@@ -73,6 +73,29 @@ and use the following function to generate a 16 byte char\* from a n-byte char (
 unsigned char *AES_keyFromPass(char *pass, size_t len);
 ```
 
+# AES on file
+
+```c
+/* AES_encrypt_file: encrypt data from fin and write on fout
+ * fin: int: file descriptor pointing to the input file
+ * fout: int: file descriptor pointing to the output file
+ * pass: char*: a password
+ * return: int: 0 on success, -1 on failure
+ */
+int AES_encrypt_file(int fin, int fout, char *pass);
+```
+
+```c
+/* AES_decrypt_file: decrypt data from fin and write on fout
+ * fin: int: file descriptor pointing to the input file
+ * fout: int: file descriptor pointing to the output file
+ * pass: char*: a password
+ * return: int: 0 on success, -1 on failure
+ */
+int AES_decrypt_file(int fin, int fout, char *pass);
+```
+
+
 ### Example
 
 ```c
