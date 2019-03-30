@@ -40,7 +40,7 @@ void CS_save_data(struct meta_data *data, FILE *save)
 
 void CS_save_file(char *path, FILE *save)
 {
-    FILE *original = fopen(path, "w");
+    FILE *original = fopen(path, "r");
     if (original == NULL)
     {
         printf("Failed to open file: %s\n", path);
