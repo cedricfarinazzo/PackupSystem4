@@ -1,7 +1,7 @@
 #ifndef _SRC_ENCRYPTION_AES_HASSPASS_H_
 #define _SRC_ENCRYPTION_AES_HASSPASS_H_
 
-#include <openssl/sha.h>
+#include "../../tools/sha1.h"
 #include <stdio.h>
 #include <stdlib.h>
 

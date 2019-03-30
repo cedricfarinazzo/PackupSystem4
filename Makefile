@@ -10,14 +10,11 @@ GTK_LDLIBS=$(shell pkg-config --libs gtk+-3.0)
 CRITERION_CFLAGS=$(shell pkg-config --cflags criterion)
 CRITERION_LDLIBS=$(shell pkg-config --libs criterion)
 
-OPENSSL_CFLAGS=$(shell pkg-config --cflags libssl)
-OPENSSL_LDLIBS=$(shell pkg-config --libs libssl) -lcrypto
-
-CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 -rdynamic -lpthread ${GTK_CFLAGS} ${OPENSSL_CFLAGS}
+CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 -rdynamic -lpthread ${GTK_CFLAGS} 
 CPPFLAGS=-MMD
 
 LDFLAGS=
-LDLIBS=-lm -lgmp ${GTK_LDLIBS} ${OPENSSL_LDLIBS}
+LDLIBS=-lm -lgmp ${GTK_LDLIBS}
 
 DEBUG=-fsanitize=address -g3
 RELEASE=-Ofast -march=native
