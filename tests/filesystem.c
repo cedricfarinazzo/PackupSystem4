@@ -131,9 +131,9 @@ Test(FILESYSTEM, create_save)
     struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save(save);
     fclose(save);
     cmp_tree(tree, tree2);
-    remove_dir();
+    remove_dir();*/
     FILESYSTEM_free_metatree(tree);
-    FILESYSTEM_free_metatree(tree2);
+    /*FILESYSTEM_free_metatree(tree2);
     FILESYSTEM_restore_original_save("./testfiles/saves/save.rdtgs");
     fileexists("./testfiles/content/file1");
     fileexists("./testfiles/content/file2");
