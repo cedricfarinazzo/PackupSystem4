@@ -125,9 +125,9 @@ Test(FILESYSTEM, create_save)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
     cr_assert_not_null(tree);
-    FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");/*
+    FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
     fileexists("./testfiles/saves/save.rdtgs");
-    FILE *save = fopen("./testfiles/saves/save.rdtgs", "r");
+    /*FILE *save = fopen("./testfiles/saves/save.rdtgs", "r");
     struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save(save);
     fclose(save);
     cmp_tree(tree, tree2);
