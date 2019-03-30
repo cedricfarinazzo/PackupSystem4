@@ -8,8 +8,7 @@
 
 #define LEN_DATA 5 //Nombre d'octets pour l'information de la longueur dans la
 //chaine compressee
-struct huff_out *one_compression(struct freqlist *freqList,
-        unsigned char *dataIN, int len_IN, int longueur)
+struct huff_out *one_compression(struct freqlist *freqList, int len_IN)
 {
     char align = 8 - (len_IN % 8);
     unsigned char *dataOUT;
@@ -42,16 +41,12 @@ struct huff_out *one_compression(struct freqlist *freqList,
 }
 
 struct huff_out *two_compression(struct freqlist *freqList,
-        unsigned char *dataIN, int len_IN, int longueur)
+        unsigned char *dataIN, int len_IN)
 {
     //Passage en full static
-    unsigned char bineq[2];
-    bineq[0] = 0;
-    bineq[1] = 1;
     unsigned char chareq[2];
     chareq[0] = freqList->car->first->key;
     chareq[1] = freqList->car->last->key;
-    free_freqlist(freqList);
     //Construction de la chaine de sortie
     char align = 8 - (len_IN % 8);
     unsigned char *dataOUT;
@@ -118,6 +113,7 @@ struct huff_out *two_compression(struct freqlist *freqList,
     if (align == 0) {retour->len = (len_IN / 4) + 8;}
     else {retour->len = (len_IN / 4) + 9;}
     retour->dataOUT = dataOUT;
+    free_freqlist(freqList);
     return retour;
 }
 
@@ -130,22 +126,23 @@ struct huff_out *triple_compression(struct freqlist *freqList,
     chareq[2] = freqList->car->first->next->next->key;
     if (longueur == 4)
         chareq[3] = freqList->car->last->key;
-    char align = 8 - (len_IN % 8);
+    char align = (4 - (len_IN % 4)) % 4;
     unsigned char *dataOUT;
-    if (align == 0) {dataOUT = malloc(sizeof(unsigned char)*(len_IN / 2) + 7);}
-    else {dataOUT = malloc(sizeof(unsigned char)*(len_IN / 2) + 8);}
+    if (align == 0) {dataOUT = malloc(sizeof(unsigned char)*(len_IN / 2) + 9);}
+    else {dataOUT = malloc(sizeof(unsigned char)*(len_IN / 2) + 10);}
     dataOUT[0] = longueur;
     dataOUT[1] = align;
-    for (int i = 2; i < LEN_DATA + 2; ++i)
+    int compteur = LEN_DATA - 2;
+    for (int i = 2; i < LEN_DATA + 1; ++i)
     {
-        dataOUT[1 + (LEN_DATA - i)] = (len_IN /
-                (int)pow(10, (i - 1))) % 10;
+        dataOUT[i] = (len_IN / (int)pow(10, compteur)) % 10;
+        --compteur;
     }
-    int actual = LEN_DATA + 2;
+    int act = LEN_DATA + 1;
     unsigned char bindata[len_IN * 2 + align];
     for (int i = 0; i < len_IN; ++i)
     {
-        if (dataIN[i] != chareq[2])
+        if (dataIN[i] != chareq[2] ||(longueur == 4 && dataIN[i] != chareq[3]))
         {
             bindata[2 * i] = 0;
             if (dataIN[i] == chareq[0])
@@ -156,7 +153,10 @@ struct huff_out *triple_compression(struct freqlist *freqList,
         else 
         {
             bindata[2 * i] = 1;
-            bindata[2 * i + 1] = 0;
+            if (dataIN[i] == chareq[2])
+                bindata[2 * i + 1] = 0;
+            else
+                bindata[2 * i + 1] = 1;
         }
     }
     for (int i = 2 * len_IN; i < 2 * len_IN + align; ++i)
@@ -178,15 +178,15 @@ struct huff_out *triple_compression(struct freqlist *freqList,
         }
         buf[i % 8] = bindata[i];
     }
-    if ((len_IN + align) % 8 == 0)
+    if ((len_IN + align) % 4 == 0)
     {
         dataOUT[act] = 0;
         for (int j = 0; j < 8; ++j)
         {
             dataOUT[act] += ((unsigned char)(pow(2, j)) * buf[7 - j]);
         }
+        ++act;
     }
-    ++act;
     //Caracteres
     dataOUT[act++] = chareq[0];
     dataOUT[act++] = chareq[1];
@@ -195,6 +195,7 @@ struct huff_out *triple_compression(struct freqlist *freqList,
     if (align == 0) {retour->len = (len_IN / 4) + 9;}
     else {retour->len = (len_IN / 4) + 10;}
     retour->dataOUT = dataOUT;
+    free_freqlist(freqList);
     return retour;
 }
 
@@ -204,8 +205,9 @@ struct huff_out *simple_compression(struct freqlist *freqList,
     int longueur = len_list(freqList->car);
     printf("longueur = %d\n", longueur);
     if (longueur == 1)
-        return one_compression(freqList, dataIN, len_IN, longueur);
+        return one_compression(freqList, len_IN);
     if (longueur == 2)
-        return two_compression(freqList, dataIN, len_IN, longueur);
-    errx(EXIT_FAILURE, "Fonction en cours de realisation");
+        return two_compression(freqList, dataIN, len_IN);
+    else
+        return triple_compression(freqList, dataIN, len_IN, longueur);
 }
