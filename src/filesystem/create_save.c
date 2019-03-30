@@ -47,6 +47,8 @@ void CS_save_file(char *path, FILE *save)
 
 void CS_save_tree(FILE *save, struct meta_tree *tree)
 {
+    if (tree == NULL)
+        err(34, "CS_save_tree: Null tree error");
     CS_save_data(tree->data, save);
     CS_save_inheritance(tree, save);
     CS_save_file(tree->data->path, save);
@@ -62,8 +64,11 @@ void FILESYSTEM_create_save(char *path, char *savepath)
 {
     FILE *save = fopen(savepath, "w");
     struct meta_tree *tree = FILESYSTEM_build_metatree(path);
-    CS_save_tree(save, tree->son);
-    FILESYSTEM_free_metatree(tree);
+    if (tree)
+    {
+        CS_save_tree(save, tree->son);
+        FILESYSTEM_free_metatree(tree);
+    }
     fclose(save);
 }
 
