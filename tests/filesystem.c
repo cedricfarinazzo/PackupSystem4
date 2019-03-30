@@ -132,6 +132,7 @@ Test(FILESYSTEM, create_save)
     int e = stat("./testfiles/saves/save.rdtgs", &fs);
     printf("Size of save: %ld Bytes\n", fs.st_size);
     FILE *save = fopen("./testfiles/saves/save.rdtgs", "r");
+    cr_assert_not_null(save);
     struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save(save);
     fclose(save);
     cmp_tree(tree->son, tree2->son);
