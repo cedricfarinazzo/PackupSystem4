@@ -51,29 +51,47 @@ struct huff_out *two_compression(struct freqlist *freqList,
     chareq[0] = freqList->car->first->key;
     chareq[1] = freqList->car->last->key;
     free_freqlist(freqList);
-
     //Construction de la chaine de sortie
     char align = 8 - (len_IN % 8);
     unsigned char *dataOUT;
     if (align == 0) {dataOUT = malloc(sizeof(unsigned char)*(len_IN/4)+8);}
     else {dataOUT = malloc(sizeof(unsigned char) * (len_IN/4) + 9);}
-    //Nombre de caractere
+    //Nombre de caractere different
     dataOUT[0] = 2;
     //Align
     dataOUT[1] = align;
+    //Longueur sur 5 octets
+    for (int i = 2; i < LEN_DATA; ++i)
+    {
+        dataOUT[1 + (LEN_DATA - i)] = (len_IN / (int)pow(10, (i - 1))) % 10;
+    }
+    int act = LEN_DATA;
+    if (align == 0){dataOUT[act++] = len_IN % 10;}
+    if (align != 0){dataOUT[act++] = (len_IN % 10) + 1;}
     //Chaine compressee
     unsigned char bindata[len_IN + align];
-    for (int i = 2; i < len_IN; ++i)
+    printf("Bindata = ");
+    for (int i = 0; i < len_IN; ++i)
     {
         if (dataIN[i] == chareq[0])
+        {
+            //printf("dataIN[%d] = %d ; chareq[0] = %d\n", i, dataIN[i], chareq[0]);
             bindata[i] = 0;
+            printf("bindata[%d] = 0", i);
+        }
         else
+        {
+            //printf("dataIN[%d] = %d ; chareq[1] = %d\n", i, dataIN[i], chareq[1]);
             bindata[i] = 1;
+            printf("bindata[%d] = 1", i);
+        }
     }
-    for (int i = 0; i < align; ++i)
-        bindata[len_IN + i] = 0;
-    int act = 2;
-    //Bin to char
+    for (int i = len_IN; i < align + len_IN; ++i)
+    {
+        bindata[i] = 0;
+    }
+    for (int i = 0; i < len_IN + align; ++i)
+        printf("bindata[%d] = %d\n", i, bindata[i]);
     unsigned char buf[8];
     for (int i = 0; i < len_IN + align; ++i)
     {
@@ -90,12 +108,27 @@ struct huff_out *two_compression(struct freqlist *freqList,
         }
         buf[i % 8] = bindata[i];
     }
-
+    if ((len_IN + align) % 8 == 0)
+    {
+        dataOUT[act] = 0;
+        for (int j = 0; j < 8; ++j)
+        {
+            dataOUT[act] += ((unsigned char)(pow(2, j)) * buf[7 - j]);
+            buf[7 - j] = 0;
+        }
+        ++act;
+    }
     //Caracteres
     printf("dataOUT[%d] = %d\n", act, chareq[0]);
     dataOUT[act++] = chareq[0];
     printf("dataOUT[%d] = %d\n", act, chareq[1]);
     dataOUT[act] = chareq[1];
+    printf("dataOUT = ");
+    for (int i = 0; i < (len_IN / 4) + 8; ++i)
+    {
+        printf("%d ", dataOUT[i]);
+    }
+    printf("\n");
     struct huff_out *retour = malloc(sizeof(struct huff_out));
     if (align == 0) {retour->len = (len_IN / 4) + 8;}
     else {retour->len = (len_IN / 4) + 9;}
