@@ -7,10 +7,10 @@ void CS_save_path(char *path, FILE *save)
     length += strlen(path);
     int e = fwrite(&length, 1, sizeof(long), save);
     if (e < (long)sizeof(long))
-        err(33, "CS_save_path failure. fwrite failure");
-    fwrite(path, sizeof(char), length, save);
+        err(33, "CS_save_path failure. fwrite failure(1)");
+    e = fwrite(path, sizeof(char), length, save);
     if (e < length)
-        err(33, "CS_save_path failure. fwrite failure");
+        err(33, "CS_save_path failure. fwrite failure(1)");
 }
 
 void CS_save_stats(struct stat fs, FILE *save)
