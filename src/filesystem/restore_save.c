@@ -66,8 +66,6 @@ struct meta_data *RS_restore_data(FILE *file)
     data->path = path;
     data->fs = fs;
 
-    data->file_content = RS_skip_file_content(file);
-
     return data;
 }
 
@@ -96,6 +94,8 @@ struct meta_tree *RS_restore_tree(FILE *file)
     tree->data = RS_restore_data(file);
 
     char inheritance = RS_restore_inheritance(file);
+    
+    data->file_content = RS_skip_file_content(file);
 
     if (inheritance & FILESYSTEM_TREE_HAS_SON)
         tree->son = RS_restore_tree(file);
