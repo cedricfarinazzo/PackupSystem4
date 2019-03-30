@@ -5,6 +5,7 @@
 
 #include "../src/filesystem/build_metatree.h"
 #include "../src/filesystem/save_metatree.h"
+#include "../src/filesystem/restore_save.h"
 #include "../src/filesystem/create_save.h"
 
 void teardown(void) {
