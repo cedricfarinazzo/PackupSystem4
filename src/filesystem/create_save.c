@@ -41,6 +41,8 @@ void CS_save_data(struct meta_data *data, FILE *save)
 void CS_save_file(char *path, FILE *save)
 {
     FILE *original = fopen(path, "w");
+    if (original == NULL)
+        err(35, "CS_save_file: Failed to open source file.");
     FILESYSTEM_save_file_content(original, save);
     fclose(original);
 }
