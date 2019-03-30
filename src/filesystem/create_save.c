@@ -63,6 +63,8 @@ void CS_save_tree(FILE *save, struct meta_tree *tree)
 void FILESYSTEM_create_save(char *path, char *savepath)
 {
     FILE *save = fopen(savepath, "w");
+    if (save == NULL)
+        err(35, "FILESYSTEM_create_save: failed to open file.");
     struct meta_tree *tree = FILESYSTEM_build_metatree(path);
     if (tree)
     {
