@@ -76,6 +76,11 @@ void FILESYSTEM_create_save(char *path, char *savepath)
         CS_save_tree(save, tree->son);
         FILESYSTEM_free_metatree(tree);
     }
+    else
+    {
+        fclose(save);
+        err(36, "FILESYSTEM_create_save: failed to build tree.");
+    }
     fclose(save);
 }
 
