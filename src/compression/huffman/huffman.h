@@ -6,6 +6,8 @@
 #include "../tree/bintree.h"
 #include "../liste/liste.h"
 #include "../struct.h"
+#include "simple/four_compression.h"
+#include "simple/four_decompression.h"
 
 void free_out(struct huff_out *data);
 
@@ -37,6 +39,8 @@ struct huff_out *compression(unsigned char *dataIN, int len);
 
 int rebuild_tree(unsigned char *data, int actual, unsigned char key,
         struct bintree *huffman, int prof);
+
+unsigned char power(unsigned char n, unsigned char p);
 
 struct bintree *decode_tree(unsigned char *data, int len, int prof, char align,
         int nb_char);

@@ -6,6 +6,7 @@
 #include "huffman.h"
 #include "../struct.h"
 #include "simple/four_compression.h"
+#include "simple/four_decompression.h"
 #include <math.h>
 
 #define LEN_DATA 5
@@ -821,7 +822,7 @@ struct huff_out *decompression(unsigned char *data, int len_data)
 {
     int actual = 1;
     if (data[0] <= 127)
-        errx(EXIT_FAILURE, "Programme en cours de realisation");
+        return simple_decompression(data, len_data);
 
     struct encod_tree *huffman_cp = malloc(sizeof(struct encod_tree));
     huffman_cp->prof = 0;

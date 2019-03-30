@@ -92,7 +92,11 @@ int main(int argc, char *argv[])
             if (len_a != len)
                 printf("Longeur differente : %d -> %d\n", len, len_a);
             printf("Text input : %s\n", text);
-            printf("Text output : %s\n", final->dataOUT);
+            printf("Text output : ");
+            print_chare(final->dataOUT, final->len);
+            for (int i = 0; i < final->len; ++i)
+                printf("%d", final->dataOUT[i]);
+            printf("\n");
             free(compressed->dataOUT);
             free(compressed);
             free(final->dataOUT);
