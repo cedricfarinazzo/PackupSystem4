@@ -134,15 +134,15 @@ Test(FILESYSTEM, create_save)
     struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves/save.rdtgs");
     cmp_tree(tree->son, tree2->son);
     print_tree(tree2->son, 0);
-    /*remove_dir();*/
+    remove_dir();
     FILESYSTEM_free_metatree(tree);
     FILESYSTEM_free_metatree(tree2);
-    /*FILESYSTEM_restore_original_save("./testfiles/saves/save.rdtgs");
+    FILESYSTEM_restore_original_save("./testfiles/saves/save.rdtgs");
     fileexists("./testfiles/content/file1");
     fileexists("./testfiles/content/file2");
     fileexists("./testfiles/content/file3");
     fileexists("./testfiles/content/sub1/file4");
     fileexists("./testfiles/content/sub1/file5");
     fileexists("./testfiles/content/sub2/file6");
-    fileexists("./testfiles/content/sub2/file7");*/
+    fileexists("./testfiles/content/sub2/file7");
 }
