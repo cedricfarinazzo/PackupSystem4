@@ -88,7 +88,6 @@ struct meta_tree *RS_restore_tree(FILE *file)
     third: get offset for file content
     fourth: recursive calls
     */
-    printf("RS_restore_tree: One node\n");
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
 
     tree->data = RS_restore_data(file);
