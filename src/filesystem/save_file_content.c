@@ -30,19 +30,13 @@ void FILESYSTEM_save_file_content(FILE *src, FILE *dst)
         w = fwrite(buf, r, 1, dst);
         if (w == 0)
             err(41, "FILESYSTEM_save_file_content: failed to write in dst.");
-        total = w;
-        while (total < r)
-        {
-            w = fwrite(buf + total, 1, r - total, dst);
-            total += w;
-        }
-        len += total;
+        len += r;
     }
 
     /*
     going back to saved space for len
     */
-    fseek(dst, 0, beginning);
+    fseek(dst, beginning, SEEK_SET);
 
     /*
     writing said len
