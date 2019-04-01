@@ -45,7 +45,7 @@ off_t RS_skip_file_content(FILE *file)
         return 0;
 
     fseek(file, length, SEEK_CUR);
-
+    printf("offset: %d\n", offset);
     return offset;
 }
 
