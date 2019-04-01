@@ -25,10 +25,10 @@ void FILESYSTEM_save_file_content(FILE *src, FILE *dst)
     while there is content in the original file, copy it into the dst file
     also counts the number of chars written
     */
-    while ((r = fread(buf, 2048, 1, src)))
+    while ((r = fread(buf, 1, 2048, src)))
     {
-        w = fwrite(buf, r, 1, dst);
-        if (w == 0)
+        w = fwrite(buf, 1, r, dst);
+        if (w < r)
             err(41, "FILESYSTEM_save_file_content: failed to write in dst.");
         len += r;
     }
