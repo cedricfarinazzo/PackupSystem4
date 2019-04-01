@@ -157,6 +157,7 @@ void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
 {
     if (tree->son == NULL)
     {
+        printf("restoring file: %s with offset: %ld\n", tree->data->path, tree->data->file_content);
         FILE *dst = fopen(tree->data->path, "w");
         RS_restore_content(src, tree->data->file_content, dst);
         fclose(dst);
