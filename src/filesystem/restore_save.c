@@ -37,6 +37,7 @@ off_t RS_skip_file_content(FILE *file)
     if 0: returns 0, nothing to be skipped
     else: skips file content and returns saved offset
     */
+    off_t offset = ftell(file);
     size_t length;
     fread(&length, sizeof(size_t), 1, file);
 
@@ -45,7 +46,7 @@ off_t RS_skip_file_content(FILE *file)
 
     fseek(file, length, SEEK_CUR);
 
-    return length;
+    return offset;
 }
 
 struct meta_data *RS_restore_data(FILE *file)
