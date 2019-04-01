@@ -1,8 +1,10 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <gmp.h>
+#include "../../tools/base64.h"
 #include "genkey.h"
 #include "tools.h"
-
 
 void single_encode_rsa(struct RSA_pubKey *public, mpz_t c, mpz_t r)
 {
@@ -24,6 +26,15 @@ void single_decode_rsa(struct RSA_privKey *private, mpz_t c, mpz_t r)
 
 mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len)
 {
+    mpz_t *r = malloc(sizeof(mpz_t*)); mpz_init(*r);
+    size_t leno = 0;
+    mpz_set_str(*r,(char*)data, 62);
+    gmp_printf("\n\n %Zd \n", *r);
+    single_encode_rsa(public, *r, *r);
+    gmp_printf("\n\n %Zd \n", *r);
+    return r;
+    
+
     mpz_t *encode = malloc(sizeof(mpz_t) * len);
     for (size_t i = 0; i < len; ++i)
     {   
