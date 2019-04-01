@@ -180,35 +180,32 @@ int main(int argc, char *argv[])
             struct RSA_privKey *privk;
 
             RSA_generateKey(keysize, &privk, &pubk);
-
             printf("public: n = "); mpz_out_str(stdout,10, *(pubk->n));
             printf("   e = "); mpz_out_str(stdout, 10, *(pubk->e));
 
             printf("\nprivate: n = "); mpz_out_str(stdout, 10, *(privk->n));
             printf("   d = "); mpz_out_str(stdout, 10, *(privk->d)); printf("\n");
 
-
-            mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext);
-            printf("\nencode data: ");
-            for (size_t i = 0; i < lentext; ++i)
+            size_t elen;
+            mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
+            printf("\nencode (%ld): \n", elen);
+            for (size_t i = 0; i < elen; ++i)
             {
-                size_t size;
-                unsigned char *buf = get_str(128, encrypt[i], &size);//mpz_get_str(NULL, 62, encrypt[i]);
-                //write(STDOUT_FILENO, buf, size); printf("\n");
-                printf("%ld \n\n", size);
-                free(buf);
-
-                //gmp_printf("%#Zx ", encrypt[i]);
+                char *b = mpz_get_str(NULL, 62, encrypt[i]);
+                printf("(%ld):  %s\n", strlen(b), b);
+                free(b);
             }
+            
+            size_t dlen;
+            unsigned char *decode = RSA_decode(privk, encrypt, elen, &dlen);
 
-            unsigned char *decode = RSA_decode(privk, encrypt, lentext);
+            printf("\n\ndecode text (%ld): %s\n", strlen((char*)decode), decode);
 
-            printf("\n\ndecode text: %s\n", decode);
-
-            for (size_t i = 0; i < lentext; ++i)
+            for (size_t i = 0; i < elen; ++i)
                 mpz_clear(encrypt[i]);
             free(encrypt);
             free(decode);
+            
             RSA_free_public_key(pubk);
             RSA_free_private_key(privk);
         }
