@@ -38,7 +38,7 @@ mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, si
         
         size_t blen = RSA_BUFFER_LEN;
         char buff[blen + 1];
-        strncpy(buff, p, blen);
+        strncpy(buff, (char*)p, blen);
         buff[blen] = 0;
 
         mpz_init(result[i]);
@@ -71,5 +71,8 @@ unsigned char *RSA_decode(struct RSA_privKey *private, mpz_t *data, size_t len, 
         
         mpz_clear(dec);
     }
+    ++(*rlen);
+    result = realloc(result, sizeof(unsigned char) * *rlen);
+    result[*rlen - 1] = 0;
     return result;
 }
