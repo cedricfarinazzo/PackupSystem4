@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <gmp.h>
 #include "genkey.h"
+#include "base62.h"
 #include "tools.h"
 
 

@@ -29,8 +29,6 @@
 #include "filesystem/build_metatree.h"
 #include "filesystem/save_metatree.h"
 
-#include "tools/base62.h"
-
 #define VERSION "1.0"
 #define DATE "2018-03"
 #define TYPE "dev"

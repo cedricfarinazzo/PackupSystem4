@@ -13,6 +13,15 @@ char nth62(char a)
             return i;
     return -1;
 }
+
+int allison(char b[9])
+{
+    for (size_t i = 0; i < 8; ++i)
+        if (b[i] != '1')
+            return 0;
+    return 1;
+}
+
 unsigned long bin2dec(const char *binary)
 {
     unsigned long decimal = 0;
@@ -114,6 +123,9 @@ char *base62_decode(char *in, size_t len, size_t *olen)
         if (asoff == 8)
         {
             char d = bin2dec(ascii);
+            if (allison(ascii) || d == -1 || d== '?')
+                break;
+            //printf("\n %d %c  %s", d, d, bits);
             ++(*olen);
             out = realloc(out, sizeof(char) * *olen);
             out[*olen - 1] = d;

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <gmp.h>
-#include "../../tools/base64.h"
+#include "base62.h"
 #include "genkey.h"
 #include "tools.h"
 
@@ -28,10 +28,12 @@ void single_decode_rsa(struct RSA_privKey *private, mpz_t c, mpz_t r)
 
 mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, size_t *rlen)
 {
+    size_t elen;
+    char *edata = base62_encode((char*)data, len, &elen);
     *rlen = 0;
     mpz_t *result = malloc(sizeof(mpz_t) * *rlen);
-    unsigned char *p = data;
-    for (size_t i = 0; p < data + len; p += RSA_BUFFER_LEN, ++i)
+    char *p = edata;
+    for (size_t i = 0; p < edata + elen; p += RSA_BUFFER_LEN, ++i)
     {
         ++(*rlen);
         result = realloc(result, sizeof(mpz_t) * *rlen);
@@ -46,6 +48,7 @@ mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, si
         
         single_encode_rsa(public, result[i], result[i]);
     }
+    free(edata);
     return result;
 }
 
@@ -53,16 +56,15 @@ mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, si
 unsigned char *RSA_decode(struct RSA_privKey *private, mpz_t *data, size_t len, size_t *rlen)
 {
     *rlen = 0;
-    unsigned char *result = malloc(sizeof(unsigned char) * *rlen);
+    char *result = malloc(sizeof(char) * *rlen);
     for (size_t i = 0; i < len; ++i)
     {
         (*rlen) += RSA_BUFFER_LEN;
-        result = realloc(result, sizeof(unsigned char) * *rlen);
+        result = realloc(result, sizeof(char) * *rlen);
         
         mpz_t dec; mpz_init(dec);
         single_decode_rsa(private, data[i], dec);
-       
-        
+           
         char buff[RSA_BUFFER_LEN + 1];
         buff[RSA_BUFFER_LEN] = 0;
         mpz_get_str(buff, 62, dec);
@@ -72,7 +74,13 @@ unsigned char *RSA_decode(struct RSA_privKey *private, mpz_t *data, size_t len, 
         mpz_clear(dec);
     }
     ++(*rlen);
-    result = realloc(result, sizeof(unsigned char) * *rlen);
+    result = realloc(result, sizeof(char) * *rlen);
     result[*rlen - 1] = 0;
-    return result;
+    
+    size_t dlen;
+    char *dr = base62_decode((char*)result, *rlen, &dlen);
+    free(result);
+    *rlen = dlen;
+    
+    return (unsigned char*)dr;
 }
