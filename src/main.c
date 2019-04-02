@@ -15,6 +15,8 @@
 #include "encryption/aes/aes.h"
 
 #include "compression/huffman/huffman.h"
+#include "compression/struct.h"
+#include "compression/file.h"
 
 #include "filesystem/build_metatree.h"
 #include "filesystem/save_metatree.h"
@@ -85,9 +87,9 @@ int main(int argc, char *argv[])
             unsigned char *text = (unsigned char *)(argv[2]);
             int len = strlen(argv[2]);
             struct huff_out *compressed = compression(text, len);
-            
+
             struct huff_out *final = decompression(compressed->dataOUT,
-                compressed->len);
+                    compressed->len);
             int len_a = strlen((char *)final->dataOUT);
             if (len_a != len)
                 printf("Longeur differente : %d -> %d\n", len, len_a);
@@ -101,6 +103,24 @@ int main(int argc, char *argv[])
             free(compressed);
             free(final->dataOUT);
             free(final);
+        }
+
+        if (strcmp("filehuffman", argv[1]) == 0)
+        {
+            char *path_output = compression_function(argv[2]);
+            long int ratio =(findSize(path_output)*100)/findSize(argv[2]);
+            printf("Input_size = %ld\n", findSize(argv[2]));
+            printf("Output_size = %ld\n", findSize(path_output));
+            printf("Ratio = %ld %%\n", ratio);
+            printf("Location compress file : %s\n", path_output);
+            free(path_output);
+        }
+
+        if (strcmp("filedehuffman", argv[1]) == 0)
+        {
+            char *path_output = decompression_function(argv[2]);
+            printf("Location decompress file : %s\n", path_output);
+            free(path_output);
         }
 
         if (strcmp("filesystem", argv[1]) == 0)
@@ -120,7 +140,7 @@ int main(int argc, char *argv[])
             printf("\n\nLoading tree to tree_test_main.txt\n");
             printf("RESTORED TREE: \n");
             print_tree(restored->son, 0);
-            
+
             FILESYSTEM_free_metatree(restored);
             FILESYSTEM_free_metatree(tree);
         }
@@ -201,7 +221,7 @@ int main(int argc, char *argv[])
             struct RSA_publickey *pub = RSA_gen_public_key(p, q);
             struct RSA_privatekey *pri = RSA_gen_private_key(p, q, pub);
 
-            
+
             printf("public: n = ");
             mpz_out_str(stdout,10, *(pub->n));
             printf("   e = ");
@@ -229,7 +249,7 @@ int main(int argc, char *argv[])
             free(encrypt);
 
             free(decode);
-            
+
             RSA_free_public_key(pub);
             RSA_free_private_key(pri);
             mpz_clear(p);

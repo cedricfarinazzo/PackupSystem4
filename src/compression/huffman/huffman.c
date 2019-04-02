@@ -468,7 +468,6 @@ struct huff_out *compression(unsigned char *dataIN, int len_IN)
         errx(4, "FreqList is NULL");
     }
     //Fin Freqlist
-
     if (len_list(freqList->car) < 5)
     {
         return simple_compression(freqList, dataIN, len_IN);
@@ -516,7 +515,7 @@ struct huff_out *compression(unsigned char *dataIN, int len_IN)
     output_data(encoding_data, char_data);
 
     //Rendu soutenance
-    printf("Output encoding data = %s | \n", char_data->data);
+    printf("Output encoding data = %s | ", char_data->data);
     print_chare(char_data->data, char_data->len);
     printf("\n");
     printf("Output encoding tree = %s | ", char_tree->data);
@@ -525,11 +524,10 @@ struct huff_out *compression(unsigned char *dataIN, int len_IN)
     int ratio = char_data->len + char_tree->len;
     ratio *= 100;
     ratio = ratio / strlen((char *)dataIN);
-    printf("Ratio = %d%%\n", ratio);
+    printf("Ratio interne = %d%%\n", ratio);
 
     //Mise en forme de la chaine output
     //Huffman tree
-    printf("Taille ouput = %d\n", 13 + char_data->len + char_tree->len);
     unsigned char *output = malloc(sizeof(unsigned char *) *
             (13 + char_data->len + char_tree->len));
     output[0] = 202;
@@ -553,7 +551,6 @@ struct huff_out *compression(unsigned char *dataIN, int len_IN)
     }
     actuel_out += LEN_DATA;
     strcpyh(&(output[actuel_out]), char_data->data, char_data->len);
-    printf("\n%d %d\n%d", output[actuel_out + 1], char_data->data[1], actuel_out);
     actuel_out += char_data->len;
 
     struct huff_out *OUTPUTE = malloc(sizeof(struct huff_out));
@@ -843,7 +840,6 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     huffman_cp->len += (int)data[actual++];
     huffman_cp->data = malloc(sizeof(unsigned char *) * huffman_cp->len);
     strcpyh(huffman_cp->data, &(data[actual]), (huffman_cp->len));
-    printf("tree len = %d\n", huffman_cp->len);
     actual += huffman_cp->len;
 
     struct encod_data *data_cp = malloc(sizeof(struct encod_data));
