@@ -59,6 +59,9 @@ def register(request):
             
             if password != passcomf:
                 context['error'] = 'Passwords didn\'t match'
+            elif lastname != '' and firtname != ''  \
+                    and email != '' and username != '' and password != '':
+                context['error'] = 'Please fill all field!'
             else:
                 u = User.objects.create_user(username, email, password)
                 u.last_name = lastname;
