@@ -39,7 +39,7 @@ struct huff_out *one_decompression(unsigned char *bindata, int len,
     struct huff_out *retour = malloc(sizeof(struct huff_out));
     retour->len = len - align;
     retour->dataOUT = dataOUT;
-    printf("%d\n", retour->dataOUT[0]);
+    printf("%c\n", retour->dataOUT[0]);
     return retour;
 }
 
@@ -92,7 +92,7 @@ struct huff_out *simple_decompression(unsigned char *dataIN, int len_IN)
     if (longueur < 3)
     {
         struct huff_out *retour = one_decompression(bindata, len_IN-longueur -6, chareq, align);
-        printf("test = %s\n", retour->dataOUT[0]);
+        printf("test = %c\n", retour->dataOUT[0]);
         return retour;
     }
     else
