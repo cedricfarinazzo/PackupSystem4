@@ -5,6 +5,9 @@
 
 #include "base62.h"
 
+char base62_table[62] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678";
+
+
 void byte_to_binary(int x, char b[9])
 {
     b[0] = '\0';
@@ -28,6 +31,10 @@ char *base62_encode(char *in, size_t len, size_t *olen)
     char a = 0; size_t nba = 0;
     size_t i = 0;
     
+    ascii = in[i];
+    byte_to_binary(ascii, bits);
+    printf("%s\n", bits);
+    countb = 0;
     while (i < len)
     {
         if (countb == 9)
@@ -42,6 +49,9 @@ char *base62_encode(char *in, size_t len, size_t *olen)
         if (nba == 6)
         {
             printf("%d\n", a);
+            ++(*olen);
+            out = realloc(out, sizeof(char) * *olen);
+            out[*olen - 1] = base62_table[a];
             a = 0; nba = 0;
         }
         
