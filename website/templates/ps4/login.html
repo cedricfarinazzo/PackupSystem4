@@ -4,12 +4,6 @@
     <h1 class="center">Login</h1>
     <div class="divide"></div>
     <div class="contai blue-grey-text text-darken-2">
-        {% if user.is_authenticated %}
-        <div class="container">
-            <p>You are already connected!</p>
-            <p>Back to <a href="{% url "ps4:home" %}">Home</a></p>
-        </div>
-        {% else %}
         <div class="col s6 offset-s3">
             {% if error is not None %}
                 <div class="container">
@@ -40,7 +34,6 @@
                 </div>
             </form>
         </div>
-        {% endif %}
     </div>
 
 {% endblock %}
