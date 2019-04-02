@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 {
 
     //char *text = "Mdr lol 42 is best.";
-    char *text = "Man";
+    char *text = "Mana";
     
     size_t len = strlen(text);
     printf("text (%ld): %s\n", len, text);
@@ -78,13 +78,14 @@ int main(int argc, char *argv[])
     char *encode = base62_encode(text, len, &elen);
     
     printf("encode (%ld): %s\n", elen, encode);
-    if (encode != NULL)
-        free(encode);
         
     size_t dlen;
     char *decode = base62_decode(encode, elen, &dlen);
 
     printf("decode (%ld): %s\n", dlen, decode);
+    
+    if (encode != NULL)
+        free(encode);
     if (decode != NULL)
         free(decode);
 
