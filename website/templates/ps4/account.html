@@ -4,4 +4,104 @@
   <h1 class="center">Account</h1>
   <div class="divide"></div>
 
+    <div class="row">
+            {% if error is not None %}
+                <div class="container">
+                    <div class="center card-panel red accent-3">
+                        {{ error }}
+                    </div>
+                </div>
+                <br/>
+            {% endif %}
+		<form class="col s12" action="{% url "ps4:account" %}" method="post">
+                        {% csrf_token %}
+			<div class="change-info-perso border">
+				<div class="row">
+					<div class="input-field col s6">
+                                            <input id="firstname" name="firstname" type="text" class="validate" value="{{ user.first_name }}"/>
+                                            <label class="active" for="firstname">Firstname</label>
+					</div>
+					<div class="input-field col s6">
+						<input id="name" name="name" type="text" class="validate" value="{{ user.last_name }}" />
+						<label class="active" for="name">Name</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="input-field col s6">
+						<input id="email" type="email" name="email" class="validate" value="{{ user.email }}" />
+						<label class="active" for="email">Email</label>
+					</div>
+					<div class="input-field col s6">
+						<input id="username" name="username" type="text" class="validate" value="{{ user.username }}"/>
+						<label class="active" for="username">Username</label>
+					</div>
+				</div>
+				<div class="row center-align">
+					<button class="btn waves-effect waves-light center-align" type="submit" name="submit-account">
+						Save
+						<i class="material-icons right">account_box</i>
+					</button>
+				</div>
+			</div>
+			
+			<br/>
+			<div class="change-pass border">
+				<p class="center-align">If you want to change your password, please fill in the following 3 fields.</p>
+				<div class="row">
+					<div class="input-field col s12">
+						<input id="oldpass" name="oldpass" type="password" class="validate"/>
+						<label class="active" for="oldpass">Current password</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="input-field col s12">
+						<input id="pass" name="pass" type="password" class="validate"/>
+						<label class="active" for="pass">New password</label>
+					</div>
+				</div>
+				<div class="row">
+					<div class="input-field col s12">
+						<input id="passconfirm" name="passconfirm" type="password" class="validate"/>
+						<label class="active" for="passconfirm">New password confirmation</label>
+					</div>
+				</div>
+				<div class="row center-align">
+					<button class="btn waves-effect waves-light center-align" type="submit" name="submit-pass" >
+						Update
+						<i class="material-icons right">send</i>
+					</button>
+				</div>
+			</div>
+			
+			<br/>
+			<div class="delete-account border">
+				<p class="center-align">Delete your account</p>
+				<div class="row">
+					<div class="input-field col s12">
+						<input id="passdel" name="passdel" type="password" class="validate"/>
+						<label class="active" for="mdpdel">Your password</label>
+					</div>
+				</div>
+				<div class="row center-align">
+					<button class="btn waves-effect waves-light center-align red darken-1" type="submit" onclick="return confirm('Please confirm this action!\nWARNING\nAll of your data will be deleted and you will not be able to recover them!\nYou will be redirect to the home page.');" name="submit-delete">
+						Submit
+						<i class="material-icons right">delete</i>
+					</button>
+				</div>
+			</div>
+			
+			<br/>
+			<div class="account-info border" style="padding: 15px">
+				<p class="center-align">Other informations about you</p>
+				<div class="row">
+                                    Registration date : {{ user.date_joined }} 
+				</div>
+				<div class="row">
+                                    Last login date : {{ user.last_login }} 
+				</div>
+			</div>
+		</form>
+</div>
+
+
 {% endblock %}

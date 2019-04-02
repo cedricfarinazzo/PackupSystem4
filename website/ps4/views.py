@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
@@ -51,7 +53,7 @@ def register(request):
     if request.method == "POST":
         try:
             lastname = request.POST['name']
-            firtname = request.POST['firstname']
+            firstname = request.POST['firstname']
             email = request.POST['email']
             username = request.POST['username']
             password = request.POST['password']
@@ -59,13 +61,13 @@ def register(request):
             
             if password != passcomf:
                 context['error'] = 'Passwords didn\'t match'
-            elif lastname == '' and firtname == ''  \
-                    and email == '' and username == '' and password == '':
+            elif lastname == '' or firstname == ''  \
+                    or email == '' or username == '' or password == '':
                 context['error'] = 'Please fill all field!'
             else:
                 u = User.objects.create_user(username, email, password)
                 u.last_name = lastname;
-                u.first_name = firtname
+                u.first_name = firstname
                 u.save()
                 auth_login(request, u)
                 return redirect('/')
@@ -76,8 +78,57 @@ def register(request):
 def account(request):
     if not request.user.is_authenticated:
         return redirect('/')
-
+    user = request.user
     context = {}
+    
+    if request.method == "POST":
+        if 'submit-account' in request.POST:
+            try:
+                lastname = request.POST['name']
+                firstname = request.POST['firstname']
+                email = request.POST['email']
+                username = request.POST['username']
+                if lastname == '' or firstname == ''  \
+                    or email == '' or username == '':
+                    context['error'] = 'Please fill all field!'
+                else:
+                    user.last_name = lastname
+                    user.username = username
+                    user.first_name = firstname
+                    user.email = email
+                    user.save()
+            except:
+                context['error'] = 'An error occured. Please try again'
+        elif 'submit-pass' in request.POST:
+            try:
+                curpassword = request.POST['oldpass']
+                newpass = request.POST['pass']
+                passcomfirm = request.POST['passconfirm']
+                if newpass != passcomfirm:
+                    context['error'] = 'Passwords didn\'t match'
+                elif curpassword == '' or newpass == '':
+                    context['error'] = 'Please fill all field!'
+                elif not check_password(curpassword, user.password):
+                    context['error'] = 'Wrong password!'
+                else:
+                    user.set_password(newpass)
+                    user.save()
+                    update_session_auth_hash(request, user)
+            except:
+                context['error'] = 'An error occured. Please try again'
+        elif 'submit-delete' in request.POST:
+            try:
+                passdel = request.POST['passdel']
+                if passdel == '':
+                    context['error'] = 'Please fill all field!'
+                elif not check_password(passdel, user.password):
+                    context['error'] = 'Wrong password!'
+                else:
+                    user.delete()
+                    auth_logout(request)
+                    return redirect('/')
+            except:
+                context['error'] = 'An error occured. Please try again'
     return render(request, 'ps4/account.html', context)
 
 def logout(request):
