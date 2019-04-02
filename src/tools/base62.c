@@ -15,20 +15,20 @@ char nth62(char a)
 }
 unsigned long bin2dec(const char *binary)
 {
-	unsigned long decimal = 0;
-	do {
-		if ( *binary == '0' ) {
-			decimal <<= 1;
-		} else if ( *binary == '1' ) {
-			decimal <<= 1;
-			decimal += 1;
-	        } else if ( *binary == ' ' ) {
-        	    ;
-		} else {
-			break;
-		}
-	} while ( *(++binary) != 0 );
-	return decimal;
+    unsigned long decimal = 0;
+    do {
+        if ( *binary == '0' ) {
+            decimal <<= 1;
+        } else if ( *binary == '1' ) {
+            decimal <<= 1;
+            decimal += 1;
+        } else if ( *binary == ' ' ) {
+            ;
+        } else {
+            break;
+        }
+    } while ( *(++binary) != 0 );
+    return decimal;
 }
 
 void byte_to_binary(int x, char b[9])
@@ -47,20 +47,19 @@ char *base62_encode(char *in, size_t len, size_t *olen)
 {
     *olen = 0;
     char *out = malloc(sizeof(char) * *olen);
-    uint8_t ind = 0;
-    
+
     char ascii;
     char bits[9];
     size_t countb = 0;
-    
+
     char a = 0; size_t nba = 0;
     size_t i = 0;
-    
+
     ascii = in[i];
     byte_to_binary(ascii, bits);
     //printf("%s\n", bits);
     countb = 0;
-            ++i;
+    ++i;
     while (1)
     {
         if (countb == 8)
@@ -78,21 +77,20 @@ char *base62_encode(char *in, size_t len, size_t *olen)
             //printf("%d\n", a);
             ++(*olen);
             out = realloc(out, sizeof(char) * *olen);
-            out[*olen - 1] = base62_table[a];
+            out[*olen - 1] = base62_table[(size_t)a];
             a = 0; nba = 0;
         }
         a <<= 1; a |= ('1' == bits[countb] ? 1 : 0);
         ++countb; ++nba;
     }
-    printf("\n\n%d    %d\n\n", countb, nba);
 
     if (nba != 0)
     {
-        for (nba; nba < 6; ++nba)
+        for (; nba < 6; ++nba)
             a <<= 1;
         ++(*olen);
         out = realloc(out, sizeof(char) * *olen);
-        out[*olen - 1] = base62_table[a];
+        out[*olen - 1] = base62_table[(size_t)a];
         a = 0; nba = 0;
     }
     (*olen) += 1;
@@ -105,18 +103,17 @@ char *base62_decode(char *in, size_t len, size_t *olen)
 {
     *olen = 0;
     char *out = malloc(sizeof(char) * *olen);
-    
+
     char bits[9]; int boff = 2;
     byte_to_binary(nth62(in[0]), bits);
     char ascii[9]; int asoff = 0;
-    
+
     size_t i = 1;
     while (1)
     {
         if (asoff == 8)
         {
             char d = bin2dec(ascii);
-            printf("\nadd: %d   %c  %s", d, d, ascii);
             ++(*olen);
             out = realloc(out, sizeof(char) * *olen);
             out[*olen - 1] = d;
@@ -129,16 +126,13 @@ char *base62_decode(char *in, size_t len, size_t *olen)
                 break;
             byte_to_binary(nth62(in[i]), bits);
             boff = 2;
-            printf("\nread: %c %d     %s", in[i], nth62(in[i]), bits);
             ++i;
         }
-        
+
         ascii[asoff] = bits[boff];
         ++boff; ++asoff;
     }
-    
-    printf("\n   %d     %d\n", asoff, boff);
-    
+
     ++(*olen);
     out = realloc(out, sizeof(char) * *olen);
     out[*olen - 1] = 0;

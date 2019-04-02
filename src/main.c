@@ -67,31 +67,6 @@ void print_ascii(unsigned char *a)
 
 int main(int argc, char *argv[])
 {
-
-    //char *text = "Mdr lol 42 is best.";
-    char *text = "Mana";
-    
-    size_t len = strlen(text);
-    printf("text (%ld): %s\n", len, text);
-    
-    size_t elen;
-    char *encode = base62_encode(text, len, &elen);
-    
-    printf("encode (%ld): %s\n", elen, encode);
-        
-    size_t dlen;
-    char *decode = base62_decode(encode, elen, &dlen);
-
-    printf("decode (%ld): %s\n", dlen, decode);
-    
-    if (encode != NULL)
-        free(encode);
-    if (decode != NULL)
-        free(decode);
-
-    return 0;
-
-
     srand(time(NULL));
     if (argc == 1)
         return interface(argc, argv);
