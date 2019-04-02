@@ -29,6 +29,8 @@
 #include "filesystem/build_metatree.h"
 #include "filesystem/save_metatree.h"
 
+#include "tools/base62.h"
+
 #define VERSION "1.0"
 #define DATE "2018-03"
 #define TYPE "dev"
@@ -65,6 +67,30 @@ void print_ascii(unsigned char *a)
 
 int main(int argc, char *argv[])
 {
+
+    //char *text = "Mdr lol 42 is best.";
+    char *text = "Man";
+    
+    size_t len = strlen(text);
+    printf("text (%ld): %s\n", len, text);
+    
+    size_t elen;
+    char *encode = base62_encode(text, len, &elen);
+    
+    printf("encode (%ld): %s\n", elen, encode);
+    if (encode != NULL)
+        free(encode);
+        
+    size_t dlen;
+    char *decode = base62_decode(encode, elen, &dlen);
+
+    printf("decode (%ld): %s\n", dlen, decode);
+    if (decode != NULL)
+        free(decode);
+
+    return 0;
+
+
     srand(time(NULL));
     if (argc == 1)
         return interface(argc, argv);
