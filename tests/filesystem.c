@@ -50,7 +50,7 @@ void print_tree(struct meta_tree *tree, int indent)
 void cmp_data(struct meta_data *data1, struct meta_data *data2)
 {
     cr_assert_str_eq(data1->path, data2->path);
-    //cr_assert(data1->fs.st_size == data2->fs.st_size);
+    cr_assert(data1->fs.st_size == data2->fs.st_size);
 }
 
 void cmp_tree(struct meta_tree *tree1, struct meta_tree *tree2)
