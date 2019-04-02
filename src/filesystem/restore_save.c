@@ -37,15 +37,12 @@ off_t RS_skip_file_content(FILE *file)
     if 0: returns 0, nothing to be skipped
     else: skips file content and returns saved offset
     */
+    off_t offset = ftell(file);
     size_t length;
     fread(&length, sizeof(size_t), 1, file);
 
-    if (length == 0)
-        return 0;
-
     fseek(file, length, SEEK_CUR);
-
-    return length;
+    return offset;
 }
 
 struct meta_data *RS_restore_data(FILE *file)
@@ -88,7 +85,6 @@ struct meta_tree *RS_restore_tree(FILE *file)
     third: get offset for file content
     fourth: recursive calls
     */
-    printf("RS_restore_tree: One node\n");
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
 
     tree->data = RS_restore_data(file);
