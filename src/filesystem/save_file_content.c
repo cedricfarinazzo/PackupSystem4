@@ -10,7 +10,7 @@ void FILESYSTEM_save_file_content(FILE *src, FILE *dst)
     /*
     leaving space for length
     */
-    int re = fseek(dst, sizeof(size_t), SEEK_CUR);
+    int re __attribute__((unused)) = fseek(dst, sizeof(size_t), SEEK_CUR);
 
     /*
     declaring buffer, and all necessary variables
@@ -18,7 +18,7 @@ void FILESYSTEM_save_file_content(FILE *src, FILE *dst)
     char buf[2048];
     int r;
     int w;
-    int total;
+    int total __attribute__((unused));
     size_t len = 0;
 
     /*
