@@ -2,28 +2,39 @@
 #define _SRC_COMPRESSION_STRUCT_H_
 
 struct element {
-    char key;
+    unsigned char key;
     struct element *next;
     struct element *prec;
 } element;
+
+struct ele_int {
+    int key;
+    struct ele_int *next;
+    struct ele_int *prec;
+} ele_int;
 
 struct liste {
     struct element *first;
     struct element *last;
 } liste;
 
+struct list_int {
+    struct ele_int *first;
+    struct ele_int *last;
+} list_int;
+
 struct huffele {
-    char car;
-    char freq;
+    unsigned char car;
+    unsigned char freq;
 } huffele;
 
 struct freqlist {
-    struct liste *freq;
+    struct list_int *freq;
     struct liste *car;
 } freqlist;
 
 struct bintree {
-    char key;
+    unsigned char key;
     struct bintree *left;
     struct bintree *right;
 } bintree;
@@ -41,13 +52,17 @@ struct encod_tree {
     char align;
     int prof;
     int len;
-    char *data;
+    unsigned char *data;
 } encod_tree;
 
 struct encod_data {
     char align;
     int len;
-    char *data;
+    unsigned char *data;
 } encod_data;
 
+struct huff_out {
+    unsigned char *dataOUT;
+    int len;
+} huff_out;
 #endif /*_SRC_COMPRESSION_STRUCT_H_*/

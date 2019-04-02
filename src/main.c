@@ -24,7 +24,9 @@
 #include "encryption/aes/aes_mixcolumns.h"
 #include "encryption/aes/hashpass.h"
 
-#include "compression/huffman.h"
+#include "compression/huffman/huffman.h"
+#include "compression/struct.h"
+#include "compression/file.h"
 
 #include "filesystem/build_metatree.h"
 #include "filesystem/save_metatree.h"
@@ -80,8 +82,56 @@ int main(int argc, char *argv[])
     {
         if (strcmp("huffman", argv[1]) == 0)
         {
-            char *text = argv[2];
-            un_truc_explixcite(text);
+            int len_a = strlen(argv[2]);
+            unsigned char *text = (unsigned char *)(argv[2]);
+            printf("Text input = %s\n", text);
+            printf("Compressing...\n");
+            struct huff_out *compressed = compression(text, len_a);
+            printf("\nText ouput = %s | ", compressed->dataOUT);
+            print_chare(compressed->dataOUT, compressed->len);
+            printf("Ratio : %d%%\n", ((compressed->len * 100) / len_a));
+            free_out(compressed);
+        }
+
+        if (strcmp("dehuffman", argv[1]) == 0)
+        {
+            unsigned char *text = (unsigned char *)(argv[2]);
+            int len = strlen(argv[2]);
+            struct huff_out *compressed = compression(text, len);
+
+            struct huff_out *final = decompression(compressed->dataOUT,
+                    compressed->len);
+            int len_a = strlen((char *)final->dataOUT);
+            if (len_a != len)
+                printf("Longeur differente : %d -> %d\n", len, len_a);
+            printf("Text input : %s\n", text);
+            printf("Text output : ");
+            print_chare(final->dataOUT, final->len);
+            for (int i = 0; i < final->len; ++i)
+                printf("%d", final->dataOUT[i]);
+            printf("\n");
+            free(compressed->dataOUT);
+            free(compressed);
+            free(final->dataOUT);
+            free(final);
+        }
+
+        if (strcmp("filehuffman", argv[1]) == 0)
+        {
+            char *path_output = compression_function(argv[2]);
+            long int ratio =(findSize(path_output)*100)/findSize(argv[2]);
+            printf("Input_size = %ld\n", findSize(argv[2]));
+            printf("Output_size = %ld\n", findSize(path_output));
+            printf("Ratio = %ld %%\n", ratio);
+            printf("Location compress file : %s\n", path_output);
+            free(path_output);
+        }
+
+        if (strcmp("filedehuffman", argv[1]) == 0)
+        {
+            char *path_output = decompression_function(argv[2]);
+            printf("Location decompress file : %s\n", path_output);
+            free(path_output);
         }
 
         if (strcmp("filesystem", argv[1]) == 0)

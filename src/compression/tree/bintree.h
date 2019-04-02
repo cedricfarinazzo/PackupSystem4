@@ -3,7 +3,7 @@
 
 #include <err.h>
 #include <stdlib.h>
-#include "struct.h"
+#include "../struct.h"
 
 struct bintree *new_tree(char n);
 
