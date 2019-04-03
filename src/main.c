@@ -69,27 +69,6 @@ void print_ascii(unsigned char *a)
 
 int main(int argc, char *argv[])
 {
-
-    char *text = "Man";
-    size_t len = strlen(text);
-    printf("text %ld  %s\n", len, text);
-
-    size_t elen;
-    char *encode = base2_encode(text, len, &elen);
-    printf("encode %ld  %s\n", elen, encode);
-    
-    size_t dlen;
-    char *decode = base2_decode(encode, elen - 1, &dlen);
-    printf("decode %ld  %s\n", dlen, decode);
-
-    if (encode != NULL)
-        free(encode);
-    if (decode != NULL)
-        free(decode);
-
-
-    //return EXIT_SUCCESS;
-   
     srand(time(NULL));
     if (argc == 1)
         return interface(argc, argv);
