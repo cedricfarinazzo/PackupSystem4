@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
             FILESYSTEM_free_metatree(tree);
         }
 
-        if (strcmp("restore", argv[1]))
+        if (strcmp("restore", argv[1]) == 0)
         {
             FILESYSTEM_restore_original_save("./testfiles/saves/save.rdtgs");
 
