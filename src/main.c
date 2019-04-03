@@ -37,8 +37,8 @@
 
 #include "encryption/rsa/base2.h"
 
-#define VERSION "1.0"
-#define DATE "2018-03"
+#define VERSION "2.0"
+#define DATE "2018-04"
 #define TYPE "dev"
 
 // TO MOVE IN FILESYSTEM
