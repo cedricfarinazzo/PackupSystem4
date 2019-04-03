@@ -4,52 +4,81 @@ stages:
   - build
   - test
   - webhook
+  
+before_script:
+  - pacman -Syyu --noconfirm
 
-cache:
-  paths:
-    - bin/
-    - packup
-    - packup_*
 
+##################
+# BUILD STAGE
 job_build_gcc:
   stage: build
-  before_script:
-    - pacman -Syyu --noconfirm
+  artifacts:
+    untracked: true
   variables:
       CC: gcc
   script:
-    - pwd
-    - make clean
     - make CC=${CC}
     - make tests/* CC=${CC}
 
 job_build_clang:
   stage: build
-  before_script:
-    - pacman -Syyu --noconfirm
+  artifacts:
+    untracked: true
   variables:
       CC: clang
   script:
-    - pwd
-    - make clean
     - make CC=${CC}
     - make tests/* CC=${CC}
 
-job_test_main:
+job_build_scan-build_gcc:
+  stage: build
+  artifacts:
+    paths:
+      - report/*
+  variables:
+      CC: gcc
+  script:
+    - scan-build -analyze-headers -stats -maxloop 8 -o report make -j4 CC=${CC}
+    
+
+################
+# TEST STAGE 
+# GCC
+job_test_main_gcc:
   stage: test
-  before_script:
-    - pacman -Syyu --noconfirm
+  dependencies: 
+    - job_build_gcc
   script:
     - ./packup --version
   allow_failure: true
 
-job_test_criterion:
+job_test_criterion_gcc:
   stage: test
-  before_script:
-    - pacman -Syyu --noconfirm
+  dependencies: 
+    - job_build_gcc
   script:
     - ls | grep -e "packup_test_[a-z]*$" --color=never | sed -e 's/^/.\//' | sh
 
+# CLANG
+job_test_main_clang:
+  stage: test
+  dependencies: 
+    - job_build_clang
+  script:
+    - ./packup --version
+  allow_failure: true
+
+job_test_criterion_clang:
+  stage: test
+  dependencies: 
+    - job_build_clang
+  script:
+    - ls | grep -e "packup_test_[a-z]*$" --color=never | sed -e 's/^/.\//' | sh
+
+
+#############
+# WEBHOOK STAGE
 job_success:
     stage: webhook
     script:
@@ -68,4 +97,3 @@ job_failure:
         - chmod +x send.sh
         - ./send.sh failure $WEBHOOK_URL
     when: on_failure
-

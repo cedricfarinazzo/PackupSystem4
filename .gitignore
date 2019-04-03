@@ -342,3 +342,7 @@ packup_*
 *.swp
 
 test_tree_*
+
+report/
+
+save.rdtgs

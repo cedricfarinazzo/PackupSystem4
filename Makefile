@@ -10,13 +10,13 @@ GTK_LDLIBS=$(shell pkg-config --libs gtk+-3.0)
 CRITERION_CFLAGS=$(shell pkg-config --cflags criterion)
 CRITERION_LDLIBS=$(shell pkg-config --libs criterion)
 
-CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 -rdynamic -lpthread ${GTK_CFLAGS}
+CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 -rdynamic -lpthread ${GTK_CFLAGS} 
 CPPFLAGS=-MMD
 
 LDFLAGS=
 LDLIBS=-lm -lgmp ${GTK_LDLIBS}
 
-DEBUG=-g3 #-fsanitize=address -g3
+DEBUG=-fsanitize=address -g3
 RELEASE=-Ofast -march=native
 MOD=${DEBUG}
 

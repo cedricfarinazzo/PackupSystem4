@@ -16,6 +16,7 @@ struct meta_data
 {
     char *path;
     struct stat fs;
+    off_t file_content;
 }meta_data;
 
 struct meta_tree
