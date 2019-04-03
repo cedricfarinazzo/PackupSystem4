@@ -30,6 +30,10 @@
 
 #include "filesystem/build_metatree.h"
 #include "filesystem/save_metatree.h"
+#include "filesystem/build_restore_tree.h"
+#include "filesystem/save_file_content.h"
+#include "filesystem/restore_save.h"
+#include "filesystem/create_save.h"
 
 #include "encryption/rsa/base2.h"
 
@@ -78,6 +82,24 @@ int main(int argc, char *argv[])
         if (strcmp("--version", argv[1]) == 0)
             printf("Packup System 4 by PS4 %s v%s %s\n", TYPE, VERSION, DATE);
 
+        if (strcmp("backup", argv[1]) == 0)
+        {
+
+            struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
+            print_tree(tree->son, 0);
+            FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
+            FILESYSTEM_free_metatree(tree);
+        }
+
+        if (strcmp("restore", argv[1]))
+        {
+            FILESYSTEM_restore_original_save("./testfiles/saves/save.rdtgs");
+
+            struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
+            print_tree(tree->son, 0);
+            FILESYSTEM_free_metatree(tree);
+        }
+
     }
 
     if (argc == 3)
@@ -102,7 +124,7 @@ int main(int argc, char *argv[])
             struct huff_out *compressed = compression(text, len);
 
             struct huff_out *final = decompression(compressed->dataOUT,
-                    compressed->len);
+                                                   compressed->len);
             int len_a = strlen((char *)final->dataOUT);
             if (len_a != len)
                 printf("Longeur differente : %d -> %d\n", len, len_a);
@@ -247,7 +269,7 @@ int main(int argc, char *argv[])
                 printf("(%ld):  %s\n", strlen(b), b);
                 free(b);
             }
-            
+
             size_t dlen;
             unsigned char *decode = RSA_decode(privk, encrypt, elen, &dlen);
 
@@ -257,7 +279,7 @@ int main(int argc, char *argv[])
                 mpz_clear(encrypt[i]);
             free(encrypt);
             free(decode);
-            
+
             RSA_free_public_key(pubk);
             RSA_free_private_key(privk);
         }
@@ -275,7 +297,7 @@ int main(int argc, char *argv[])
             close(fout);
             close(fin);
         }
-        
+
         if (strcmp("aes-file-dec", argv[1]) == 0)
         {
             int fin = open(argv[2],O_RDONLY);
