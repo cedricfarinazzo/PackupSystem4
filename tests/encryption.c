@@ -23,6 +23,9 @@
 #include "../src/encryption/aes/aes_keyexpansion.h"
 #include "../src/encryption/rotn.h"
 
+#include "../src/encryption/rsa/base62.h"
+#include "../src/encryption/rsa/base2.h"
+
 #include "../src/encryption/vigenere.h"
 
 #include "../src/encryption/rsa/rsa.h"
@@ -156,16 +159,16 @@ Test(AES, addRoundKey2)
 
     struct AES_matrix *expm = AES_matrix_init();
     AES_matrix_feed(expm, exp);
-    
+
     struct AES_matrix *keym = AES_matrix_init();
     AES_matrix_feed(keym, key);
-    
+
     struct AES_matrix *r = AES_matrix_addRoundKey(mat, keym);
-    
+
     cr_assert(AES_matrix_areEqual(r, expm));
 
     AES_matrix_free(r);
-   
+
     AES_matrix_free(mat);
     AES_matrix_free(keym);
     AES_matrix_free(expm);
@@ -218,9 +221,9 @@ Test(AES, shiftRows2)
 
     struct AES_matrix *expm = AES_matrix_init();
     AES_matrix_feed(expm, exp);
-    
+
     struct AES_matrix *r = AES_matrix_shiftRows(mat);
-    
+
     cr_assert(AES_matrix_areEqual(r, expm));
 
     AES_matrix_free(r);
@@ -272,9 +275,9 @@ Test(AES, subBytes2)
 
     struct AES_matrix *expm = AES_matrix_init();
     AES_matrix_feed(expm, exp);
-    
+
     struct AES_matrix *r = AES_matrix_subBytes(mat);
-    
+
     cr_assert(AES_matrix_areEqual(r, expm));
 
     AES_matrix_free(mat);
@@ -322,13 +325,13 @@ Test(AES, mixColumns2)
 
     struct AES_matrix *expm = AES_matrix_init();
     AES_matrix_feed(expm, exp);
-    
+
     struct AES_matrix *mi = AES_matrix_mixColumns(mat);
-    
+
     cr_assert(AES_matrix_areEqual(mi, expm));
 
     AES_matrix_free(mi);
-   
+
     AES_matrix_free(mat);
     AES_matrix_free(expm);
 
@@ -387,15 +390,15 @@ Test(AES, Encryption)
 
     //printf("\nkey: %s  | text: %s\n", key, text);
     struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
-    
+
     size_t outlen = AES_encrypt(ctx, text, strlen((char*)text), &output);
 
     if (output == NULL)
         cr_assert_fail("output = NULL");
-    
+
     //printf("encryption: %s\n\n", output);
     AES_ctx_free(ctx);
- 
+
     cr_assert_neq(outlen, 0);
     cr_assert_not_null(output);
     cr_assert_str_not_empty((char*)output);
@@ -432,7 +435,7 @@ Test(AES, encrypt_decrypt_file)
 {
     int fin = open("example/a/1",O_RDONLY);
     int fout = open("example/a/2", O_WRONLY | O_CREAT);
-    
+
     int e = 0;
 
     e = AES_encrypt_file(fin, fout, "testai");
@@ -441,13 +444,13 @@ Test(AES, encrypt_decrypt_file)
 
     int find = open("example/a/2",O_RDONLY);
     int foutd = open("example/a/3", O_WRONLY | O_CREAT, 0666);
-    
+
     e = AES_decrypt_file(find, foutd, "testai");
     close(find);
     close(fin);
     close(foutd);
     cr_assert_neq(e, -1);
-    
+
     FILE *reff = fopen("example/a/1", "r");
     FILE *decf = fopen("example/a/3", "r");
     cr_expect_file_contents_eq(decf, reff); 
@@ -460,16 +463,16 @@ Test(AES, encrypt_decrypt_file)
 Test(Base62, Encode)
 {
     char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-    
+
     size_t len = strlen(text);
-    
+
     size_t elen;
     char *encode = base62_encode(text, len, &elen);
-    
+
     cr_expect_not_null(encode);
     cr_expect_neq(elen, 0);
     cr_expect_str_not_empty(encode);
-    
+
     if (encode != NULL)
         free(encode);
 }
@@ -478,19 +481,19 @@ Test(Base62, Decode)
 {
 
     char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-    
+
     size_t len = strlen(text);
-    
+
     size_t elen;
     char *encode = base62_encode(text, len, &elen);
-    
+
     cr_expect_not_null(encode);
     cr_expect_neq(elen, 0);
     cr_expect_str_not_empty(encode);
-        
+
     size_t dlen;
     char *decode = base62_decode(encode, elen, &dlen);
-    
+
     cr_expect_not_null(decode);
     cr_expect_neq(dlen, 0);
     cr_expect_str_not_empty(decode);
@@ -501,12 +504,59 @@ Test(Base62, Decode)
         free(encode);
     if (decode != NULL)
         free(decode);
-    
+
+}
+
+Test(Base2, Encode)
+{
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+
+    size_t len = strlen(text);
+
+    size_t elen;
+    char *encode = base2_encode(text, len, &elen);
+
+    cr_expect_not_null(encode);
+    cr_expect_neq(elen, 0);
+    cr_expect_str_not_empty(encode);
+
+    if (encode != NULL)
+        free(encode);
+}
+
+Test(Base2, Decode)
+{
+
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+
+    size_t len = strlen(text);
+
+    size_t elen;
+    char *encode = base2_encode(text, len, &elen);
+
+    cr_expect_not_null(encode);
+    cr_expect_neq(elen, 0);
+    cr_expect_str_not_empty(encode);
+
+    size_t dlen;
+    char *decode = base2_decode(encode, elen - 1, &dlen);
+
+    cr_expect_not_null(decode);
+    cr_expect_neq(dlen, 0);
+    cr_expect_str_not_empty(decode);
+    cr_expect_str_eq(decode, text);
+    cr_expect_eq(strlen(decode), len);
+
+    if (encode != NULL)
+        free(encode);
+    if (decode != NULL)
+        free(decode);
+
 }
 
 Test(RSA, encrypt)
 {
-    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries";//, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    char text[] = "Lorem Ipsum is simply dummy "; //text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
     size_t lentext = strlen(text);
 
     unsigned long keysize = 2048;
@@ -528,32 +578,38 @@ Test(RSA, encrypt)
 
 Test(RSA, decrypt)
 {
-    return;
-    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-    size_t lentext = strlen((char*)text);
-    unsigned long keysize = 2048;
+    char *text = "Lorem Ipsum is simply dummy ";//text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    size_t lentext = strlen(text);
+
+    unsigned long keysize = 1024;
+
 
     struct RSA_pubKey *pubk;
     struct RSA_privKey *privk;
 
     RSA_generateKey(keysize, &privk, &pubk);
 
+
     size_t elen;
     mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
-    cr_assert_not_null(encrypt);
+    cr_expect_not_null(encrypt);
 
     size_t dlen;
-    unsigned char *decode = RSA_decode(privk, encrypt, lentext, &dlen);
-    cr_assert_not_null(decode);
-    cr_assert_str_not_empty((char*)decode);
-    cr_assert_str_eq((char*)decode, (char*)text);
+    unsigned char *decode = RSA_decode(privk, encrypt, elen, &dlen);
+    cr_expect_not_null(decode);
+    cr_expect_str_not_empty((char*)decode);
+    cr_expect_str_eq((char*)decode, (char*)text);
+
 
     for (size_t i = 0; i < elen; ++i)
         mpz_clear(encrypt[i]);
     free(encrypt);
     free(decode);
+
     RSA_free_public_key(pubk);
     RSA_free_private_key(privk);
+
+
 }
 
 

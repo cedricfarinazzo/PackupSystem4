@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <gmp.h>
-#include "base62.h"
+#include "base2.h"
 #include "genkey.h"
 #include "tools.h"
 
-#define RSA_BUFFER_LEN 171
+#define RSA_BUFFER_LEN 4096
 
 void single_encode_rsa(struct RSA_pubKey *public, mpz_t c, mpz_t r)
 {
@@ -29,7 +29,7 @@ void single_decode_rsa(struct RSA_privKey *private, mpz_t c, mpz_t r)
 mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, size_t *rlen)
 {
     size_t elen;
-    char *edata = base62_encode((char*)data, len, &elen);
+    char *edata = base2_encode((char*)data, len, &elen); 
     *rlen = 0;
     mpz_t *result = malloc(sizeof(mpz_t) * *rlen);
     char *p = edata;
@@ -39,12 +39,11 @@ mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, si
         result = realloc(result, sizeof(mpz_t) * *rlen);
         
         size_t blen = RSA_BUFFER_LEN;
-        char buff[blen + 1];
+        char buff[blen];
         strncpy(buff, (char*)p, blen);
-        buff[blen] = 0;
-
+    
         mpz_init(result[i]);
-        mpz_set_str(result[i], buff, 62);
+        mpz_set_str(result[i], buff, 2);
         
         single_encode_rsa(public, result[i], result[i]);
     }
@@ -59,27 +58,36 @@ unsigned char *RSA_decode(struct RSA_privKey *private, mpz_t *data, size_t len, 
     char *result = malloc(sizeof(char) * *rlen);
     for (size_t i = 0; i < len; ++i)
     {
-        (*rlen) += RSA_BUFFER_LEN;
-        result = realloc(result, sizeof(char) * *rlen);
         
         mpz_t dec; mpz_init(dec);
         single_decode_rsa(private, data[i], dec);
            
-        char buff[RSA_BUFFER_LEN + 1];
-        buff[RSA_BUFFER_LEN] = 0;
-        mpz_get_str(buff, 62, dec);
+        char *buff = mpz_get_str(NULL, 2, dec);
+        size_t t = strlen(buff);
+
+        (*rlen) += t;
+        result = realloc(result, sizeof(char) * *rlen);
         
-        strncpy((char*)(result + *rlen - RSA_BUFFER_LEN), buff, RSA_BUFFER_LEN);
+        strncpy((char*)(result + *rlen - t), buff, t);
         
+        free(buff);
         mpz_clear(dec);
     }
-    ++(*rlen);
-    result = realloc(result, sizeof(char) * *rlen);
-    result[*rlen - 1] = 0;
-    
-    size_t dlen;
-    char *dr = base62_decode((char*)result, *rlen, &dlen);
+
+    size_t align = (-*rlen % 8) + 8; align %= 8;
+    size_t lou = *rlen + align + 1;
+    char *out = malloc(sizeof(char) * lou);
+    size_t ea = 0;
+    for (; ea < align; ++ea)
+        out[ea] = '0';
+    strncpy(out + align, result, *rlen);
+    out[lou - 1] = 0;
     free(result);
+
+    size_t dlen;
+    char *dr = base2_decode((char*)out, lou - 1, &dlen);
+    
+    free(out);
     *rlen = dlen;
     
     return (unsigned char*)dr;
