@@ -9,7 +9,7 @@
 struct AES_matrix {
     size_t rowsLenght;
     size_t colsLenght;
-    uint8_t **data;
+    uint8_t *data;
 } AES_matrix;
 
 #define AES_MATRIX_DEFAULT_ROWSLENGHT 4
