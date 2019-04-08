@@ -10,4 +10,8 @@ void VIGENERE_encrypt(char *data, char *key);
 
 void VIGENERE_decrypt(char *data, char *key);
 
+int VIGENERE_encrypt_file(int fin, int fout, char *key);
+
+int VIGENERE_decrypt_file(int fin, int fout, char *key);
+
 #endif /* _SRC_ENCRYPTION_VIGENERE_H_ */
