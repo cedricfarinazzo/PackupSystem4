@@ -14,7 +14,7 @@ int AES_encrypt_file(int fin, int fout, char *pass)
     while ((ein = read(fin, buffer, BUFFER_SIZE)) > 0 && eout != -1)
     {
         unsigned char *encrypt = NULL;
-        size_t outlen = AES_encrypt(ctx, (unsigned char*)buffer, BUFFER_SIZE, &encrypt); // encrypt data with ctx. write outlen byte on encrypt
+        size_t outlen = AES_encrypt(ctx, (unsigned char*)buffer, ein, &encrypt); // encrypt data with ctx. write outlen byte on encrypt
         eout = write(fout, encrypt, outlen);
         free(encrypt);
     }
@@ -38,7 +38,7 @@ int AES_decrypt_file(int fin, int fout, char *pass)
     while ((ein = read(fin, buffer, BUFFER_SIZE)) > 0 && eout != -1)
     {
         unsigned char *decrypt = NULL;
-        size_t outlen = AES_decrypt(ctx, (unsigned char*)buffer, BUFFER_SIZE, &decrypt); // decrypt data with ctx. write outlen byte on decrypt
+        size_t outlen = AES_decrypt(ctx, (unsigned char*)buffer, ein, &decrypt); // decrypt data with ctx. write outlen byte on decrypt
         eout = write(fout, decrypt, outlen);
         free(decrypt);
     }
