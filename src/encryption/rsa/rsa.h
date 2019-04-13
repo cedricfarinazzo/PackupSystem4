@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <gmp.h>
 #include "genkey.h"
-#include "base2.h"
+#include "base62.h"
 #include "tools.h"
 
 
@@ -15,7 +15,7 @@
  * rlen: size_t: lenght of output (mpz_t *)
  * return: mpz_t*: an array of mpz_t (lenght = rlen). it's the encrypted message
  */
-mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, size_t *rlen);
+unsigned char *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, size_t *rlen);
 
 
 /* RSA_decode: decrypt a char* with a public key
@@ -24,6 +24,6 @@ mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, si
  * len: size_t: lenght of data
  * return: unsigned char*:(lenght = len). it's the decrypted message
  */
-unsigned char *RSA_decode(struct RSA_privKey *private, mpz_t *data, size_t len, size_t *rlen);
+unsigned char *RSA_decode(struct RSA_privKey *private, unsigned char *data, size_t len, size_t *rlen);
 
 #endif /* _SRC_ENCRYPTION_RSA_RSA_H_ */

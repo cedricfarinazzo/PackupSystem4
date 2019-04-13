@@ -556,7 +556,7 @@ Test(Base2, Decode)
 
 Test(RSA, encrypt)
 {
-    char text[] = "Lorem Ipsum is simply dummy "; //text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+    char text[] = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
     size_t lentext = strlen(text);
 
     unsigned long keysize = 2048;
@@ -566,11 +566,10 @@ Test(RSA, encrypt)
     RSA_generateKey(keysize, &privk, &pubk);
 
     size_t elen;
-    mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
-    cr_assert_not_null(encrypt);
+    unsigned char *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
+    cr_expect_not_null(encrypt);
+    cr_expect_str_not_empty((char*)encrypt);
 
-    for (size_t i = 0; i < elen; ++i)
-        mpz_clear(encrypt[i]);
     free(encrypt);
     RSA_free_public_key(pubk);
     RSA_free_private_key(privk);
@@ -591,8 +590,9 @@ Test(RSA, decrypt)
 
 
     size_t elen;
-    mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
+    unsigned char *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
     cr_expect_not_null(encrypt);
+    cr_expect_str_not_empty((char*)encrypt);
 
     size_t dlen;
     unsigned char *decode = RSA_decode(privk, encrypt, elen, &dlen);
@@ -601,8 +601,6 @@ Test(RSA, decrypt)
     cr_expect_str_eq((char*)decode, (char*)text);
 
 
-    for (size_t i = 0; i < elen; ++i)
-        mpz_clear(encrypt[i]);
     free(encrypt);
     free(decode);
 

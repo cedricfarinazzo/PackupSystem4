@@ -261,22 +261,14 @@ int main(int argc, char *argv[])
             printf("   d = "); mpz_out_str(stdout, 10, *(privk->d)); printf("\n");
 
             size_t elen;
-            mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
-            printf("\nencode (%ld): \n", elen);
-            for (size_t i = 0; i < elen; ++i)
-            {
-                char *b = mpz_get_str(NULL, 62, encrypt[i]);
-                printf("(%ld):  %s\n", strlen(b), b);
-                free(b);
-            }
+            unsigned char *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
+            printf("\nencode (%ld): %s\n", elen, encrypt);
 
             size_t dlen;
             unsigned char *decode = RSA_decode(privk, encrypt, elen, &dlen);
 
-            printf("\n\ndecode text (%ld): %s\n", strlen((char*)decode), decode);
+            printf("\n\ndecode text (%ld): %s\n", dlen, decode);
 
-            for (size_t i = 0; i < elen; ++i)
-                mpz_clear(encrypt[i]);
             free(encrypt);
             free(decode);
 

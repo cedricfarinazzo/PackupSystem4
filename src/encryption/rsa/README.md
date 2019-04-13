@@ -29,7 +29,7 @@ Then you can
  * public: struct RSA_pubKey*: a public key generated RSA_generateKey
  * data: unsigned char*: message to encrypt
  * len: size_t: lenght of data
- * return: mpz_t*: an array of mpz_t (lenght = len). it's the encrypted message
+ * return: unsigned char*: an array of unsigned char (lenght = len). it's the encrypted message
  */
 mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len);
 ```
@@ -38,7 +38,7 @@ mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len);
 ```c
 /* RSA_decode: decrypt a char* with a public key
  * private: struct RSA_privKey*: a private key generated RSA_generateKey
- * data: mpz_t*: message to decrypt
+ * data: unsigned char*: message to decrypt
  * len: size_t: lenght of data
  * return: unsigned char*:(lenght = len). it's the decrypted message
  */
@@ -93,17 +93,15 @@ int main(int argc, char *argv[])
     printf("\nprivate: n = "); mpz_out_str(stdout, 10, *(privk->n));
     printf("   d = "); mpz_out_str(stdout, 10, *(privk->d)); printf("\n");
 
-    mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext);
-    printf("\nencode data: ");
-    for (size_t i = 0; i < lentext; ++i)
-        gmp_printf("%#Zx ", encrypt[i]);
+    size_t elen;
+    unsigned char *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
+    printf("\nencode (%ld): %s\n", elen, encrypt);
 
-    unsigned char *decode = RSA_decode(privk, encrypt, lentext);
+    size_t dlen;
+    unsigned char *decode = RSA_decode(privk, encrypt, elen, &dlen);
+   
+    printf("\n\ndecode text (%ld): %s\n", dlen, decode);
 
-    printf("\n\ndecode text: %s\n", decode);
-
-    for (size_t i = 0; i < lentext; ++i)
-        mpz_clear(encrypt[i]);
     free(encrypt);
     free(decode);
     RSA_free_public_key(pubk);
