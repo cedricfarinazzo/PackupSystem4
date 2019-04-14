@@ -54,7 +54,6 @@ ulong rand_a_b(ulong a, ulong b)
 }
 
 
-
 unsigned char *get_str(unsigned long base, mpz_t e, size_t *len)
 {
     mpz_t x;

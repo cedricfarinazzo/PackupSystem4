@@ -19,6 +19,4 @@ int is_prime(mpz_t n);
 
 ulong rand_a_b(ulong a, ulong b);
 
-unsigned char *get_str(unsigned long base, mpz_t x, size_t *len);
-
 #endif /* _SRC_ENCRYPTION_RSA_RSA_H_ */

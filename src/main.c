@@ -35,8 +35,6 @@
 #include "filesystem/restore_save.h"
 #include "filesystem/create_save.h"
 
-#include "encryption/rsa/base2.h"
-
 #define VERSION "2.0"
 #define DATE "2018-04"
 #define TYPE "dev"

@@ -129,7 +129,7 @@ Test(FILESYSTEM, create_save)
     FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
     fileexists("./testfiles/saves/save.rdtgs");
     struct stat fs;
-    int e = stat("./testfiles/saves/save.rdtgs", &fs);
+    int e __attribute__((unused)) = stat("./testfiles/saves/save.rdtgs", &fs);
     printf("Size of save: %ld Bytes\n", fs.st_size);
     struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves/save.rdtgs");
     cmp_tree(tree->son, tree2->son);

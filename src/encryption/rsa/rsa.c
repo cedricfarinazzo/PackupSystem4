@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <gmp.h>
-#include "base2.h"
 #include "genkey.h"
 #include "tools.h"
 
