@@ -1,6 +1,8 @@
-#include <stddef.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 #include "rotn.h"
+
 
 void ROTN_encrypt(char *data, int key)
 {
@@ -13,7 +15,7 @@ void ROTN_decrypt(char *data, int key)
     ROTN_encrypt(data, -key);
 }
 
-int ROTN_encrypt_file(int fin, int fout, int key)
+int ROTN_encrypt_fd(int fin, int fout, int key)
 {
     char buffer[BUFFER_SIZE + 1];
     int ein = 0, eout = 0;
@@ -24,12 +26,14 @@ int ROTN_encrypt_file(int fin, int fout, int key)
         eout = write(fout, buffer, ein);
     }
 
-    if (ein == -1 || eout == -1)
-        return -1;
-    return 0;
+    if (ein == -1)
+        return ROTN_ERROR_CANNOT_READ_FD;
+    if (eout == -1)
+        return ROTN_ERROR_CANNOT_WRITE_FD;
+    return ROTN_OK;
 }
 
-int ROTN_decrypt_file(int fin, int fout, int key)
+int ROTN_decrypt_fd(int fin, int fout, int key)
 {
     char buffer[BUFFER_SIZE + 1];
     int ein = 0, eout = 0;
@@ -40,7 +44,45 @@ int ROTN_decrypt_file(int fin, int fout, int key)
         eout = write(fout, buffer, ein);
     }
 
-    if (ein == -1 || eout == -1)
-        return -1;
-    return 0;
+    if (ein == -1)
+        return ROTN_ERROR_CANNOT_READ_FD;
+    if (eout == -1)
+        return ROTN_ERROR_CANNOT_WRITE_FD;
+    return ROTN_OK;
+}
+
+int ROTN_encrypt_file(char *in, char *out, int key)
+{
+    if (in == NULL || out == NULL)
+        return ROTN_ERROR_NULL_PATH;
+    if (strcmp(in, "") == 0 || strcmp(out, "") == 0)
+        return ROTN_ERROR_EMPTY_PATH;
+    int fin = open(in, O_RDONLY);
+    if (fin < 0)
+        return ROTN_ERROR_CANNOT_OPEN_FD;
+    int fout = open(out, O_WRONLY | O_CREAT);
+    if (fout < 0) {
+        close(fin);
+        return ROTN_ERROR_CANNOT_OPEN_FD;
+    }
+    int r = ROTN_encrypt_fd(fin, fout, key);
+    close(fin);
+    close(fout);
+    return r;
+}
+
+int ROTN_decrypt_file(char *in, char *out, int key)
+{
+    int fin = open(in, O_RDONLY);
+    if (fin < 0)
+        return ROTN_ERROR_CANNOT_OPEN_FD;
+    int fout = open(out, O_WRONLY | O_CREAT);
+    if (fout < 0) {
+        close(fin);
+        return ROTN_ERROR_CANNOT_OPEN_FD;
+    }
+    int r = ROTN_decrypt_fd(fin, fout, key);
+    close(fin);
+    close(fout);
+    return r;
 }
