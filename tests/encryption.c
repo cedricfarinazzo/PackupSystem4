@@ -441,6 +441,9 @@ Test(AES, encrypt_decrypt_file)
     cr_expect_file_contents_eq(decf, reff); 
     fclose(reff);
     fclose(decf);
+
+    remove("example/a/2");
+    remove("example/a/3");
 }
 
 
