@@ -32,11 +32,11 @@ void VIGENERE_decrypt(char *data, char *key)
 
 int VIGENERE_encrypt_fd(int fin, int fout, char *key)
 {
-    char buffer[BUFFER_SIZE + 1];
+    char buffer[VIGENERE_BUFFER_SIZE + 1];
     int ein = 0, eout = 0;
-    while ((ein = read(fin, buffer, BUFFER_SIZE)) > 0 && eout != -1)
+    while ((ein = read(fin, buffer, VIGENERE_BUFFER_SIZE)) > 0 && eout != -1)
     {
-        buffer[BUFFER_SIZE] = 0;
+        buffer[VIGENERE_BUFFER_SIZE] = 0;
         VIGENERE_encrypt(buffer, key);
         eout = write(fout, buffer, ein);
     }
@@ -50,11 +50,11 @@ int VIGENERE_encrypt_fd(int fin, int fout, char *key)
 
 int VIGENERE_decrypt_fd(int fin, int fout, char *key)
 {
-    char buffer[BUFFER_SIZE + 1];
+    char buffer[VIGENERE_BUFFER_SIZE + 1];
     int ein = 0, eout = 0;
-    while ((ein = read(fin, buffer, BUFFER_SIZE)) > 0 && eout != -1)
+    while ((ein = read(fin, buffer, VIGENERE_BUFFER_SIZE)) > 0 && eout != -1)
     {
-        buffer[BUFFER_SIZE] = 0;
+        buffer[VIGENERE_BUFFER_SIZE] = 0;
         VIGENERE_decrypt(buffer, key);
         eout = write(fout, buffer, ein);
     }

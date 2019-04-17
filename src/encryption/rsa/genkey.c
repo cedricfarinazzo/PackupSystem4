@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <gmp.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include <time.h>
 #include "tools.h"
 #include "genkey.h"
@@ -11,48 +15,6 @@ mpz_t *findModInverse(mpz_t a, mpz_t m)
     mpz_init(*r);
     mpz_invert(*r, a, m);
     return r;
-    /*
-    mpz_t gcd_r; mpz_init(gcd_r); mpz_gcd(gcd_r, a, m);
-    if (mpz_cmp_ui(gcd_r, 1) != 0)
-    {
-        mpz_clear(gcd_r);
-        return NULL;
-    }
-    mpz_t u1, u2, u3, v1, v2, v3;
-
-    mpz_init_set_ui(u1, 1);
-    mpz_init_set_ui(u2, 0);
-    mpz_init_set(u3, a);
-    mpz_init_set_ui(v1, 0);
-    mpz_init_set_ui(v2, 1);
-    mpz_init_set(v3, m);
-    
-    while (mpz_cmp_ui(v3, 0) != 0)
-    {
-        mpz_t q; mpz_init(q); mpz_divexact(q, u3, v3);
-
-        mpz_t t1, t2, t3; mpz_init(t1); mpz_init(t2); mpz_init(t3);
-        mpz_mul(t1, q, v1); mpz_sub(t1, u1, t1);
-        mpz_mul(t2, q, v2); mpz_sub(t2, u2, t2);
-        mpz_mul(t3, q, v3); mpz_sub(t3, u3, t3);
-        
-        mpz_set(u1, v1);
-        mpz_set(u2, v2);
-        mpz_set(u3, v3);
-        
-        mpz_set(v1, t1);
-        mpz_set(v2, t2);
-        mpz_set(v3, t3);
-        
-        mpz_clear(q); mpz_clear(t1); mpz_clear(t2); mpz_clear(t3);
-    }
-    
-    mpz_t *r = malloc(sizeof(mpz_t));
-    mpz_init(*r);mpz_mod(*r, u1, m);;
-
-    mpz_clears(gcd_r, u1, u2, u3, v1, v2, v3);
-    return r;
-    */
 }
 
 
@@ -116,10 +78,6 @@ void RSA_generateKey(unsigned long keysize, struct RSA_privKey **privk, struct R
         }
     }
 
-
-    //printf("p =  "); mpz_out_str(stdout, 10, *p); printf("\n");
-    //printf("q =  "); mpz_out_str(stdout, 10, *q); printf("\n");
-    
     mpz_t n; mpz_init(n); mpz_mul(n, *p, *q);
 
     mpz_t phi; mpz_init(phi);
@@ -178,4 +136,83 @@ void RSA_free_public_key(struct RSA_pubKey *pub)
     free(pub->n);
     free(pub->e);
     free(pub);
+}
+
+
+int RSA_pubk_to_file(struct RSA_pubKey *pub, char *path)
+{
+    if (path == NULL)
+        return RSA_ERROR_NULL_PATH;
+    if (strcmp(path, "") == 0)
+        return RSA_ERROR_EMPTY_PATH;
+    FILE *f = fopen(path, "w+");
+    if (f == NULL) return RSA_ERROR_CANNOT_OPEN_FD;
+    if (mpz_out_raw(f, *(pub->n)) == 0)
+        return RSA_ERROR_CANNOT_WRITE_FD;
+    if (mpz_out_raw(f, *(pub->e)) == 0)
+        return RSA_ERROR_CANNOT_WRITE_FD;
+    fclose(f);
+    return RSA_OK;
+}
+
+int RSA_privk_to_file(struct RSA_privKey *priv, char *path)
+{
+    if (path == NULL)
+        return RSA_ERROR_NULL_PATH;
+    if (strcmp(path, "") == 0)
+        return RSA_ERROR_EMPTY_PATH;
+    FILE *f = fopen(path, "w+");
+    if (f == NULL) return RSA_ERROR_CANNOT_OPEN_FD;
+    if (mpz_out_raw(f, *(priv->n)) == 0)
+        return RSA_ERROR_CANNOT_WRITE_FD;
+    if (mpz_out_raw(f, *(priv->d)) == 0)
+        return RSA_ERROR_CANNOT_WRITE_FD;
+    fclose(f);
+    return RSA_OK;
+}
+
+struct RSA_pubKey *RSA_pubKey_from_file(char *path)
+{
+    if (path == NULL)
+        return NULL;
+    if (strcmp(path, "") == 0)
+        return NULL;
+    FILE *f = fopen(path, "r");
+    
+    struct RSA_pubKey *pub = malloc(sizeof(struct RSA_pubKey));
+
+    mpz_t *n = malloc(sizeof(mpz_t)); mpz_init(*n);
+    mpz_t *e = malloc(sizeof(mpz_t)); mpz_init(*e);
+
+    mpz_inp_raw(*n, f);
+    mpz_inp_raw(*e, f);
+    
+    pub->n = n;
+    pub->e = e;
+
+    fclose(f);
+    return pub;
+}
+
+struct RSA_privKey *RSA_privKey_from_file(char *path)
+{
+    if (path == NULL)
+        return NULL;
+    if (strcmp(path, "") == 0)
+        return NULL;
+    FILE *f = fopen(path, "r");
+    
+    struct RSA_privKey *priv = malloc(sizeof(struct RSA_privKey));
+
+    mpz_t *n = malloc(sizeof(mpz_t)); mpz_init(*n);
+    mpz_t *d = malloc(sizeof(mpz_t)); mpz_init(*d);
+
+    mpz_inp_raw(*n, f);
+    mpz_inp_raw(*d, f);
+    
+    priv->n = n;
+    priv->d = d;
+
+    fclose(f);
+    return priv;
 }

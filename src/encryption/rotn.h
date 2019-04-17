@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define BUFFER_SIZE 512
+#define ROTN_BUFFER_SIZE 512
 
 #define ROTN_OK 0
 #define ROTN_ERROR_CANNOT_READ_FD -1

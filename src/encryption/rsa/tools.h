@@ -5,6 +5,13 @@
 #include <time.h>
 #include <gmp.h>
 
+#define RSA_OK 0
+#define RSA_ERROR_CANNOT_READ_FD -1
+#define RSA_ERROR_CANNOT_WRITE_FD -2
+#define RSA_ERROR_NULL_PATH -3
+#define RSA_ERROR_EMPTY_PATH -4
+#define RSA_ERROR_CANNOT_OPEN_FD -5
+
 #define ulong unsigned long long
 
 void min(mpz_t a, mpz_t b, mpz_t r);

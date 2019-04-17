@@ -38,4 +38,10 @@ void RSA_free_private_key(struct RSA_privKey *privk);
  */
 void RSA_free_public_key(struct RSA_pubKey *pubk);
 
+int RSA_pubk_to_file(struct RSA_pubKey *pub, char *path);
+
+int RSA_privk_to_file(struct RSA_privKey *priv, char *path);
+
+struct RSA_pubKey *RSA_pubKey_from_file(char *path);
+
 #endif /* _SRC_ENCRYPTION_RSA_GENKEY_H_ */

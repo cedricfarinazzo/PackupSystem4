@@ -17,11 +17,11 @@ void ROTN_decrypt(char *data, int key)
 
 int ROTN_encrypt_fd(int fin, int fout, int key)
 {
-    char buffer[BUFFER_SIZE + 1];
+    char buffer[ROTN_BUFFER_SIZE + 1];
     int ein = 0, eout = 0;
-    while ((ein = read(fin, buffer, BUFFER_SIZE)) > 0 && eout != -1)
+    while ((ein = read(fin, buffer, ROTN_BUFFER_SIZE)) > 0 && eout != -1)
     {
-        buffer[BUFFER_SIZE] = 0;
+        buffer[ROTN_BUFFER_SIZE] = 0;
         ROTN_encrypt(buffer, key);
         eout = write(fout, buffer, ein);
     }
@@ -35,11 +35,11 @@ int ROTN_encrypt_fd(int fin, int fout, int key)
 
 int ROTN_decrypt_fd(int fin, int fout, int key)
 {
-    char buffer[BUFFER_SIZE + 1];
+    char buffer[ROTN_BUFFER_SIZE + 1];
     int ein = 0, eout = 0;
-    while ((ein = read(fin, buffer, BUFFER_SIZE)) > 0 && eout != -1)
+    while ((ein = read(fin, buffer, ROTN_BUFFER_SIZE)) > 0 && eout != -1)
     {
-        buffer[BUFFER_SIZE] = 0;
+        buffer[ROTN_BUFFER_SIZE] = 0;
         ROTN_decrypt(buffer, key);
         eout = write(fout, buffer, ein);
     }

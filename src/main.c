@@ -14,6 +14,7 @@
 #include "encryption/rsa/rsa.h"
 #include "encryption/rsa/genkey.h"
 #include "encryption/rsa/tools.h"
+#include "encryption/rsa/rsa_file.h"
 
 #include "encryption/aes/aes.h"
 #include "encryption/aes/aes_file.h"
@@ -72,6 +73,30 @@ void print_ascii(unsigned char *a)
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
+
+    /*
+    struct RSA_pubKey *pubk;
+            struct RSA_privKey *privk;
+long keysize = 2048;
+            RSA_generateKey(keysize, &privk, &pubk);
+            
+            printf("public: n = "); mpz_out_str(stdout,10, *(pubk->n));
+            printf("   e = "); mpz_out_str(stdout, 10, *(pubk->e));
+            printf("\n\n\n=================\n\n\n");
+    RSA_pubk_to_file(pubk, argv[1]);
+
+            RSA_free_public_key(pubk);
+            RSA_free_private_key(privk);
+
+struct RSA_pubKey *pub = RSA_pubKey_from_file(argv[1]);
+
+            printf("public: n = "); mpz_out_str(stdout,10, *(pub->n));
+            printf("   e = "); mpz_out_str(stdout, 10, *(pub->e));
+
+            RSA_free_public_key(pub);
+
+return 0;
+*/
     if (argc == 1)
         return interface(argc, argv);
 
@@ -290,6 +315,21 @@ int main(int argc, char *argv[])
             if (e < 0)
                 errx(e, "aes file dec: error ");
         }
+/*
+        if (strcmp("rsa-file-enc", argv[1]) == 0)
+        {
+            int e = RSA_encode_file(argv[2], argv[3], argv[4]);
+            if (e < 0)
+                errx(e, "rsa file enc: error ");
+        }
+
+        if (strcmp("rsa-file-dec", argv[1]) == 0)
+        {
+            int e = RSA_decode_file(argv[2], argv[3], argv[4]);
+            if (e < 0)
+                errx(e, "aes file dec: error ");
+        }
+        */
     }
     return EXIT_SUCCESS;
 }
