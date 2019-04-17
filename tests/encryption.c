@@ -430,23 +430,11 @@ Test(AES, Decrypt)
 
 Test(AES, encrypt_decrypt_file)
 {
-    int fin = open("example/a/1",O_RDONLY);
-    int fout = open("example/a/2", O_WRONLY | O_CREAT);
+    int e = AES_encrypt_file("example/a/1", "example/a/2", "testai");
+    cr_assert_eq(e, 0);
 
-    int e = 0;
-
-    e = AES_encrypt_file(fin, fout, "testai");
-    close(fout);
-    cr_assert_neq(e, -1);
-
-    int find = open("example/a/2",O_RDONLY);
-    int foutd = open("example/a/3", O_WRONLY | O_CREAT, 0666);
-
-    e = AES_decrypt_file(find, foutd, "testai");
-    close(find);
-    close(fin);
-    close(foutd);
-    cr_assert_neq(e, -1);
+    e = AES_decrypt_file("example/a/2", "example/a/3", "testai");
+    cr_assert_eq(e, 0);
 
     FILE *reff = fopen("example/a/1", "r");
     FILE *decf = fopen("example/a/3", "r");

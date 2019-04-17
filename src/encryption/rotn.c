@@ -60,7 +60,7 @@ int ROTN_encrypt_file(char *in, char *out, int key)
     int fin = open(in, O_RDONLY);
     if (fin < 0)
         return ROTN_ERROR_CANNOT_OPEN_FD;
-    int fout = open(out, O_WRONLY | O_CREAT);
+    int fout = open(out, O_WRONLY | O_CREAT, 0644);
     if (fout < 0) {
         close(fin);
         return ROTN_ERROR_CANNOT_OPEN_FD;
@@ -76,7 +76,7 @@ int ROTN_decrypt_file(char *in, char *out, int key)
     int fin = open(in, O_RDONLY);
     if (fin < 0)
         return ROTN_ERROR_CANNOT_OPEN_FD;
-    int fout = open(out, O_WRONLY | O_CREAT);
+    int fout = open(out, O_WRONLY | O_CREAT, 0644);
     if (fout < 0) {
         close(fin);
         return ROTN_ERROR_CANNOT_OPEN_FD;

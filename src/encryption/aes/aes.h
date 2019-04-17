@@ -9,6 +9,12 @@
 #include "aes_shiftrows.h"
 #include "aes_mixcolumns.h"
 
+#define AES_OK 0
+#define AES_ERROR_CANNOT_READ_FD -1
+#define AES_ERROR_CANNOT_WRITE_FD -2
+#define AES_ERROR_NULL_PATH -3
+#define AES_ERROR_EMPTY_PATH -4
+#define AES_ERROR_CANNOT_OPEN_FD -5
 
 struct AES_ctx {
    struct AES_matrix *key;

@@ -279,24 +279,16 @@ int main(int argc, char *argv[])
     {
         if (strcmp("aes-file-enc", argv[1]) == 0)
         {
-            int fin = open(argv[2],O_RDONLY);
-            int fout = open(argv[3], O_WRONLY | O_CREAT);
-            int e = AES_encrypt_file(fin, fout, argv[4]);
-            if (e == -1)
-                err(e, "aes file enc: error ");
-            close(fout);
-            close(fin);
+            int e = AES_encrypt_file(argv[2], argv[3], argv[4]);
+            if (e < 0)
+                errx(e, "aes file enc: error ");
         }
 
         if (strcmp("aes-file-dec", argv[1]) == 0)
         {
-            int fin = open(argv[2],O_RDONLY);
-            int fout = open(argv[3], O_WRONLY | O_CREAT);
-            int e = AES_decrypt_file(fin, fout, argv[4]);
-            if (e == -1)
-                err(e, "aes file dec: error ");
-            close(fout);
-            close(fin);
+            int e = AES_decrypt_file(argv[2], argv[3], argv[4]);
+            if (e < 0)
+                errx(e, "aes file dec: error ");
         }
     }
     return EXIT_SUCCESS;
