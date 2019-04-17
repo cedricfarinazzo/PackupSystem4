@@ -49,4 +49,5 @@ int AES_encrypt_file(char *in, char *out, char *pass);
  * return: int: AES code (check aes_file.h)
  */
 int AES_decrypt_file(char *in, char *out, char *pass);
+
 #endif /* _SRC_ENCRYPTION_AES_AES_FILE_H__ */
