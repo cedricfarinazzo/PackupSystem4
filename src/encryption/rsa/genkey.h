@@ -44,4 +44,6 @@ int RSA_privk_to_file(struct RSA_privKey *priv, char *path);
 
 struct RSA_pubKey *RSA_pubKey_from_file(char *path);
 
+struct RSA_privKey *RSA_privKey_from_file(char *path);
+
 #endif /* _SRC_ENCRYPTION_RSA_GENKEY_H_ */

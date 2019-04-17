@@ -298,7 +298,8 @@ return 0;
             RSA_free_public_key(pubk);
             RSA_free_private_key(privk);
         }
-    }
+
+            }
 
     if (argc == 5)
     {
@@ -315,21 +316,40 @@ return 0;
             if (e < 0)
                 errx(e, "aes file dec: error ");
         }
-/*
+        
+        if (strcmp("gen-rsa-key", argv[1]) == 0)
+        {
+            struct RSA_pubKey *pubk;
+            struct RSA_privKey *privk;
+            unsigned long keysize = (unsigned long)atol(argv[2]);
+            RSA_generateKey(keysize, &privk, &pubk);
+        
+            RSA_pubk_to_file(pubk, argv[3]);
+            RSA_privk_to_file(privk, argv[4]);
+
+            RSA_free_public_key(pubk);
+            RSA_free_private_key(privk);
+            
+        }
+
         if (strcmp("rsa-file-enc", argv[1]) == 0)
         {
-            int e = RSA_encode_file(argv[2], argv[3], argv[4]);
+            struct RSA_pubKey *pub = RSA_pubKey_from_file(argv[4]);
+            int e = RSA_encode_file(argv[2], argv[3], pub);
+            RSA_free_public_key(pub);
             if (e < 0)
                 errx(e, "rsa file enc: error ");
         }
 
         if (strcmp("rsa-file-dec", argv[1]) == 0)
         {
-            int e = RSA_decode_file(argv[2], argv[3], argv[4]);
+            struct RSA_privKey *priv = RSA_privKey_from_file(argv[4]);
+            int e = RSA_decode_file(argv[2], argv[3], priv);
+            RSA_free_private_key(priv);
             if (e < 0)
                 errx(e, "aes file dec: error ");
         }
-        */
+        
     }
     return EXIT_SUCCESS;
 }
