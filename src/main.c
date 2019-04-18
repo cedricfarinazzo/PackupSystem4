@@ -73,7 +73,7 @@ void print_ascii(unsigned char *a)
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-/*
+
     struct RSA_pubKey *pubk;
     struct RSA_privKey *privk;
     unsigned long keysize = 64;
@@ -88,14 +88,14 @@ int main(int argc, char *argv[])
     fclose(reff);
     fclose(decf);
 
-    remove("example/b/6");
-    remove("example/b/7");
+ //   remove("example/b/6");
+//    remove("example/b/7");
     
     RSA_free_public_key(pubk);
     RSA_free_private_key(privk);
 
 return 0;
- */
+
     if (argc == 1)
         return interface(argc, argv);
 
