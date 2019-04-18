@@ -118,7 +118,7 @@ Test(AES, addRoundKey)
         for (size_t x = 0; x < key->colsLenght; ++x)
         {
             cr_assert((AES_matrix_get(mat, x, y) ^ AES_matrix_get(key, x, y))
-                      == AES_matrix_get(state, x, y));
+                    == AES_matrix_get(state, x, y));
         }
     }
 
@@ -190,7 +190,7 @@ Test(AES, shiftRows)
         for (size_t x = 0; x < mat->colsLenght; ++x)
         {
             cr_assert(AES_matrix_get(state, x, y)
-                      == AES_matrix_get(mat, (x + y)%4, y));
+                    == AES_matrix_get(mat, (x + y)%4, y));
         }
     }
 
@@ -510,18 +510,14 @@ Test(RSA, GenKeyFile)
 
     struct RSA_pubKey *pubk;
     struct RSA_privKey *privk;
-    unsigned long keysize = 1024;
+    unsigned long keysize = 64;
     RSA_generateKey(keysize, &privk, &pubk);
 
     RSA_pubk_to_file(pubk, pbkf);
-    RSA_privk_to_file(privk, pbkf);
-
+    RSA_privk_to_file(privk, prkf);
     struct RSA_pubKey *pub = RSA_pubKey_from_file(pbkf);
     struct RSA_privKey *priv = RSA_privKey_from_file(prkf);
 
-    cr_expect_not_null(pub);
-    cr_expect_not_null(priv);
-    
     cr_expect_eq(mpz_cmp(*(pubk->n), *(pub->n)), 0);
     cr_expect_eq(mpz_cmp(*(pubk->e), *(pub->e)), 0);
     cr_expect_eq(mpz_cmp(*(privk->n), *(priv->n)), 0);
