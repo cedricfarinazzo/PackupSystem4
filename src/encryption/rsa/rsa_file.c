@@ -13,25 +13,28 @@
 
 int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk)
 {
-    struct stat s;
-    fstat (fin, &s);
-    unsigned long size = s.st_size;
-    
-    char buffs[32];
-    for (size_t i = 0; i < 32; ++i) buffs[i] = 0;
-    sprintf(buffs, "%ld", size);
-    int eout = write(fout, buffs, 32);
+    int ein = 42, eout = 0;
 
-    char buffer[RSA_BUFFER_SIZE];
-    int ein = 0;
-    while ((ein = read(fin, buffer, RSA_BUFFER_SIZE)) > 0 && eout != -1)
+    while (ein > 0 && eout != -1)
     {
-        size_t outlen;
-        unsigned char *encrypt = RSA_encode(pubk, (unsigned char*)buffer, ein, &outlen); 
-        eout = write(fout, encrypt, outlen);
-        free(encrypt);
-    }
+        char buff[128];
+        for (size_t i = 0; i < 128; ++i) buff[i] = 0;
+        ein = read(fin, buff, 128);
     
+        mpz_t t, r; mpz_init(t); mpz_init(r);
+        mpz_import(t, 128, 1, 1, 0, 0, buff);
+
+        single_encode_rsa(pubk, t, r);
+
+        char *outputchunk =  mpz_get_str(NULL, 16, r);
+        size_t l = mpz_sizeinbase (r, 16) + 2;
+        
+        eout = write(fout, outputchunk, l-1);
+        free(outputchunk);
+
+        mpz_clear(r); mpz_clear(t);
+    }
+
     if (ein == -1)
         return RSA_ERROR_CANNOT_READ_FD;
     if (eout == -1)
@@ -42,21 +45,25 @@ int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk)
 
 int RSA_decode_fd(int fin, int fout, struct RSA_privKey *privk)
 {
-    char buffs[32 + 1]; buffs[32] = 0;
-    read(fin, buffs, 32);
-    unsigned long size = atol(buffs);
-    
-    char buffer[RSA_BUFFER_SIZE];
-    int ein = 0, eout = 0;
-    while ((ein = read(fin, buffer, RSA_BUFFER_SIZE)) > 0 && eout != -1)
+    int ein = 42, eout = 0;
+    while(ein > 0 && eout != -1)
     {
-        size_t outlen;
-        unsigned char *decrypt = RSA_decode(privk, (unsigned char*)buffer, ein, &outlen); 
-        if (size < RSA_BUFFER_SIZE)
-            outlen = size;
-        eout = write(fout, decrypt, outlen);
-        size -= outlen;
-        free(decrypt);
+        char buff[258];
+        for (size_t i = 0; i < 258; ++i) buff[i] = 0;
+        ein = read(fin, buff, 258);
+
+        mpz_t t, r; mpz_init(t); mpz_init(r);
+        mpz_set_str(t, buff, 16);
+
+        single_decode_rsa(privk, t, r);
+
+        size_t l;
+        char *outputchunk = mpz_export(NULL, &l, 1, 1, 0, 0, r);
+        
+        eout = write(fout, outputchunk, l);
+        
+        free(outputchunk);
+        mpz_clear(r); mpz_clear(t);
     }
 
     if (ein == -1)

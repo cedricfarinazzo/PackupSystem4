@@ -11,9 +11,8 @@
 #include "genkey.h"
 #include "rsa.h"
 
-#define RSA_BUFFER_SIZE 512
-
-
+#define RSA_BUFFER_SIZE_E 128
+#define RSA_BUFFER_SIZE_D 258
 
 int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk);
 

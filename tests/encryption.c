@@ -27,6 +27,8 @@
 #include "../src/encryption/vigenere.h"
 
 #include "../src/encryption/rsa/rsa.h"
+#include "../src/encryption/rsa/rsa_file.h"
+#include "../src/encryption/rsa/genkey.h"
 
 unsigned char *decrypt = NULL;
 unsigned char *output = NULL;
@@ -532,6 +534,28 @@ Test(RSA, GenKeyFile)
     remove(prkf);
 }
 
+Test(RSA, EncryptDecryptFile)
+{
+    struct RSA_pubKey *pubk;
+    struct RSA_privKey *privk;
+    unsigned long keysize = 64;
+    RSA_generateKey(keysize, &privk, &pubk);
+    
+    RSA_encode_file("example/b/5", "example/b/6", pubk);
+    RSA_decode_file("example/b/6", "example/b/7", privk);
+    
+    FILE *reff = fopen("example/b/5", "r");
+    FILE *decf = fopen("example/b/7", "r");
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove("example/b/6");
+    remove("example/b/7");
+    
+    RSA_free_public_key(pubk);
+    RSA_free_private_key(privk);
+}
 
 // ROTN
 Test(ROTN, encrypt)
