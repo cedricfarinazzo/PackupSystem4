@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <string.h>
 #include "genkey.h"
 #include "rsa.h"
@@ -13,63 +14,56 @@
 
 int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk)
 {
-    int ein = 42, eout = 0;
+    struct stat fileInfo;
+    fstat(fin, &fileInfo);
 
-    while (ein > 0 && eout != -1)
-    {
-        char buff[128];
-        for (size_t i = 0; i < 128; ++i) buff[i] = 0;
-        ein = read(fin, buff, 128);
+    char *data = mmap(0, fileInfo.st_size, PROT_READ, MAP_SHARED, fin, 0);
     
-        mpz_t t, r; mpz_init(t); mpz_init(r);
-        mpz_import(t, 128, 1, 1, 0, 0, buff);
-
-        single_encode_rsa(pubk, t, r);
-
-        char *outputchunk =  mpz_get_str(NULL, 16, r);
-        size_t l = mpz_sizeinbase (r, 16) + 2;
-        
-        eout = write(fout, outputchunk, l-1);
-        free(outputchunk);
-
-        mpz_clear(r); mpz_clear(t);
+    size_t len;
+    unsigned char *en = RSA_encode(pubk, (unsigned char*)data, fileInfo.st_size, &len);
+    munmap(data, fileInfo.st_size);
+    len = strlen((char*)en);
+    unsigned char *tmp = en;
+    while (tmp < en + len)
+    {
+        size_t w = en - tmp + len > 512 ? 512 : en - tmp + len;
+        if (write(fout, tmp, w) == -1)
+        {
+            free(en);
+            return RSA_ERROR_CANNOT_WRITE_FD;
+        }
+        tmp += 512;
     }
-
-    if (ein == -1)
-        return RSA_ERROR_CANNOT_READ_FD;
-    if (eout == -1)
-        return RSA_ERROR_CANNOT_WRITE_FD;
+    free(en);
     return RSA_OK;
 }
 
 
 int RSA_decode_fd(int fin, int fout, struct RSA_privKey *privk)
 {
-    int ein = 42, eout = 0;
-    while(ein > 0 && eout != -1)
+
+    struct stat fileInfo;
+    fstat(fin, &fileInfo);
+
+    char *data = mmap(0, fileInfo.st_size, PROT_READ, MAP_SHARED, fin, 0);
+    
+    size_t len;
+    unsigned char *de = RSA_decode(privk, (unsigned char*)data, fileInfo.st_size, &len);
+    munmap(data, fileInfo.st_size);
+    
+    unsigned char *tmp = de;
+    len = strlen((char*)de);
+    while (tmp < de + len)
     {
-        char buff[258];
-        for (size_t i = 0; i < 258; ++i) buff[i] = 0;
-        ein = read(fin, buff, 258);
-
-        mpz_t t, r; mpz_init(t); mpz_init(r);
-        mpz_set_str(t, buff, 16);
-
-        single_decode_rsa(privk, t, r);
-
-        size_t l;
-        char *outputchunk = mpz_export(NULL, &l, 1, 1, 0, 0, r);
-        
-        eout = write(fout, outputchunk, l);
-        
-        free(outputchunk);
-        mpz_clear(r); mpz_clear(t);
+        size_t w = de - tmp + len > 512 ? 512 : de - tmp + len;
+        if (write(fout, tmp, w) == -1)
+        {
+            free(de);
+            return RSA_ERROR_CANNOT_WRITE_FD;
+        }
+        tmp += 512;
     }
-
-    if (ein == -1)
-        return RSA_ERROR_CANNOT_READ_FD;
-    if (eout == -1)
-        return RSA_ERROR_CANNOT_WRITE_FD;
+    free(de);
     return RSA_OK;
 }
 
@@ -78,8 +72,6 @@ int RSA_encode_file(char *in, char *out, struct RSA_pubKey *pubk)
 {
     if (in == NULL || out == NULL)
         return RSA_ERROR_NULL_PATH;
-    if (strcmp(in, "") == 0 || strcmp(out, "") == 0)
-        return RSA_ERROR_EMPTY_PATH;
     int fin = open(in, O_RDONLY);
     if (fin < 0)
         return RSA_ERROR_CANNOT_OPEN_FD;
