@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <time.h>
+#include <gmp.h>
 
 #include "../src/tools/base64.h"
 #include "../src/encryption/aes/sha1.h"
@@ -500,10 +501,40 @@ Test(RSA, decrypt)
 
     RSA_free_public_key(pubk);
     RSA_free_private_key(privk);
-
-
 }
 
+Test(RSA, GenKeyFile)
+{
+    char *pbkf = "key.pub";
+    char *prkf = "key.priv";
+
+    struct RSA_pubKey *pubk;
+    struct RSA_privKey *privk;
+    unsigned long keysize = 1024;
+    RSA_generateKey(keysize, &privk, &pubk);
+
+    RSA_pubk_to_file(pubk, pbkf);
+    RSA_privk_to_file(privk, pbkf);
+
+    struct RSA_pubKey *pub = RSA_pubKey_from_file(pbkf);
+    struct RSA_privKey *priv = RSA_privKey_from_file(prkf);
+
+    cr_expect_not_null(pub);
+    cr_expect_not_null(priv);
+    
+    cr_expect_eq(mpz_cmp(*(pubk->n), *(pub->n)), 0);
+    cr_expect_eq(mpz_cmp(*(pubk->e), *(pub->e)), 0);
+    cr_expect_eq(mpz_cmp(*(privk->n), *(priv->n)), 0);
+    cr_expect_eq(mpz_cmp(*(privk->d), *(priv->d)), 0);
+
+    RSA_free_public_key(pubk);
+    RSA_free_private_key(privk);
+    RSA_free_public_key(pub);
+    RSA_free_private_key(priv);
+
+    remove(pbkf);
+    remove(prkf);
+}
 
 
 // ROTN
