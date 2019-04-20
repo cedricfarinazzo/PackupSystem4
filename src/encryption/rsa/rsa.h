@@ -6,6 +6,9 @@
 #include "genkey.h"
 #include "tools.h"
 
+void single_encode_rsa(struct RSA_pubKey *public, mpz_t c, mpz_t r);
+
+void single_decode_rsa(struct RSA_privKey *private, mpz_t c, mpz_t r);
 
 /* RSA_encode: encrypt a char* with a public key
  * public: struct RSA_pubKey*: a public key generated RSA_generateKey

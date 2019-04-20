@@ -76,6 +76,10 @@ unsigned char *AES_keyFromPass(char *pass, size_t len);
 # AES on file
 
 ```c
+#include "aes_file.h"
+```
+
+```c
 /* AES_encrypt_fd: encrypt data from fin and write on fout
  * fin: int: file descriptor pointing to the input file
  * fout: int: file descriptor pointing to the output file

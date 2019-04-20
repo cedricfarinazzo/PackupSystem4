@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <time.h>
+#include <gmp.h>
 
 #include "../src/tools/base64.h"
 #include "../src/encryption/aes/sha1.h"
@@ -26,6 +27,8 @@
 #include "../src/encryption/vigenere.h"
 
 #include "../src/encryption/rsa/rsa.h"
+#include "../src/encryption/rsa/rsa_file.h"
+#include "../src/encryption/rsa/genkey.h"
 
 unsigned char *decrypt = NULL;
 unsigned char *output = NULL;
@@ -117,7 +120,7 @@ Test(AES, addRoundKey)
         for (size_t x = 0; x < key->colsLenght; ++x)
         {
             cr_assert((AES_matrix_get(mat, x, y) ^ AES_matrix_get(key, x, y))
-                      == AES_matrix_get(state, x, y));
+                    == AES_matrix_get(state, x, y));
         }
     }
 
@@ -189,7 +192,7 @@ Test(AES, shiftRows)
         for (size_t x = 0; x < mat->colsLenght; ++x)
         {
             cr_assert(AES_matrix_get(state, x, y)
-                      == AES_matrix_get(mat, (x + y)%4, y));
+                    == AES_matrix_get(mat, (x + y)%4, y));
         }
     }
 
@@ -500,11 +503,59 @@ Test(RSA, decrypt)
 
     RSA_free_public_key(pubk);
     RSA_free_private_key(privk);
-
-
 }
 
+Test(RSA, GenKeyFile)
+{
+    char *pbkf = "key.pub";
+    char *prkf = "key.priv";
 
+    struct RSA_pubKey *pubk;
+    struct RSA_privKey *privk;
+    unsigned long keysize = 64;
+    RSA_generateKey(keysize, &privk, &pubk);
+
+    RSA_pubk_to_file(pubk, pbkf);
+    RSA_privk_to_file(privk, prkf);
+    struct RSA_pubKey *pub = RSA_pubKey_from_file(pbkf);
+    struct RSA_privKey *priv = RSA_privKey_from_file(prkf);
+
+    cr_expect_eq(mpz_cmp(*(pubk->n), *(pub->n)), 0);
+    cr_expect_eq(mpz_cmp(*(pubk->e), *(pub->e)), 0);
+    cr_expect_eq(mpz_cmp(*(privk->n), *(priv->n)), 0);
+    cr_expect_eq(mpz_cmp(*(privk->d), *(priv->d)), 0);
+
+    RSA_free_public_key(pubk);
+    RSA_free_private_key(privk);
+    RSA_free_public_key(pub);
+    RSA_free_private_key(priv);
+
+    remove(pbkf);
+    remove(prkf);
+}
+
+Test(RSA, EncryptDecryptFile)
+{
+    struct RSA_pubKey *pubk;
+    struct RSA_privKey *privk;
+    unsigned long keysize = 64;
+    RSA_generateKey(keysize, &privk, &pubk);
+    
+    RSA_encode_file("example/b/5", "example/b/6", pubk);
+    RSA_decode_file("example/b/6", "example/b/7", privk);
+    
+    FILE *reff = fopen("example/b/5", "r");
+    FILE *decf = fopen("example/b/7", "r");
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove("example/b/6");
+    remove("example/b/7");
+    
+    RSA_free_public_key(pubk);
+    RSA_free_private_key(privk);
+}
 
 // ROTN
 Test(ROTN, encrypt)

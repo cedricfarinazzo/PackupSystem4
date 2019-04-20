@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 512
+#define VIGENERE_BUFFER_SIZE 512
 
 #define VIGENERE_OK 0
 #define VIGENERE_ERROR_CANNOT_READ_FD -1

@@ -27,7 +27,7 @@ void single_decode_rsa(struct RSA_privKey *private, mpz_t c, mpz_t r)
 
 unsigned char *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, size_t *rlen)
 {
-    char *output = malloc(0 * sizeof(char*));
+    char *output = malloc(0 * sizeof(char));
     *rlen = 0;
 
     for (size_t i = 0; i < len; i+= 128)
@@ -58,7 +58,7 @@ unsigned char *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t
 
 unsigned char *RSA_decode(struct RSA_privKey *private, unsigned char *data, size_t len, size_t *rlen)
 {
-    char *output = malloc(0 * sizeof(char*));
+    char *output = malloc(0 * sizeof(char));
     *rlen = 0;
     
     for (size_t i = 0; i < len; i+= 258)
