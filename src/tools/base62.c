@@ -66,7 +66,6 @@ char *base62_encode(char *in, size_t len, size_t *olen)
 
     ascii = in[i];
     byte_to_binary(ascii, bits);
-    //printf("%s\n", bits);
     countb = 0;
     ++i;
     while (1)
@@ -83,7 +82,6 @@ char *base62_encode(char *in, size_t len, size_t *olen)
 
         if (nba == 6)
         {
-            //printf("%d\n", a);
             ++(*olen);
             out = realloc(out, sizeof(char) * *olen);
             out[*olen - 1] = base62_table[(size_t)a];
@@ -100,7 +98,6 @@ char *base62_encode(char *in, size_t len, size_t *olen)
         ++(*olen);
         out = realloc(out, sizeof(char) * *olen);
         out[*olen - 1] = base62_table[(size_t)a];
-        a = 0; nba = 0;
     }
     (*olen) += 1;
     out = realloc(out, sizeof(char) * *olen);
@@ -125,7 +122,6 @@ char *base62_decode(char *in, size_t len, size_t *olen)
             char d = bin2dec(ascii);
             if (allison(ascii) || d == -1 || d== '?')
                 break;
-            //printf("\n %d %c  %s", d, d, bits);
             ++(*olen);
             out = realloc(out, sizeof(char) * *olen);
             out[*olen - 1] = d;
