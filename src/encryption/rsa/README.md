@@ -29,20 +29,21 @@ Then you can
  * public: struct RSA_pubKey*: a public key generated RSA_generateKey
  * data: unsigned char*: message to encrypt
  * len: size_t: lenght of data
- * return: unsigned char*: an array of unsigned char (lenght = len). it's the encrypted message
+ * rlen: size_t: lenght of output (mpz_t *)
+ * return: mpz_t*: an array of mpz_t (lenght = rlen). it's the encrypted message
  */
-mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len);
+unsigned char *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, size_t *rlen);
 ```
 
 - decrypt 
 ```c
 /* RSA_decode: decrypt a char* with a public key
  * private: struct RSA_privKey*: a private key generated RSA_generateKey
- * data: unsigned char*: message to decrypt
+ * data: mpz_t*: message to decrypt
  * len: size_t: lenght of data
  * return: unsigned char*:(lenght = len). it's the decrypted message
  */
-unsigned char *RSA_decode(struct RSA_privKey *private, mpz_t *data, size_t len);
+unsigned char *RSA_decode(struct RSA_privKey *private, unsigned char *data, size_t len, size_t *rlen);
 ```
 
 Don't forget to free all key: 
@@ -61,6 +62,86 @@ void RSA_free_private_key(struct RSA_privKey *privk);
 void RSA_free_public_key(struct RSA_pubKey *pubk);
 ```
 
+### RSA on file
+
+```c
+#include "rsa_file.h"
+#include "genkey.h"
+```
+
+```c
+/* RSA_pubk_to_file: write the RSA public to file
+ * pub: struct RSA_pubKey*: RSA public key
+ * path: int: path to the output file
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_pubk_to_file(struct RSA_pubKey *pub, char *path);
+```
+
+```c
+/* RSA_privk_to_file: write the RSA private to file
+ * pub: struct RSA_privKey*: RSA private key
+ * path: int: path to the output file
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_privk_to_file(struct RSA_privKey *priv, char *path);
+```
+
+```c
+/* RSA_pubk_from_file: load a RSA public from file
+ * path: int: path to file
+ * return: struct RSA_pubKey*: RSA public key
+ */
+struct RSA_pubKey *RSA_pubKey_from_file(char *path);
+```
+
+```c
+/* RSA_privKey_from_file: load a RSA private from file
+ * path: int: path to file
+ * return: struct RSA_privKey*: RSA private key
+ */
+struct RSA_privKey *RSA_privKey_from_file(char *path);
+```
+
+```c
+/* RSA_encode_fd: encode data from fin and write on fout
+ * fin: int: file descriptor pointing to the input file
+ * fout: int: file descriptor pointing to the output file
+ * pass: struct RSA_pubKey*: RSA public key
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk);
+```
+
+```c
+/* RSA_decode_fd: decode data from fin and write on fout
+ * fin: int: file descriptor pointing to the input file
+ * fout: int: file descriptor pointing to the output file
+ * pass: struct RSA_privKey*: RSA private key
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_decode_fd(int fin, int fout, struct RSA_privKey *privk);
+```
+
+```c
+/* RSA_encode_file: encode data from in file and write on out file
+ * fin: char*: path to the input file
+ * fout: int: path to the output file
+ * pass: struct RSA_pubKey*: RSA public key
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_encode_file(char *in, char *out, struct RSA_pubKey *pubk);
+```
+
+```c
+/* RSA_decode_file: decode data from in file and write on out file
+ * fin: char*: path to the input file
+ * fout: int: path to the output file
+ * pass: struct RSA_privKey*: RSA private key
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_decode_file(char *in, char *out, struct RSA_privKey *privk);
+```
 
 ### Example
 

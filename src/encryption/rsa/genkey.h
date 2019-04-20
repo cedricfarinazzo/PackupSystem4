@@ -38,12 +38,34 @@ void RSA_free_private_key(struct RSA_privKey *privk);
  */
 void RSA_free_public_key(struct RSA_pubKey *pubk);
 
+
+/* RSA_pubk_to_file: write the RSA public to file
+ * pub: struct RSA_pubKey*: RSA public key
+ * path: int: path to the output file
+ * return: int: RSA code (check tools.h)
+ */
 int RSA_pubk_to_file(struct RSA_pubKey *pub, char *path);
 
+
+/* RSA_privk_to_file: write the RSA private to file
+ * pub: struct RSA_privKey*: RSA private key
+ * path: int: path to the output file
+ * return: int: RSA code (check tools.h)
+ */
 int RSA_privk_to_file(struct RSA_privKey *priv, char *path);
 
+
+/* RSA_pubk_from_file: load a RSA public from file
+ * path: int: path to file
+ * return: struct RSA_pubKey*: RSA public key
+ */
 struct RSA_pubKey *RSA_pubKey_from_file(char *path);
 
+
+/* RSA_privKey_from_file: load a RSA private from file
+ * path: int: path to file
+ * return: struct RSA_privKey*: RSA private key
+ */
 struct RSA_privKey *RSA_privKey_from_file(char *path);
 
 #endif /* _SRC_ENCRYPTION_RSA_GENKEY_H_ */
