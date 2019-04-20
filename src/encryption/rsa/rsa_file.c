@@ -17,6 +17,11 @@ int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk)
     char *data = mmap(0, fileInfo.st_size, PROT_READ, MAP_SHARED, fin, 0);
     size_t len = fileInfo.st_size;    
 
+    mpz_t mlen; mpz_init_set_ui(mlen, len);
+    if (mpz_out_raw(f, mlen) == 0)
+        return RSA_ERROR_CANNOT_WRITE_FD;
+    mpz_clear(mlen);
+
     size_t buffsize = 8;
 
     for (size_t i = 0; i < len; i+= buffsize)
@@ -44,12 +49,22 @@ int RSA_decode_fd(int fin, int fout, struct RSA_privKey *privk)
     int ein;
     mpz_t r, t; mpz_init(r); mpz_init(t);
     FILE *f = fdopen(fin, "r");
+
+    mpz_t mlen; mpz_init(mlen);
+    if (mpz_inp_raw(mlen, f) == 0)
+        return RSA_ERROR_CANNOT_WRITE_FD;
+    size_t ilen = mpz_get_ui(mlen);
+    mpz_clear(mlen);
+
     while ((ein = mpz_inp_raw(t, f)) > 0)
     {
         single_decode_rsa(privk, t, r);
         size_t l;
         char *outputchunk = mpz_export(NULL, &l, 1, 1, 0, 0, r);
+        if (l > ilen)
+            l = ilen;
         write(fout, outputchunk, l);
+        ilen -= l;
         free(outputchunk);
     }
     fclose(f);
