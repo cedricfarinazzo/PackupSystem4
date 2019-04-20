@@ -38,6 +38,7 @@ mpz_t *find_primitive_root(mpz_t p, gmp_randstate_t r_state)
         mpz_init_set_ui(*g, 1);
         return g;
     }
+    mpz_init(*g);
 
     mpz_t pr; mpz_init(pr); mpz_sub_ui(pr, p, 3);
     mpz_t p1; mpz_init_set_ui(p1, 2);
@@ -74,7 +75,7 @@ void ELGAMAL_generateKey(size_t iNumBits, struct ELGAMAL_privkey **privk, struct
     mpz_urandomb(tmp, base, iNumBits);
     gmp_randinit_lc_2exp(r_state, tmp, rand(),128);
     gmp_randclear(base); mpz_clear(tmp);
-    
+
     mpz_t *p = ELgenerateLargePrime(iNumBits, r_state);
 
     mpz_t *g = find_primitive_root(*p, r_state);
@@ -95,9 +96,17 @@ void ELGAMAL_generateKey(size_t iNumBits, struct ELGAMAL_privkey **privk, struct
     mpz_t *in1 = malloc(sizeof(mpz_t)); mpz_init_set_ui(*in1, iNumBits);
     mpz_t *in2 = malloc(sizeof(mpz_t)); mpz_init_set_ui(*in2, iNumBits);
 
+    mpz_t *p1 = malloc(sizeof(mpz_t)); mpz_init_set(*p1, *p);
+    mpz_t *p2 = malloc(sizeof(mpz_t)); mpz_init_set(*p2, *p);
+    mpz_clear(*p); free(p);
+
+    mpz_t *g1 = malloc(sizeof(mpz_t)); mpz_init_set(*g1, *g);
+    mpz_t *g2 = malloc(sizeof(mpz_t)); mpz_init_set(*g2, *g);
+    mpz_clear(*g); free(g);
+    
     (*pubk)->iNumBits = in1; (*privk)->iNumBits = in2;
-    (*pubk)->p = p; (*privk)->p = p;
-    (*pubk)->g = g; (*privk)->g = g;
+    (*pubk)->p = p1; (*privk)->p = p2;
+    (*pubk)->g = g1; (*privk)->g = g2;
     (*pubk)->h = h; 
     (*privk)->x = x;
 

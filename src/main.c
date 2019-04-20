@@ -24,6 +24,9 @@
 #include "encryption/aes/aes_mixcolumns.h"
 #include "encryption/aes/hashpass.h"
 
+#include "encryption/elgamal/elgamal.h"
+#include "encryption/elgamal/genkey.h"
+
 #include "compression/huffman/huffman.h"
 #include "compression/struct.h"
 #include "compression/file.h"
@@ -74,6 +77,29 @@ void print_ascii(unsigned char *a)
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
+
+    struct ELGAMAL_pubkey *pubk;
+    struct ELGAMAL_privkey *privk;
+
+    ELGAMAL_generateKey(256, &privk, &pubk);
+    
+    printf("Public: \n    p = "); mpz_out_str(stdout,10, *(pubk->p));
+    printf("\n    g = "); mpz_out_str(stdout, 10, *(pubk->g));
+    printf("\n    h = "); mpz_out_str(stdout, 10, *(pubk->h));
+    printf("\n    iNumBits = "); mpz_out_str(stdout, 10, *(pubk->iNumBits));
+    printf("\n=====\n\n");
+
+    printf("\nPrivate: \n    p = "); mpz_out_str(stdout, 10, *(privk->p));
+    printf("\n    g = "); mpz_out_str(stdout, 10, *(privk->g));
+    printf("\n    x = "); mpz_out_str(stdout, 10, *(privk->x));
+    printf("\n    iNumBits = "); mpz_out_str(stdout, 10, *(privk->iNumBits));
+    printf("\n=====\n\n");
+
+    ELGAMAL_pubkey_free(pubk);
+    ELGAMAL_privkey_free(privk);
+
+return 0;
+
     if (argc == 1)
         return interface(argc, argv);
 
