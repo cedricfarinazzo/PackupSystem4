@@ -66,8 +66,20 @@ struct huff_out {
     int len;
 } huff_out;
 
+struct pyele {
+    int key;
+    struct pyele *prec;
+    struct pyele *next;
+} pyele;
+
+struct pylist {
+    int len;
+    struct pyele *begin;
+    struct pyele *end;
+} pylist;
+
 struct dico {
-    unsigned char *vector;
+    int *vector;
     unsigned char *letter;
     int len;
     int taux;
