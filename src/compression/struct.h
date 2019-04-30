@@ -65,4 +65,11 @@ struct huff_out {
     unsigned char *dataOUT;
     int len;
 } huff_out;
+
+struct dico {
+    unsigned char *vector;
+    unsigned char *letter;
+    int len;
+    int taux;
+} dico;
 #endif /*_SRC_COMPRESSION_STRUCT_H_*/
