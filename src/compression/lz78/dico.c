@@ -6,7 +6,7 @@
 #include "../struct.h"
 #include "../liste/liste.h"
 
-struct dico *new_dico(int len)
+struct dico *new_dico(ssize_t len)
 {
     struct dico *Dico = malloc(sizeof(struct dico));
     Dico->letter = malloc(sizeof(unsigned char * len));
@@ -16,9 +16,9 @@ struct dico *new_dico(int len)
     return Dico;
 }
 
-void transfert(void *src, void *dst, int len)
+void transfert(void *src, void *dst, ssize_t len)
 {
-    for (int i = 0; i < len; ++i)
+    for (ssize_t i = 0; i < len; ++i)
     {
         dst[i] = src[i];
     }
@@ -26,7 +26,7 @@ void transfert(void *src, void *dst, int len)
 
 void extension_dico(struct dico *Dico)
 {
-    int *tmp = Dico->vector;
+    ssize_t *tmp = Dico->vector;
     unsigned char *let = Dico->letter;
     Dico->vector = malloc(sizeof(int * (len * 2)));
     Dico->letter = malloc(sizeof(unsigned char * (len * 2)));
