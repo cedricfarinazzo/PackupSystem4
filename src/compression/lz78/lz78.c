@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <err.h>
+#include <math.h>
 
 #include <../struct.h>
 #include <lz78.h>
@@ -12,7 +13,7 @@
  * Header:
  * Taux in 256 base on 4 Bytes
  * Letter (1 Byte per letter) on Taux Bytes
- * 
+ */ 
 
 int check_adddico(struct dico *table, unsigned char *accu, int len)
 {
@@ -120,18 +121,19 @@ char *len_to_file(int len)
     /* Converter from base 10 to base 256 */
     char *flen = malloc(sizeof(char) * 4);
 
+
 }
 
-int file_to_len(char *f_len)
+size_t file_to_len(char *f_len)
 {
     /* Converter from base 256 to base 10 */
-    int len = 0;
-    int accu = 0;
+    size_t len = 0;
+    size_t accu = 0;
     for (int i = 0; i < 4; ++i)
     {
         accu = f_len[i];
         if (accu < 0)
-            len += (128 - accu) + 128;
+            len += ((128 - accu) + 128) * (pow(255,i));
         else
             len += accu;
     }
@@ -153,8 +155,6 @@ void dico_to_file(struct dico *table, char *path)
 
 }
 
-
-
 void file_to_dico(struct dico *table, char *index, char *path)
 {
     /* Check file exist */
@@ -168,11 +168,37 @@ void file_to_dico(struct dico *table, char *index, char *path)
     }
     else
     {
-        FILE *DICO = fopen(path_dico, "r");
-        int len_dico = (int)findSize(path_dico);
+        int *DICO = open(path_dico, "r");
+        size_t len_dico = findSize(path_dico); /* Taille totale du fichier */
         char *tmp_dico = malloc(sizeof(char) * len_dico + 1);
-        fgets(tmp_dico, len_dico, DICO);
-
+        ssize_t state = read(DICO, tmp_dico, len_dico);
+        if (state != 0)
+            errx(EXIT_FAILURE, "Fail to read dico file");
+        char *buf = malloc(sizeof(char) * 4);
+        for (int i = 0; i < 4; ++i)
+            buf[i] = tmp_dico[i];
+        size_t taux = file_to_len(buf);
+        free(buf);
+        size_t len = 1;
+        while (len < taux)
+            len *= 2;
+        table = new_dico(len);
+        table->taux = taux;
+        if (len_dico != table->taux * 5 + 4)
+            errx(EXIT_FAILURE, "Erreur dans la longueur du fichier .dic");
+        for (size_t i = 0; i < table->taux; ++i)
+        {
+            table->letter[i] = tmp_dico[i + 4];
+        }
+        for (size_t i = 0; i < table->taux; ++i)
+        {
+            for (int x = 0; x < 4; ++x)
+            {
+                buf[x] = tmp_dico[i * 4 + x];
+            }
+            table->vector[i] = len_to_file(buf);
+        }
+        free(buf);
     }
 }
 
