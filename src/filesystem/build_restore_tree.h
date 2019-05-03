@@ -18,6 +18,9 @@ struct restore_data
 {
     char *file;
     off_t offset;
+    mode_t mode;
+    time_t mtime;
+    time_t atime;
 };
 
 struct restore_tree

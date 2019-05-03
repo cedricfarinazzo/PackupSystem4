@@ -6,6 +6,13 @@
 #include "save_file_content.h"
 #include "build_restore_tree.h"
 
+struct chained
+{
+    time_t mtime;
+    char path[2048];
+    struct chained *next;
+}chained;
+
 /* //TODO
 */
 

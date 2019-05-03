@@ -113,10 +113,78 @@ struct meta_tree *FILESYSTEM_SAVE_restore_metatree_from_save(char *save)
     return tree;
 }
 
+void chained_insert(struct chained *list, char *file)
+{
+    struct stat fs;
+    stat(file, &fs);
+    struct chained *node = malloc(sizeof(struct chained));
+    strcpy(node->path, file);
+    node->mtime = fs.st_mtime;
+    struct chained *temp;
+    while (temp->next)
+    {
+        if (temp->next->mtime > node->mtime)
+        {
+            break;
+        }
+        temp = temp->next;
+    }
+    node->next = temp->next;
+    temp->next = node;
+}
+
+struct chained *RS_create_save_list(char *save_dir)
+{
+    DIR *saves = opendir(save_dir);
+    struct dirent *next;
+    char nextname[2048];
+    strcpy(nextname, save_dir);
+    start = nextname + strlen(save_dir);
+    struct chained *list = calloc(1, sizeof(struct chained));
+    while ((next = readdir(saves)))
+    {
+        switch (next->d_type)
+        {
+            case DT_REG:
+                strcpy(start, next->d_name);
+                chained_insert(list, nextname);
+                break;
+            default:
+                break;
+        }
+    }
+    closedir(saves);
+    return list;
+}
+
+void RS_free_save_list(struct chained *list)
+{
+    if (list->next)
+    {
+        RS_free_save_list(list->next);
+    }
+    free(list);
+}
+
+void RS_restore_from_restore_tree(struct restore_tree *tree)
+{
+    //TODO
+}
+
 void FILESYSTEM_restore_save(char *save_dir)
 {
-    save_dir = save_dir;
-    //TODO
+    struct chained *list = RS_create_save_list(save_dir);
+    struct chained *temp = list->next;
+    struct restore_tree *rt = calloc(1, sizeof(struct restore_tree));
+    while (temp)
+    {
+        struct meta_tree *temptree = FILESYSTEM_SAVE_restore_metatree_from_save(temp->path);
+        RS_update_restore_tree_from_mt(rt, temptree);
+        FILESYSTEM_free_metatree(temptree);
+    }
+    RS_free_save_list(list);
+    RS_restore_from_restore_tree(rt);
+    RS_free_restore_tree(rt);
 }
 
 void RS_restore_content(FILE *src, off_t offset, FILE *dst)
