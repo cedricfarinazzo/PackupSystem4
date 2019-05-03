@@ -120,7 +120,7 @@ void chained_insert(struct chained *list, char *file)
     struct chained *node = malloc(sizeof(struct chained));
     strcpy(node->path, file);
     node->mtime = fs.st_mtime;
-    struct chained *temp;
+    struct chained *temp = list;
     while (temp->next)
     {
         if (temp->next->mtime > node->mtime)
@@ -139,7 +139,7 @@ struct chained *RS_create_save_list(char *save_dir)
     struct dirent *next;
     char nextname[2048];
     strcpy(nextname, save_dir);
-    start = nextname + strlen(save_dir);
+    char *start = nextname + strlen(save_dir);
     struct chained *list = calloc(1, sizeof(struct chained));
     while ((next = readdir(saves)))
     {
@@ -168,6 +168,7 @@ void RS_free_save_list(struct chained *list)
 
 void RS_restore_from_restore_tree(struct restore_tree *tree)
 {
+    tree = tree;
     //TODO
 }
 

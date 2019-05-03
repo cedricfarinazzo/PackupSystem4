@@ -30,6 +30,8 @@ struct restore_tree
     struct restore_tree *sibling;
 };
 
-struct restore_tree *FILESYSTEM_build_restore_tree(DIR *save_dir);
+void RS_update_restore_tree_from_mt(struct restore_tree *rt, struct meta_tree *mt);
+
+void RS_free_restore_tree(struct restore_tree *rt);
 
 #endif //_SRC_FILESYSTEM_BUILD_RESTORE_TREE_H
