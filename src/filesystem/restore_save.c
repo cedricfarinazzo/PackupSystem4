@@ -1,5 +1,6 @@
 #include "restore_save.h"
 #include "create_save.h"
+#include <utime.h>
 
 char *RS_restore_path(FILE *file)
 {
@@ -166,28 +167,6 @@ void RS_free_save_list(struct chained *list)
     free(list);
 }
 
-void RS_restore_from_restore_tree(struct restore_tree *tree)
-{
-    tree = tree;
-    //TODO
-}
-
-void FILESYSTEM_restore_save(char *save_dir)
-{
-    struct chained *list = RS_create_save_list(save_dir);
-    struct chained *temp = list->next;
-    struct restore_tree *rt = calloc(1, sizeof(struct restore_tree));
-    while (temp)
-    {
-        struct meta_tree *temptree = FILESYSTEM_SAVE_restore_metatree_from_save(temp->path);
-        RS_update_restore_tree_from_mt(rt, temptree);
-        FILESYSTEM_free_metatree(temptree);
-    }
-    RS_free_save_list(list);
-    RS_restore_from_restore_tree(rt);
-    RS_free_restore_tree(rt);
-}
-
 void RS_restore_content(FILE *src, off_t offset, FILE *dst)
 {
     fseek(src, offset, SEEK_SET);
@@ -216,6 +195,50 @@ void RS_restore_content(FILE *src, off_t offset, FILE *dst)
             err(33, "RS_restore_content: failed to write all bytes");
         total += r;
     }
+}
+
+void RS_restore_from_restore_tree(struct restore_tree *tree)
+{
+    if (tree->son == NULL)
+    {
+        FILE *src = fopen(tree->data->src);
+        FILE *dst = fopen(tree->data->file, "w");
+        RS_restore_content(src, offset, dst);
+        fclose(src);
+        fclose(dst);
+        chmod(tree->data->file, tree->data->mode);
+        struct utimbuf buf;
+        buf.actime = time(NULL);
+        buf.modtime = tree->data->mtime;
+        utime(tree->data->file, buf);
+    }
+    else
+    {
+        mkdir(tree->data->file, tree->data->mode);
+        struct restore_tree *temp = tree->son;
+        while (temp)
+        {
+            RS_restore_from_restore_tree(temp);
+            temp = temp->sibling;
+        }
+    }
+}
+
+void FILESYSTEM_restore_save(char *savedir)
+{
+    struct chained *list = RS_create_save_list(savedir);
+    struct chained *temp = list->next;
+    struct restore_tree *rt = calloc(1, sizeof(struct restore_tree));
+	while (temp)
+    {
+        struct meta_tree *temptree = FILESYSTEM_SAVE_restore_metatree_from_save(temp->path);
+        RS_update_restore_tree_from_mt(rt, temptree, temp->path);
+        FILESYSTEM_free_metatree(temptree);
+        temp = temp->next;
+    }
+    RS_free_save_list(list);
+    RS_restore_from_restore_tree(rt);
+    RS_free_restore_tree(rt);
 }
 
 void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)

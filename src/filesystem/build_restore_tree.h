@@ -17,10 +17,10 @@
 struct restore_data
 {
     char *file;
+    char *src;
     off_t offset;
     mode_t mode;
     time_t mtime;
-    time_t atime;
 };
 
 struct restore_tree
@@ -30,7 +30,7 @@ struct restore_tree
     struct restore_tree *sibling;
 };
 
-void RS_update_restore_tree_from_mt(struct restore_tree *rt, struct meta_tree *mt);
+void RS_update_restore_tree_from_mt(struct restore_tree *rt, struct meta_tree *mt, char *savepath);
 
 void RS_free_restore_tree(struct restore_tree *rt);
 
