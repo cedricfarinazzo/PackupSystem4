@@ -58,13 +58,13 @@ void _update_restore_tree(struct restore_tree *rt, struct meta_tree *mt, char *s
        {
            if (temp->data->offset)
                continue;
-           struct meta_tree *tempmt = _find_mt_node(temp, tempmt);
+           struct meta_tree *tempmt = _find_mt_node(temp, mt);
            if (tempmt)
            {
                if (tempmt->data->file_content)
                {
-                   temp->offset = tempmt->data->file_content;
-                   strcpy(temp->data->save, savepath);
+                   temp->data->offset = tempmt->data->file_content;
+                   strcpy(temp->data->src, savepath);
                }
                _update_restore_tree(temp, tempmt, savepath);
            }
@@ -77,7 +77,7 @@ void RS_update_restore_tree_from_mt(struct restore_tree *rt, struct meta_tree *m
 {
     if (rt->son == NULL)
     {
-        rt->son = _init_restore_tree(rt, mt, savepath);
+        rt->son = _init_restore_tree(mt, savepath);
     }
     else
     {
