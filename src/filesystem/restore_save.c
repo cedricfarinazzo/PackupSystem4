@@ -1,6 +1,7 @@
 #include "restore_save.h"
 #include "create_save.h"
 #include <utime.h>
+#include <time.h>
 
 char *RS_restore_path(FILE *file)
 {
@@ -201,16 +202,16 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
 {
     if (tree->son == NULL)
     {
-        FILE *src = fopen(tree->data->src);
+        FILE *src = fopen(tree->data->src, "r");
         FILE *dst = fopen(tree->data->file, "w");
-        RS_restore_content(src, offset, dst);
+        RS_restore_content(src, tree->data->offset, dst);
         fclose(src);
         fclose(dst);
         chmod(tree->data->file, tree->data->mode);
         struct utimbuf buf;
         buf.actime = time(NULL);
         buf.modtime = tree->data->mtime;
-        utime(tree->data->file, buf);
+        utime(tree->data->file, &buf);
     }
     else
     {
