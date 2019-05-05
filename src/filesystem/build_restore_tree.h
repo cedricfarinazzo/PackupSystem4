@@ -16,8 +16,8 @@
 
 struct restore_data
 {
-    char *file;
-    char *src;
+    char file[2048];
+    char src[2048];
     off_t offset;
     mode_t mode;
     time_t mtime;
