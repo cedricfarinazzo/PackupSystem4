@@ -42,7 +42,10 @@ off_t RS_skip_file_content(FILE *file)
     off_t offset = ftell(file);
     size_t length;
     fread(&length, sizeof(size_t), 1, file);
-
+    if (length == 0)
+    {
+        return 0;
+    }
     fseek(file, length, SEEK_CUR);
     return offset;
 }

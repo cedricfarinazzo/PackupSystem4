@@ -84,10 +84,53 @@ void FILESYSTEM_create_save(char *path, char *savepath)
     fclose(save);
 }
 
-void FILESYSTEM_create_new_save(char *path, char*savepath, char *oldsave)
+struct meta_tree *CS_find_on_level(struct meta_tree *src, struct meta_tree *dst)
 {
-    path = path;
-    savepath=savepath;
-    oldsave=oldsave;
-    //TODO
+    while (dst)
+    {
+        if (strcmp(dst->data->path, src->data->path))
+        {
+            return dst;
+        }
+        dst = dst->sibling;
+    }
+    return NULL;
+}
+
+void CS_cmp_and_save(struct meta_tree *current, struct meta_tree *previous, FILE *save)
+{
+    struct meta_tree *eq = CS_find_on_level(current, previous);
+    if (current->data)
+    {
+        CS_save_data(current->data, save);
+        CS_save_inheritance(current, save);
+        if (eq == NULL || eq->data->fs.st_mtime != current->data->fs.st_mtime)
+        {
+            CS_save_file(tree->data->path, save);
+        }
+        else
+        {
+            long z = 0;
+            fwrite(&z, sizeof(long), 1, save);
+        }
+    }
+    if (current->son)
+    {
+        struct meta_tree *temp = current->son;
+        while (temp)
+        {
+            CS_cmp_and_save(temp, eq->son, save);
+            temp = temp->sibling;
+        }
+    }
+}
+
+void FILESYSTEM_create_new_save(char *path, char *savepath, char *oldsave)
+{
+    FILE *save = fopen(savepath, "w");
+    struct meta_tree *cur = FILESYSTEM_build_metatree(path);
+    struct meta_tree *prev = FILESYSTEM_SAVE_restore_metatree_from_save(oldsave);
+    CS_cmp_and_save(cur, prev, save);
+    FILESYSTEM_free_metatree(cur);
+    FILESYSTEM_free_metatree(prev);
 }
