@@ -106,7 +106,7 @@ void CS_cmp_and_save(struct meta_tree *current, struct meta_tree *previous, FILE
         CS_save_inheritance(current, save);
         if (eq == NULL || eq->data->fs.st_mtime != current->data->fs.st_mtime)
         {
-            CS_save_file(tree->data->path, save);
+            CS_save_file(current->data->path, save);
         }
         else
         {
