@@ -83,17 +83,24 @@ int main(int argc, char *argv[])
 
     ELGAMAL_generateKey(256, &privk, &pubk);
     
-    printf("Public: \n    p = "); mpz_out_str(stdout,10, *(pubk->p));
-    printf("\n    g = "); mpz_out_str(stdout, 10, *(pubk->g));
-    printf("\n    h = "); mpz_out_str(stdout, 10, *(pubk->h));
-    printf("\n    iNumBits = "); mpz_out_str(stdout, 10, *(pubk->iNumBits));
+    printf("Public: \n    p = %lld", pubk->p); 
+    printf("\n    e1 = %lld", pubk->e1); 
+    printf("\n    e2 = %lld", pubk->e2); 
     printf("\n=====\n\n");
 
-    printf("\nPrivate: \n    p = "); mpz_out_str(stdout, 10, *(privk->p));
-    printf("\n    g = "); mpz_out_str(stdout, 10, *(privk->g));
-    printf("\n    x = "); mpz_out_str(stdout, 10, *(privk->x));
-    printf("\n    iNumBits = "); mpz_out_str(stdout, 10, *(privk->iNumBits));
+    printf("\nPrivate: \n    p = %lld", privk->p); 
+    printf("\n    d = %lld", privk->d); 
     printf("\n=====\n\n");
+
+    char c = 'A';
+    printf("c = %c (%d)\n", c, c);
+    long long c1, c2;
+    EL_encryption_single(c, &c1, &c2, pubk);
+
+    printf("\n\nc1 = %lld | c2 = %lld \n\n", c1, c2);
+
+    char d = (char)EL_decryption_single(c1, c2, privk);
+    printf("d = %c (%d)\n", d, d);
 
     ELGAMAL_pubkey_free(pubk);
     ELGAMAL_privkey_free(privk);

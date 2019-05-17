@@ -3,10 +3,11 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-#include <gmp.h>
+#include "tools.h"
 
 #define EL_OK 0
 #define EL_ERROR_CANNOT_READ_FD -1
@@ -16,15 +17,15 @@
 #define EL_ERROR_CANNOT_OPEN_FD -5
 
 struct ELGAMAL_privkey {
-    mpz_t *p, *g, *x, *iNumBits;
+    long long p, d;
 } ELGAMAL_privkey;
 
 struct ELGAMAL_pubkey {
-    mpz_t *p, *g, *h, *iNumBits;
+    long long p, e1, e2;
 } ELGAMAL_pubkey;
 
 
-void ELGAMAL_generateKey(size_t iNumBits, struct ELGAMAL_privkey **privk, struct ELGAMAL_pubkey **pubk);
+void ELGAMAL_generateKey(size_t size, struct ELGAMAL_privkey **privk, struct ELGAMAL_pubkey **pubk);
 
 
 void ELGAMAL_privkey_free(struct ELGAMAL_privkey *k);
