@@ -91,6 +91,20 @@ void remove_dir()
     rmdir("./testfiles/content");
 }
 
+void remove_dir2()
+{
+    remove("./testfiles/content2/subdir01/subdir03/file06");
+    rmdir("./testfiles/content2/subdir01/subdir03");
+    remove("./testfiles/content2/subdir01/file04");
+    remove("./testfiles/content2/subdir01/file05");
+    rmdir("./testfiles/content2/subdir01");
+    remove("./testfiles/content2/subdir02/file07");
+    rmdir("./testfiles/content2/subdir02");
+    remove("./testfiles/content2/file01");
+    remove("./testfiles/content2/file02");
+    remove("./testfiles/content2/file03");
+}
+
 Test(FILESYSTEM, Build_Tree)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
@@ -149,4 +163,39 @@ Test(FILESYSTEM, create_save)
     print_tree(tree3->son, 0);
     FILESYSTEM_free_metatree(tree);
     FILESYSTEM_free_metatree(tree3);
+}
+
+Test(FILESYSTEM, create_saves)
+{
+    struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content2");
+    print_tree(tree->son, 0);
+    cr_assert_not_null(tree);
+    FILESYSTEM_free_metatree(tree);
+    FILESYSTEM_create_save("./testfiles/content2", "./testfiles/saves2/save01");
+    FILE *file01 = fopen("./testfiles/content2/file01", "a");
+    fwrite("I love bananas.\n\n\n",1, 15, file01);
+    fclose(file01);
+    struct meta_tree *tree01 = FILESYSTEM_build_metatree("./testfiles/content2");
+    print_tree(tree01->son, 0);
+    FILESYSTEM_create_new_save("./testfiles/content2", "./testfiles/saves2/save02", "./testfiles/saves2/save01");
+    struct meta_tree *tree01_r = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves2/save02");
+    cmp_tree(tree01->son, tree01_r->son);
+    FILESYSTEM_free_metatree(tree01);
+    FILESYSTEM_free_metatree(tree01_r);
+    FILE *file03 = fopen("./testfiles/content2/subdir01/file03", "w");
+    fwrite("Jussieux.", 1, 9, file03);
+    fclose(file03);
+    struct meta_tree *tree02 = FILESYSTEM_build_metatree("./testfiles/content2");
+    print_tree(tree02->son, 0);
+    FILESYSTEM_create_new_save("./testfiles/content2", "./testfiles/saves2/save03", "./testfiles/saves2/save02");
+    struct meta_tree *tree02_r = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves2/save03");
+    cmp_tree(tree02->son, tree02_r->son);
+    FILESYSTEM_free_metatree(tree02_r);
+    remove_dir2();
+    FILESYSTEM_restore_save("./testfiles/saves2");
+    struct meta_tree *f_tree = FILESYSTEM_build_metatree("./testfiles/content2");
+    cmp_tree(tree02->son, f_tree->son);
+    print_tree(f_tree->son, 0);
+    FILESYSTEM_free_metatree(tree02);
+    FILESYSTEM_free_metatree(f_tree);
 }
