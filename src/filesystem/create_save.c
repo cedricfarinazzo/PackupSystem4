@@ -86,6 +86,10 @@ void FILESYSTEM_create_save(char *path, char *savepath)
 
 struct meta_tree *CS_find_on_level(struct meta_tree *src, struct meta_tree *dst)
 {
+    if (!src->data)
+    {
+        return dst;
+    }
     while (dst)
     {
         if (strcmp(dst->data->path, src->data->path))
