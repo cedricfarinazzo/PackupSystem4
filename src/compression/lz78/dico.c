@@ -6,17 +6,20 @@
 #include "../struct.h"
 #include "../liste/liste.h"
 
-struct dico *new_dico(ssize_t len)
+struct dico *new_dico(ssize_t len, ssize_t taux)
 {
     struct dico *Dico = malloc(sizeof(struct dico));
-    Dico->letter = malloc(sizeof(unsigned char * len));
-    Dico->vector = malloc(sizeof(int * len));
+    Dico->letter = malloc(sizeof(unsigned char)* len);
+    Dico->vector = malloc(sizeof(int) * len);
     Dico->len = len;
-    Dico->taux = 0;
+    if (taux == NULL)
+        Dico->taux = 0;
+    else
+        Dico->taux = taux;
     return Dico;
 }
 
-void transfert(void *src, void *dst, ssize_t len)
+void transfert(void *src, size_t *dst, ssize_t len)
 {
     for (ssize_t i = 0; i < len; ++i)
     {

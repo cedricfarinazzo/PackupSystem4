@@ -3,7 +3,7 @@
 
 struct dico *new_dico(int len);
 
-void transfert(unsigned char *src, unsigned char *dst, int len);
+void transfert(unsigned char *src, size_t *dst, ssize_t len);
 
 void extension_dico(struct dico *Dico);
 
