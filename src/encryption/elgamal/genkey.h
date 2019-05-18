@@ -34,10 +34,22 @@ void ELGAMAL_privkey_free(struct ELGAMAL_privkey *k);
 void ELGAMAL_pubkey_free(struct ELGAMAL_pubkey *k);
 
 
+int ELGAMAL_pubk_to_stream(struct ELGAMAL_pubkey *pub, FILE *f);
+
+
+int ELGAMAL_privk_to_stream(struct ELGAMAL_privkey *priv, FILE *f);
+
+
 int ELGAMAL_pubk_to_file(struct ELGAMAL_pubkey *pub, char *path);
 
 
 int ELGAMAL_privk_to_file(struct ELGAMAL_privkey *priv, char *path);
+
+
+int ELGAMAL_pubk_from_stream(struct ELGAMAL_pubkey *pub, FILE *f);
+
+
+int ELGAMAL_privk_from_stream(struct ELGAMAL_privkey *priv, FILE *f);
 
 
 struct ELGAMAL_pubkey *ELGAMAL_pubKey_from_file(char *path);

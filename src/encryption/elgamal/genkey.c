@@ -52,6 +52,24 @@ void ELGAMAL_pubkey_free(struct ELGAMAL_pubkey *k)
     free(k);
 }
 
+int ELGAMAL_pubk_to_stream(struct ELGAMAL_pubkey *pub, FILE *f)
+{
+    if (f == NULL)
+        return EL_ERROR_NULL_PATH;
+    fwrite(&(pub->p), 1, sizeof(long long), f);
+    fwrite(&(pub->e1), 1, sizeof(long long), f);
+    fwrite(&(pub->e2), 1, sizeof(long long), f);
+    return EL_OK;
+}
+
+int ELGAMAL_privk_to_stream(struct ELGAMAL_privkey *priv, FILE *f)
+{
+    if (f == NULL)
+        return EL_ERROR_NULL_PATH;
+    fwrite(&(priv->p), 1, sizeof(long long), f);
+    fwrite(&(priv->d), 1, sizeof(long long), f);
+    return EL_OK;
+}
 
 int ELGAMAL_pubk_to_file(struct ELGAMAL_pubkey *pub, char *path)
 {
@@ -61,10 +79,8 @@ int ELGAMAL_pubk_to_file(struct ELGAMAL_pubkey *pub, char *path)
         return EL_ERROR_EMPTY_PATH;
     FILE *f = fopen(path, "w+");
     if (f == NULL) return EL_ERROR_CANNOT_OPEN_FD;
-
-    fwrite(&(pub->p), 1, sizeof(long long), f);
-    fwrite(&(pub->e1), 1, sizeof(long long), f);
-    fwrite(&(pub->e2), 1, sizeof(long long), f);
+    
+    ELGAMAL_pubk_to_stream(pub, f);
 
     fclose(f);
     return EL_OK;
@@ -79,10 +95,28 @@ int ELGAMAL_privk_to_file(struct ELGAMAL_privkey *priv, char *path)
     FILE *f = fopen(path, "w+");
     if (f == NULL) return EL_ERROR_CANNOT_OPEN_FD;
     
-    fwrite(&(priv->p), 1, sizeof(long long), f);
-    fwrite(&(priv->d), 1, sizeof(long long), f);
+    ELGAMAL_privk_to_stream(priv, f);
 
     fclose(f);
+    return EL_OK;
+}
+
+int ELGAMAL_pubk_from_stream(struct ELGAMAL_pubkey *pub, FILE *f)
+{
+    if (f == NULL)
+        return EL_ERROR_NULL_PATH;
+    fread(&(pub->p), 1, sizeof(long long), f);
+    fread(&(pub->e1), 1, sizeof(long long), f);
+    fread(&(pub->e2), 1, sizeof(long long), f);
+    return EL_OK;
+}
+
+int ELGAMAL_privk_from_stream(struct ELGAMAL_privkey *priv, FILE *f)
+{
+    if (f == NULL)
+        return EL_ERROR_NULL_PATH;
+    fread(&(priv->p), 1, sizeof(long long), f);
+    fread(&(priv->d), 1, sizeof(long long), f);
     return EL_OK;
 }
 
@@ -96,9 +130,7 @@ struct ELGAMAL_pubkey *ELGAMAL_pubKey_from_file(char *path)
     
     struct ELGAMAL_pubkey *pub = malloc(sizeof(struct ELGAMAL_pubkey));
 
-    fread(&(pub->p), 1, sizeof(long long), f);
-    fread(&(pub->e1), 1, sizeof(long long), f);
-    fread(&(pub->e2), 1, sizeof(long long), f);
+    ELGAMAL_pubk_from_stream(pub, f);
 
     fclose(f);
     return pub;
@@ -114,8 +146,7 @@ struct ELGAMAL_privkey *ELGAMAL_privKey_from_file(char *path)
     
     struct ELGAMAL_privkey *priv = malloc(sizeof(struct ELGAMAL_privkey));
 
-    fread(&(priv->p), 1, sizeof(long long), f);
-    fread(&(priv->d), 1, sizeof(long long), f);
+    ELGAMAL_privk_from_stream(priv, f);
 
     fclose(f);
     return priv;

@@ -30,6 +30,9 @@
 
 #include "../src/encryption/rsa/rsa.h"
 
+#include "../src/encryption/elgamal/elgamal.h"
+#include "../src/encryption/elgamal/genkey.h"
+
 unsigned char *decrypt = NULL;
 unsigned char *output = NULL;
 unsigned char *out;
@@ -693,4 +696,81 @@ Test(VIGENERE, decrypt)
     cr_assert_str_not_empty(data);
     cr_assert_str_eq(data, text);
 
+}
+
+Test(ELGAMAL, PublicKey)
+{
+    FILE *f = tmpfile();
+    struct ELGAMAL_pubkey *pubk;
+    struct ELGAMAL_privkey *privk;
+
+    ELGAMAL_generateKey(256, &privk, &pubk);
+    ELGAMAL_privkey_free(privk);
+    
+    cr_expect_eq(ELGAMAL_pubk_to_stream(pubk, f), EL_OK);
+    fseek(f, 0, SEEK_SET);
+
+    struct ELGAMAL_pubkey *r = malloc(sizeof(struct ELGAMAL_pubkey));
+    cr_expect_eq(ELGAMAL_pubk_from_stream(r,  f), 0);
+    cr_expect_not_null(r);
+
+    cr_expect_eq(r->p, pubk->p);
+    cr_expect_eq(r->e1, pubk->e1);
+    cr_expect_eq(r->e2, pubk->e2);
+
+    ELGAMAL_pubkey_free(pubk);
+    ELGAMAL_pubkey_free(r);
+    fclose(f);
+}
+
+Test(ELGAMAL, PrivateKey)
+{
+    FILE *f = tmpfile();
+    struct ELGAMAL_pubkey *pubk;
+    struct ELGAMAL_privkey *privk;
+
+    ELGAMAL_generateKey(256, &privk, &pubk);
+    ELGAMAL_pubkey_free(pubk);
+    
+    cr_expect_eq(ELGAMAL_privk_to_stream(privk, f), EL_OK);
+    fseek(f, 0, SEEK_SET);
+
+    struct ELGAMAL_privkey *r = malloc(sizeof(struct ELGAMAL_privkey));
+    cr_expect_eq(ELGAMAL_privk_from_stream(r,  f), 0);
+    cr_expect_not_null(r);
+
+    cr_expect_eq(r->p, privk->p);
+    cr_expect_eq(r->d, privk->d);
+
+    ELGAMAL_privkey_free(r);
+    ELGAMAL_privkey_free(privk);
+    fclose(f);
+}
+
+Test(ELGAMAL, EncryptionDecryption)
+{
+    char *in = "example/c/3";
+    char *enc = "example/c/4";
+    char *dec = "example/c/5";
+
+    struct ELGAMAL_pubkey *pubk;
+    struct ELGAMAL_privkey *privk;
+
+    ELGAMAL_generateKey(256, &privk, &pubk);
+
+    EL_encryption_file(in, enc, pubk);
+
+    EL_decryption_file(enc, dec, privk);
+
+    ELGAMAL_pubkey_free(pubk);
+    ELGAMAL_privkey_free(privk);
+    
+    FILE *reff = fopen(in, "r");
+    FILE *decf = fopen(dec, "r");
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove(enc);
+    remove(dec);
 }

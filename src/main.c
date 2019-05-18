@@ -78,32 +78,6 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
 
-    struct ELGAMAL_pubkey *pubk;
-    struct ELGAMAL_privkey *privk;
-
-    ELGAMAL_generateKey(256, &privk, &pubk);
-    
-    printf("Public: \n    p = %lld", pubk->p); 
-    printf("\n    e1 = %lld", pubk->e1); 
-    printf("\n    e2 = %lld", pubk->e2); 
-    printf("\n=====\n\n");
-
-    printf("\nPrivate: \n    p = %lld", privk->p); 
-    printf("\n    d = %lld", privk->d); 
-    printf("\n=====\n\n");
-
-    printf("source file: %s\n", argv[1]);
-    printf("enc file: %s\n", argv[2]);
-    printf("dec file: %s\n", argv[3]);
-
-    EL_encryption_file(argv[1], argv[2], pubk);
-    EL_decryption_file(argv[2], argv[3], privk);
-
-    ELGAMAL_pubkey_free(pubk);
-    ELGAMAL_privkey_free(privk);
-
-return 0;
-
     if (argc == 1)
         return interface(argc, argv);
 
