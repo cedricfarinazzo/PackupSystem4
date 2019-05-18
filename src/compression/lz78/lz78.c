@@ -116,17 +116,29 @@ void list_to_string(struct pylist *py, unsigned char *output)
     }
 }
 
-char *len_to_file(int len)
+char *len_to_file(size_t len)
 {
-    /* Converter from base 10 to base 256 */
+    /*
+     * The orders of output numbers is inversed
+     * Converter from base 10 to base 256 
+     */
     char *flen = malloc(sizeof(char) * 4);
-
-
+    flen[3] = len / (pow(256, 3));
+    len -= flen[3] * pow(256, 3);
+    flen[2] = len / (pow(256, 2));
+    len -= flen[2] * pow(256, 2);
+    flen[1] = len / 256;
+    len -= flen * 256;
+    flen[0] = len % 256;
+    return flen;
 }
 
 size_t file_to_len(char *f_len)
 {
-    /* Converter from base 256 to base 10 */
+    /*
+     * The orders of input numbers is inversed
+     * Converter from base 256 to base 10
+     */
     size_t len = 0;
     size_t accu = 0;
     for (int i = 0; i < 4; ++i)
@@ -150,11 +162,36 @@ unsigned char *dico_name(unsigned char *file)
     return name;
 }
 
+//Path with the name but without the extension
 void dico_to_file(struct dico *table, char *path)
 {
-
+    strcat(path, ".dic");
+    int *DICO = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+    if (DICO == -1)
+        errx(EXIT_FAILURE, "Fail to create dico file");
+    int r = 0;
+    //Write len dico (0 -> 3 [4 B])
+    r = write(DICO, len_to_file(table->taux), 4);
+    if (r == -1)
+        errx(EXIT_FAILURE, "Fail to write dico file");
+    //Write letter list [table->taux Bytes]
+    r = write(DICO, (char *)(table->letter), taux);
+    if (r == -1)
+        errx(EXIT_FAILURE, "Fail to write dico file");
+    //Write vector of dico (4B per size_t unit => (4 * taux)B)
+    for (size_t i = 0; i < table->taux; ++i)
+    {
+        r = write(DICO, len_to_file(table->vector[i]), 4);
+        if (r == -1)
+            errx(EXIT_FAILURE, "Fail to write dico file");
+    }
 }
 
+/*
+ * Path => from the root
+ * index => Name for the dico file without the extension
+ * table => dico to convert
+ */
 void file_to_dico(struct dico *table, char *index, char *path)
 {
     /* Check file exist */
@@ -168,7 +205,7 @@ void file_to_dico(struct dico *table, char *index, char *path)
     }
     else
     {
-        int *DICO = open(path_dico, "r");
+        int *DICO = open(path_dico, O_RDONLY, 0666);
         size_t len_dico = findSize(path_dico); /* Taille totale du fichier */
         char *tmp_dico = malloc(sizeof(char) * len_dico + 1);
         ssize_t state = read(DICO, tmp_dico, len_dico);
@@ -178,12 +215,13 @@ void file_to_dico(struct dico *table, char *index, char *path)
         for (int i = 0; i < 4; ++i)
             buf[i] = tmp_dico[i];
         size_t taux = file_to_len(buf);
-        free(buf);
         size_t len = 1;
         while (len < taux)
             len *= 2;
         table = new_dico(len);
         table->taux = taux;
+        //+ 4 -> Bytes for len
+        //* 5 -> letter * taux + pointeur * taux * 4
         if (len_dico != table->taux * 5 + 4)
             errx(EXIT_FAILURE, "Erreur dans la longueur du fichier .dic");
         for (size_t i = 0; i < table->taux; ++i)
@@ -192,11 +230,15 @@ void file_to_dico(struct dico *table, char *index, char *path)
         }
         for (size_t i = 0; i < table->taux; ++i)
         {
+            /*
+             * Les nombres qui pointent sont des entiers stockes
+             * sur 4 octets pour eviter un overflow
+             */
             for (int x = 0; x < 4; ++x)
             {
                 buf[x] = tmp_dico[i * 4 + x];
             }
-            table->vector[i] = len_to_file(buf);
+            table->vector[i] = file_to_len(buf);
         }
         free(buf);
     }
