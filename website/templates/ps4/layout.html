@@ -28,6 +28,7 @@
 							<li class="{{ nav.report }}"><a href="{% url "ps4:report" %}">Report</a></li>
 							{% if user.is_authenticated%}
 							<li class="{{ nav.account }}"><a href="{% url "ps4:account" %}">Account</a></li>
+							<li class="{{ nav.backup }}"><a href="{% url "ps4:backup" %}">Backup</a></li>
 							<li class="{{ nav.logout }}"><a href="{% url "ps4:logout" %}">Logout</a></li>
 							{% else %}
 							<li class="{{ nav.register }}"><a href="{% url "ps4:register" %}">Register</a></li>
@@ -44,6 +45,7 @@
 				<li class="{{ nav.report }}"><a href="{% url "ps4:report" %}">Report</a></li>
 				{% if user.is_authenticated %}
 				<li class="{{ nav.account }}"><a href="{% url "ps4:account" %}">Account</a></li>
+                                <li class="{{ nav.backup }}"><a href="{% url "ps4:backup" %}">Backup</a></li>
 				<li class="{{ nav.logout }}"><a href="{% url "ps4:logout" %}">Logout</a></li>
 				{% else %}
 				<li class="{{ nav.register }}"><a href="{% url "ps4:register" %}">Register</a></li>

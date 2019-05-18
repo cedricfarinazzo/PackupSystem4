@@ -6,12 +6,16 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.template import loader
-from django.http import HttpResponse
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse, HttpResponseRedirect
+from .models import *
+from .forms import *
 
 # Create your views here.
 
-def index(request):
+usage_max = 5000000
 
+def index(request):
     
     context = {}
     return render(request, 'ps4/index.html', context)
@@ -145,3 +149,109 @@ def terms(request):
 
     context = {}
     return render(request, 'ps4/terms.html', context)
+
+def normalize_size(size):
+    size = float(size)
+    if size < 1000:
+        return str(size)
+    elif size < 1000000:
+        size /= 1000
+        return ('%.2f'%(size)) + 'K'
+    elif size < 1000000000:
+        size /= 1000000
+        return ('%.2f'%(size)) + 'M'
+    elif size < 1000000000000:
+        size /= 1000000000
+        return ('%.2f'%(size)) + 'G'
+    else:
+        size /= 1000000000000
+        return ('%.2f'%(size)) + 'T'
+
+def backup(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    context = {}
+    context = {'usage_max': normalize_size(usage_max)}
+    if request.method == "POST":
+        if 'submit-delete-all' in request.POST:
+            Backup.objects.filter(user=request.user).delete()
+    try:
+        storage = StorageUser.objects.get(user=request.user)
+    except ObjectDoesNotExist:
+        storage = None
+    usage_bytes = 0 if storage is None else storage.usage
+    usage_percentage = 100. * usage_bytes / usage_max
+    context['usage_bytes'] = normalize_size(usage_bytes)
+    context['usage_percentage'] = int(usage_percentage)
+    try:
+        backups = Backup.objects.filter(user=request.user)
+        if backups is None:
+            backups = []
+    except ObjectDoesNotExist:
+        backups = []
+    context["backups"] = backups
+    return render(request, 'ps4/backup.html', context)
+
+def backup_view(request, id=-1):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    backup = None
+    try:
+        backup = Backup.objects.filter(user=request.user, id=id).all()[0]
+        if backup == None or backup == []:
+            raise Exception()
+    except:
+        return redirect('/backup/')
+    if request.method == "POST":
+        if 'submit-delete' in request.POST:
+            backup.delete()
+            return redirect('/backup/')
+    context = {'usage_max': normalize_size(usage_max)}
+    context['b'] = backup
+    try:
+        storage = StorageUser.objects.get(user=request.user)
+    except ObjectDoesNotExist:
+        storage = None
+    usage_bytes = 0 if storage is None else storage.usage
+    usage_percentage = 100. * usage_bytes / usage_max
+    context['usage_bytes'] = normalize_size(usage_bytes)
+    context['usage_percentage'] = int(usage_percentage)
+    print(context)
+    return render(request, 'ps4/backup_view.html', context)
+
+def backup_add(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    context = {'usage_max': normalize_size(usage_max)}
+    storage = None
+    if request.method == 'POST':
+        form = BackupForm(request.POST, request.FILES)
+        if form.is_valid():
+            storage, created = StorageUser.objects.get_or_create(user=request.user)
+            if created:
+                storage.user = request.user
+                storage.usage = 0
+            if storage.usage + request.FILES['backup_file'].size  < 5000000:
+                storage.usage += request.FILES['backup_file'].size
+                storage.save()
+                backup = Backup()
+                backup.filename = request.FILES['backup_file'].name
+                backup.backup = request.FILES['backup_file']
+                backup.enc_type = request.POST['enc_type']
+                backup.user = request.user
+                backup.save()
+                context['success'] = "Backup uploaded with success"
+            else:
+                context['error'] = "Not enough cloud space!"
+        else:
+            context['error'] = "Please fill out the form"
+    if storage is None:
+        try:
+            storage = StorageUser.objects.get(user=request.user)
+        except ObjectDoesNotExist:
+            storage = None
+    usage_bytes = 0 if storage is None else storage.usage
+    usage_percentage = 100. * usage_bytes / usage_max
+    context['usage_bytes'] = normalize_size(usage_bytes)
+    context['usage_percentage'] = int(usage_percentage)
+    return render(request, 'ps4/backup_add.html', context)

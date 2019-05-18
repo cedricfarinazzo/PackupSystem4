@@ -1,0 +1,64 @@
+{% extends 'ps4/layout.html' %}
+
+{% block content %}
+    <h1 class="center">Backup Dashboard</h1>
+    <div class="row">
+        <div class="col s10">
+            <a class="waves-effect waves-light btn" href="{% url "ps4:backup_add" %}">
+                <i class="material-icons left">cloud</i>
+                Add backups
+            </a>
+        </div>
+        <div class="col s2">
+            Usage: {{ usage_bytes }}o/{{ usage_max }}o &nbsp;&nbsp;&nbsp; {{ usage_percentage }}%
+        </div>
+        <div class="col s2 offset-s10">
+            <div class="progress">
+                <div class="determinate" style="width: {{ usage_percentage }}%"></div> 
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="container center">
+        <h5>Here you can add, download or delete your backup.</h5>
+    </div>
+    <br/>
+    <div class="divider"></div>
+    <div class="container">
+        <h4 class="center">Backup list</h4>
+        <div class="container">
+        <table class="centered responsive-table">
+            <thead>
+                <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Size</th>
+                <th>Cipher type</th>
+                <th>View</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for b in backups  %}
+                <tr>
+                    <td>{{ b.id }}</td>
+                    <td>{{ b.filename }}</td>
+                    <td>{{ b.normal_size }}</td>
+                    <td>{{ b.enc_type }}</td>
+                    <td><a href="{% url "ps4:backup_view" b.id %}">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br/>
+        <form action="{% url "ps4:backup" %}" method="post">
+            {% csrf_token %}
+            <div class="row center-align">
+                <button class="btn waves-effect waves-light center-align red darken-1" type="submit" onclick="return confirm('Remove all backups?');" name="submit-delete-all">
+                    Remove all
+                    <i class="material-icons right">delete</i>
+                </button>
+            </div>
+        </form>
+    </div>  
+
+{% endblock %}

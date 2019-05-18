@@ -136,6 +136,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT = BASE_DIR + '/media/'
+
+if not os.path.isdir(MEDIA_ROOT):
+    os.mkdir(MEDIA_ROOT)
+    print("Create media directoty: " + MEDIA_ROOT)
+
 STATICFILES_DIRS = [
     BASE_DIR + "/static/",
     #'/home/hyperion/packupsystem4/website/static/',

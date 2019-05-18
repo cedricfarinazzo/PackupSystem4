@@ -1,0 +1,60 @@
+{% extends 'ps4/layout.html' %}
+
+{% block content %}
+<h1 class="center">Backup N°{{ b.id }}</h1>
+    <div class="row">
+        <div class="col s10">
+            <a class="waves-effect waves-light btn" href="{% url "ps4:backup" %}">
+                <i class="material-icons left">home</i>
+                Back to backups dashboard
+            </a>
+        </div>
+        <div class="col s2">
+            Usage: {{ usage_bytes }}o/{{ usage_max }}o &nbsp;&nbsp;&nbsp; {{ usage_percentage }}%
+        </div>
+        <div class="col s2 offset-s10">
+            <div class="progress">
+                <div class="determinate" style="width: {{ usage_percentage }}%"></div> 
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="container center">
+        <h5>Here you can add, download or delete your backup.</h5>
+    </div>
+    <br/>
+    <div class="divider"></div>
+    <div class="container">
+        <h4 class="center">Backup list</h4>
+        <div class="container">
+        <table class="centered responsive-table">
+            <thead>
+                <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Size</th>
+                <th>Cipher type</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ b.id }}</td>
+                    <td><a href="{{ b.backup.url }}">{{ b.filename }}</a></td>
+                    <td>{{ b.normal_size }}</td>
+                    <td>{{ b.enc_type }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <br/>
+        <form action="{% url "ps4:backup_view" b.id %}" method="post">
+            {% csrf_token %}
+            <div class="row center-align">
+                <button class="btn waves-effect waves-light center-align red darken-1" type="submit" onclick="return confirm('Remove this backup?');" name="submit-delete">
+                    Remove this backup
+                    <i class="material-icons right">delete</i>
+                </button>
+            </div>
+        </form>
+    </div>  
+
+{% endblock %}

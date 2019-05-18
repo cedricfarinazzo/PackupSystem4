@@ -1,0 +1,79 @@
+{% extends 'ps4/layout.html' %}
+
+{% block content %}
+    <h1 class="center">Add a Backup</h1>
+    <div class="row">
+        <div class="col s10">
+            <a class="waves-effect waves-light btn" href="{% url "ps4:backup" %}">
+                <i class="material-icons left">home</i>
+                Back to backups dashboard
+            </a>
+        </div>
+        <div class="col s2">
+            Usage: {{ usage_bytes }}o/{{ usage_max }}o &nbsp;&nbsp;&nbsp; {{ usage_percentage }}%
+        </div>
+        <div class="col s2 offset-s10">
+            <div class="progress">
+                <div class="determinate" style="width: {{ usage_percentage }}%"></div> 
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="container center">
+        <h5>Here you can add backups</h5>
+    </div>
+    <br/>
+    <div class="divider"></div>
+    <div class="container">
+        {% if error is not None %}
+            <div class="container">
+                <div class="center card-panel red accent-3">
+                    {{ error }}
+                </div>
+            </div>
+            <br/>
+        {% endif %}
+        {% if success is not None %}
+            <div class="container">
+                <div class="center card-panel green darken-1 accent-3">
+                    {{ success }}
+                </div>
+            </div>
+            <br/>
+        {% endif %}
+        <form action="{% url "ps4:backup_add" %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <br/>
+            <div class="file-field input-field">
+                <div class="btn">
+                    <span>Backup file: </span>
+                    <input type="file" name="backup_file">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text" placeholder="Upload one backup file">
+                </div>
+            </div>
+            <br/>
+            <div class="input-field col s12">
+                <select name="enc_type" id="id_enc_type">
+                    <option value="None">None</option>
+                    <option value="Rotn">Rotn</option>
+                    <option value="Vigenere">Vigenere</option>
+                    <option value="AES">AES</option>
+                    <option value="RSA">RSA</option>
+                    <option value="Elgamal">Elgamal</option>
+                </select>
+                <label for="id_enc_type">Cipher type:</label>
+            </div>
+            <br/>
+            <div class="center">
+                <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+                    <i class="material-icons right">send</i>
+                </button>
+            </div>
+        </form>
+
+    </div>  
+
+
+{% endblock %}
