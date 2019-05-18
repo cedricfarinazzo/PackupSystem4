@@ -92,15 +92,12 @@ int main(int argc, char *argv[])
     printf("\n    d = %lld", privk->d); 
     printf("\n=====\n\n");
 
-    char c = 'A';
-    printf("c = %c (%d)\n", c, c);
-    long long c1, c2;
-    EL_encryption_single(c, &c1, &c2, pubk);
+    printf("source file: %s\n", argv[1]);
+    printf("enc file: %s\n", argv[2]);
+    printf("dec file: %s\n", argv[3]);
 
-    printf("\n\nc1 = %lld | c2 = %lld \n\n", c1, c2);
-
-    char d = (char)EL_decryption_single(c1, c2, privk);
-    printf("d = %c (%d)\n", d, d);
+    EL_encryption_file(argv[1], argv[2], pubk);
+    EL_decryption_file(argv[2], argv[3], privk);
 
     ELGAMAL_pubkey_free(pubk);
     ELGAMAL_privkey_free(privk);
