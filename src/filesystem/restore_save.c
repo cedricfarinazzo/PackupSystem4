@@ -151,6 +151,7 @@ struct chained *RS_create_save_list(char *save_dir)
     char *start = nextname + k;
     *start = '/';
     start += 1;
+    *start = 0;
     struct chained *list = calloc(1, sizeof(struct chained));
     while ((next = readdir(saves)))
     {
@@ -159,6 +160,7 @@ struct chained *RS_create_save_list(char *save_dir)
             case DT_REG:
                 strcpy(start, next->d_name);
                 chained_insert(list, nextname);
+                printf(nextname);
                 break;
             default:
                 break;
