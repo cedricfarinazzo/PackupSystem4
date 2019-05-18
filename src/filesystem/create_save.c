@@ -103,6 +103,10 @@ struct meta_tree *CS_find_on_level(struct meta_tree *src, struct meta_tree *dst)
 
 void CS_cmp_and_save(struct meta_tree *current, struct meta_tree *previous, FILE *save)
 {
+    if (!current)
+    {
+        return;
+    }
     struct meta_tree *eq = CS_find_on_level(current, previous);
     if (current->data)
     {
