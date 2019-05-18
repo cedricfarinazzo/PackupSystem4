@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include "genkey.h"
 #include "tools.h"
 
 #include "elgamal.h"
 
+int toascii(int a)
+{
+    return (int)((unsigned char) a);
+}
 
 void EL_encryption_single(int c, long long *c1, long long *c2, struct ELGAMAL_pubkey *pub)
 {
