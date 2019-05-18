@@ -77,35 +77,6 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
 
-    struct RSA_pubKey *pubk;
-    struct RSA_privKey *privk;
-    unsigned long keysize = 64;
-    RSA_generateKey(keysize, &privk, &pubk);
-    
-    char *in = "example/d/6";
-    char *enc = "example/d/7";
-    char *dec = "example/d/8";
-
-    FILE *fin = fopen(in, "r");
-    FILE *fenc = fopen(enc, "w+");
-    FILE *fdec = fopen(dec, "w+");
-
-    RSA_encode_stream(fin, fenc, pubk);
-    fseek(fenc, 0, SEEK_SET);
-    RSA_decode_stream(fenc, fdec, privk);
-
-    fclose(fin);
-    fclose(fenc);
-    fclose(fdec);
-
-    remove(enc);
-    remove(dec);
-    
-    RSA_free_public_key(pubk);
-    RSA_free_private_key(privk);
-
-
-return 0;
     if (argc == 1)
         return interface(argc, argv);
 

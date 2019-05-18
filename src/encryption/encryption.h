@@ -61,7 +61,6 @@ enum ENCRYPTION_TYPE {
   -------------------------------------------------------------------------------------------
  * RETURN TYPE: 0 if done otherwise an integer
 */
-
 int PACKUP_encryption_stream(enum ENCRYPTION_TYPE type, FILE *in, FILE *out, ...);
 
 
