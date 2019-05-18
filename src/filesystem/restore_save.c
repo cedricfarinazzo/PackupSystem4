@@ -142,9 +142,9 @@ struct chained *RS_create_save_list(char *save_dir)
 {
     DIR *saves = opendir(save_dir);
     struct dirent *next;
-    char nextname[2048];
+    char nextname[4096];
     size_t k;
-    for (k = 0; *(save_dir + k); k++)
+    for (k = 0; *(save_dir + k) != '0' && k < 2048; k++)
     {
         nextname[k] = *(save_dir + k);
     }
