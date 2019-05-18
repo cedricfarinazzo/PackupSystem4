@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <err.h>
 
-#include <../struct.h>
+#include "../struct.h"
 
 struct pylist *newpy(void)
 {
@@ -15,7 +15,7 @@ struct pylist *newpy(void)
     return newpylist;
 }
 
-void addpy(struct pylist *py, int element)
+void addpy(struct pylist *py, size_t element)
 {
     if (py->end == NULL)
     {
@@ -46,5 +46,4 @@ void freepy(struct pylist *py)
         freeele(py->begin);
     free(py);
 }
-
 

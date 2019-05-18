@@ -67,21 +67,21 @@ struct huff_out {
 } huff_out;
 
 struct pyele {
-    int key;
+    size_t key;
     struct pyele *prec;
     struct pyele *next;
 } pyele;
 
 struct pylist {
-    int len;
+    size_t len;
     struct pyele *begin;
     struct pyele *end;
 } pylist;
 
 struct dico {
-    int *vector;
+    size_t *vector;
     unsigned char *letter;
-    int len;
-    int taux;
+    size_t len;
+    size_t taux;
 } dico;
 #endif /*_SRC_COMPRESSION_STRUCT_H_*/
