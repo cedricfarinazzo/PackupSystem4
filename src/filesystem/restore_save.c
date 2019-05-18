@@ -207,7 +207,7 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
 {
     if (tree->data)
     {
-        printf("Sourcefile: %s\nFilename: %s\n"tree->data->src, tree->data->file);
+        printf("Sourcefile: %s\nFilename: %s\n", tree->data->src, tree->data->file);
     }
     if (tree->son == NULL)
     {
