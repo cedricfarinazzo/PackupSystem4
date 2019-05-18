@@ -25,7 +25,7 @@
     <br/>
     <div class="divider"></div>
     <div class="container">
-        <h4 class="center">Backup list</h4>
+        <h4 class="center">Backup data</h4>
         <div class="container">
         <table class="centered responsive-table">
             <thead>
@@ -34,6 +34,7 @@
                 <th>Filename</th>
                 <th>Size</th>
                 <th>Cipher type</th>
+                <th>Download</th>
             </tr>
             </thead>
             <tbody>
@@ -42,6 +43,7 @@
                     <td><a href="{% url "ps4:backup_download" b.id %}">{{ b.filename }}</a></td>
                     <td>{{ b.normal_size }}</td>
                     <td>{{ b.enc_type }}</td>
+                    <td><a href="{% url "ps4:backup_download" b.id %}">{{ b.filename }}</a></td>
                 </tr>
             </tbody>
         </table>
