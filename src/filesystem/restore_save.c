@@ -144,7 +144,9 @@ struct chained *RS_create_save_list(char *save_dir)
     struct dirent *next;
     char nextname[2048];
     strcpy(nextname, save_dir);
-    char *start = nextname + strlen(save_dir) + 1;
+    char *start = nextname + strlen(save_dir);
+    *start = '/';
+    start++;
     struct chained *list = calloc(1, sizeof(struct chained));
     while ((next = readdir(saves)))
     {
