@@ -127,7 +127,10 @@ void CS_cmp_and_save(struct meta_tree *current, struct meta_tree *previous, FILE
         struct meta_tree *temp = current->son;
         while (temp)
         {
-            CS_cmp_and_save(temp, eq->son, save);
+            if (eq)
+                CS_cmp_and_save(temp, eq->son, save);
+            else
+                CS_cmp_and_save(temp, NULL, save);
             temp = temp->sibling;
         }
     }
