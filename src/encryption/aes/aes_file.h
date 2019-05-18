@@ -33,6 +33,10 @@ int AES_encrypt_fd(int fin, int fout, char *pass);
  */
 int AES_decrypt_fd(int fin, int fout, char *pass);
 
+int AES_encrypt_stream(FILE *fin, FILE *fout, char *pass);
+
+int AES_decrypt_stream(FILE *fin, FILE *fout, char *pass);
+
 /* AES_encrypt_file: encrypt data from in and write on out
  * in: char*: path to the input file
  * out: char*: path to the output file

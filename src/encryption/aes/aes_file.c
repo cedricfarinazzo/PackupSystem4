@@ -76,6 +76,30 @@ int AES_decrypt_fd(int fin, int fout, char *pass)
     return AES_OK;
 }
 
+int AES_encrypt_stream(FILE *fin, FILE *fout, char *pass)
+{
+    int in = fileno(fin);
+    int out = fileno(fout);
+    if (in == -1 || out == -1)
+        return AES_ERROR_CANNOT_OPEN_FD;
+    int e = AES_encrypt_fd(in, out, pass);
+    close(in);
+    close(out);
+    return e;
+}
+
+int AES_decrypt_stream(FILE *fin, FILE *fout, char *pass)
+{
+    int in = fileno(fin);
+    int out = fileno(fout);
+    if (in == -1 || out == -1)
+        return AES_ERROR_CANNOT_OPEN_FD;
+    int e = AES_decrypt_fd(in, out, pass);
+    close(in);
+    close(out);
+    return e;
+}
+
 
 int AES_encrypt_file(char *in, char *out, char *pass)
 {

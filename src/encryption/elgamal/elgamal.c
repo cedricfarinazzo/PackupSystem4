@@ -27,9 +27,9 @@ long long EL_decryption_single(long long c1, long long c2, struct ELGAMAL_privke
 	return c2 * FindT(c1, priv->p - 1 - priv->d, priv->p) % priv->p;
 }
 
-void EL_encryption_stream(FILE *in, FILE *out, struct ELGAMAL_pubkey *pub)
+int EL_encryption_stream(FILE *in, FILE *out, struct ELGAMAL_pubkey *pub)
 {
-    if (in == NULL || out == NULL) return;
+    if (in == NULL || out == NULL) return -1;
 
     char c;
     long long c1, c2;
@@ -39,11 +39,12 @@ void EL_encryption_stream(FILE *in, FILE *out, struct ELGAMAL_pubkey *pub)
         fwrite(&c1, sizeof(long long), 1, out);
         fwrite(&c2, sizeof(long long), 1, out);
     }
+    return 0;
 }
 
-void EL_decryption_stream(FILE *in, FILE *out, struct ELGAMAL_privkey *priv)
+int EL_decryption_stream(FILE *in, FILE *out, struct ELGAMAL_privkey *priv)
 {
-    if (in == NULL || out == NULL) return;
+    if (in == NULL || out == NULL) return -1;
 
     char c;
     long long c1, c2;
@@ -56,44 +57,57 @@ void EL_decryption_stream(FILE *in, FILE *out, struct ELGAMAL_privkey *priv)
         c = (char)EL_decryption_single( c1, c2, priv);
         fprintf(out, "%c", c);
     }
+    return 0;
 }
 
-void EL_encryption_file(char *in, char *out, struct ELGAMAL_pubkey *pub)
+int EL_encryption_file(char *in, char *out, struct ELGAMAL_pubkey *pub)
 {
-    if (in == NULL || out == NULL) return;
+    if (in == NULL || out == NULL) return -1;
     FILE *fin = fopen(in, "r");
     FILE *fout = fopen(out, "wb+");
+    if (fin == NULL || fout == NULL)
+        return -1;
     EL_encryption_stream(fin, fout, pub);
     fclose(fout);
     fclose(fin);
+    return 0;
 }
 
-void EL_decryption_file(char *in, char *out, struct ELGAMAL_privkey *priv)
+int EL_decryption_file(char *in, char *out, struct ELGAMAL_privkey *priv)
 {
-    if (in == NULL || out == NULL) return;
+    if (in == NULL || out == NULL) return -1;
     FILE *fin = fopen(in, "rb");
     FILE *fout = fopen(out, "w+");
+    if (fin == NULL || fout == NULL)
+        return -1;
     EL_decryption_stream(fin, fout, priv);
     fclose(fout);
     fclose(fin);
+    return 0;
 }
 
-void EL_encryption_fd(int in, int out, struct ELGAMAL_pubkey *pub)
+int EL_encryption_fd(int in, int out, struct ELGAMAL_pubkey *pub)
 {
-    if (in == 0 || out == 0) return;
+    if (in == 0 || out == 0) return -1;
     FILE *fin = fdopen(in, "r");
     FILE *fout = fdopen(out, "wb+");
+    if (fin == NULL || fout == NULL)
+        return -1;
     EL_encryption_stream(fin, fout, pub);
     fclose(fout);
     fclose(fin);
+    return 0;
 }
 
-void EL_decryption_fd(int in, int out, struct ELGAMAL_privkey *priv)
+int EL_decryption_fd(int in, int out, struct ELGAMAL_privkey *priv)
 {
-    if (in == 0 || out == 0) return;
+    if (in == 0 || out == 0) return -1;
     FILE *fin = fdopen(in, "rb");
     FILE *fout = fdopen(out, "w+");
+    if (fin == NULL || fout == NULL)
+        return -1;
     EL_decryption_stream(fin, fout, priv);
     fclose(fout);
     fclose(fin);
+    return 0;
 }
