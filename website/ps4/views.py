@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
@@ -6,8 +7,11 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.template import loader
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
+import mimetypes
+from wsgiref.util import FileWrapper
 from .models import *
 from .forms import *
 
@@ -192,7 +196,7 @@ def backup(request):
     context["backups"] = backups
     return render(request, 'ps4/backup.html', context)
 
-def backup_view(request, id=-1):
+def backup_view(request, id):
     if not request.user.is_authenticated:
         return redirect('/')
     backup = None
@@ -218,6 +222,25 @@ def backup_view(request, id=-1):
     context['usage_percentage'] = int(usage_percentage)
     print(context)
     return render(request, 'ps4/backup_view.html', context)
+
+def backup_download(request, id):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    backup = None
+    try:
+        backup = Backup.objects.filter(user=request.user, id=id).all()[0]
+        if backup == None or backup == []:
+            raise Exception()
+    except:
+        return redirect('/backup/')
+    file_path = os.path.join(settings.MEDIA_ROOT, backup.backup.url)
+    file_wrapper = FileWrapper(open(file_path,'rb'))
+    file_mimetype = mimetypes.guess_type(file_path)
+    response = HttpResponse(file_wrapper, content_type=file_mimetype )
+    response['X-Sendfile'] = file_path
+    response['Content-Length'] = os.stat(file_path).st_size
+    response['Content-Disposition'] = 'attachment; filename=%s' % (backup.filename)
+    return response 
 
 def backup_add(request):
     if not request.user.is_authenticated:

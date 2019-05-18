@@ -39,7 +39,7 @@
             <tbody>
                 <tr>
                     <td>{{ b.id }}</td>
-                    <td><a href="{{ b.backup.url }}">{{ b.filename }}</a></td>
+                    <td><a href="{% url "ps4:backup_download" b.id %}">{{ b.filename }}</a></td>
                     <td>{{ b.normal_size }}</td>
                     <td>{{ b.enc_type }}</td>
                 </tr>
