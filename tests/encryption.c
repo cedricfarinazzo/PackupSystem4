@@ -33,6 +33,8 @@
 #include "../src/encryption/elgamal/elgamal.h"
 #include "../src/encryption/elgamal/genkey.h"
 
+#include "../src/encryption/encryption.h"
+
 unsigned char *decrypt = NULL;
 unsigned char *output = NULL;
 unsigned char *out;
@@ -681,6 +683,7 @@ Test(VIGENERE, decrypt)
 
 }
 
+// ELGAMAL
 Test(ELGAMAL, PublicKey)
 {
     FILE *f = tmpfile();
@@ -757,3 +760,277 @@ Test(ELGAMAL, EncryptionDecryption)
     remove(enc);
     remove(dec);
 }
+
+// PACKUP ENCRYPTION
+Test(PackupEncryption, Rotn)
+{
+    char *in = "example/e/rotn.txt";
+    char *enc = "example/e/rotn.txt.enc";
+    char *dec = "example/e/rotn.txt.dec";
+
+    FILE *fin = fopen(in, "r");
+    FILE *fenc = fopen(enc, "w+");
+    cr_expect_not_null(fin);
+    cr_expect_not_null(fenc);
+    PACKUP_encryption_stream(ROTN, fin, fenc, 3);
+    fclose(fin);
+    fclose(fenc);
+    fenc = fopen(enc, "r");
+    FILE *fdec = fopen(dec, "w+");
+    cr_expect_not_null(fenc);
+    cr_expect_not_null(fdec);
+    PACKUP_decryption_stream(ROTN, fenc, fdec, 3);
+    fclose(fenc);
+    fclose(fdec);
+
+    FILE *reff = fopen(in, "r");
+    FILE *decf = fopen(dec, "r");
+    cr_expect_not_null(reff);
+    cr_expect_not_null(decf);
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove(enc);
+    remove(dec);
+}
+
+Test(PackupEncryption, Vigenere)
+{
+    char *in = "example/e/vig.txt";
+    char *enc = "example/e/vig.txt.enc";
+    char *dec = "example/e/vig.txt.dec";
+    char *key = "Votai test.";
+
+    FILE *fin = fopen(in, "r");
+    FILE *fenc = fopen(enc, "w+");
+    cr_expect_not_null(fin);
+    cr_expect_not_null(fenc);
+    cr_expect_eq(PACKUP_encryption_stream(VIGENERE, fin, fenc, key), 0);
+    fclose(fin);
+    fclose(fenc);
+    fenc = fopen(enc, "r");
+    FILE *fdec = fopen(dec, "w+");
+    cr_expect_not_null(fenc);
+    cr_expect_not_null(fdec);
+    cr_expect_eq(PACKUP_decryption_stream(VIGENERE, fenc, fdec, key), 0);
+    fclose(fdec);
+    fclose(fenc);
+
+    FILE *reff = fopen(in, "r");
+    FILE *decf = fopen(dec, "r");
+    cr_expect_not_null(reff);
+    cr_expect_not_null(decf);
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove(enc);
+    remove(dec);
+}
+
+Test(PackupEncryption, Aes)
+{
+    char *in = "example/e/aes.txt";
+    char *enc = "example/e/aes.txt.enc";
+    char *dec = "example/e/aes.txt.dec";
+    char *key = "Votai test.";
+
+    FILE *fin = fopen(in, "r");
+    FILE *fenc = fopen(enc, "w+");
+    cr_expect_not_null(fin);
+    cr_expect_not_null(fenc);
+    cr_expect_eq(PACKUP_encryption_stream(AES, fin, fenc, key), 0);
+    fclose(fin);
+    fclose(fenc);
+    fenc = fopen(enc, "r");
+    FILE *fdec = fopen(dec, "w+");
+    cr_expect_not_null(fenc);
+    cr_expect_not_null(fdec);
+    cr_expect_eq(PACKUP_decryption_stream(AES, fenc, fdec, key), 0);
+    fclose(fdec);
+    fclose(fenc);
+    
+    FILE *reff = fopen(in, "r");
+    FILE *decf = fopen(dec, "r");
+    cr_expect_not_null(reff);
+    cr_expect_not_null(decf);
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove(enc);
+    remove(dec);
+}
+
+Test(PackupEncryption, RsaGenKey)
+{
+    char *in = "example/e/rsagenkey.txt";
+    char *enc = "example/e/rsagenkey.txt.enc";
+    char *dec = "example/e/rsagenkey.txt.dec";
+    unsigned long keysize = 1024;
+    char *pub = "example/e/rsagenkey.pub";
+    char *priv = "example/e/rsagenkey.priv";
+
+    FILE *fin = fopen(in, "r");
+    FILE *fenc = fopen(enc, "w+");
+    cr_expect_not_null(fin);
+    cr_expect_not_null(fenc);
+    cr_expect_eq(PACKUP_encryption_stream(RSA, fin, fenc, pub, priv, keysize), 0);
+    fclose(fin);
+    fclose(fenc);
+    fenc = fopen(enc, "r");
+    FILE *fdec = fopen(dec, "w+");
+    cr_expect_not_null(fenc);
+    cr_expect_not_null(fdec);
+    cr_assert_eq(PACKUP_decryption_stream(RSA, fenc, fdec, priv), 0);
+    fclose(fdec);
+    fclose(fenc);
+
+    FILE *reff = fopen(in, "r");
+    FILE *decf = fopen(dec, "r");
+    cr_expect_not_null(reff);
+    cr_expect_not_null(decf);
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove(enc);
+    remove(dec);
+    remove(pub);
+    remove(priv);
+}
+
+Test(PackupEncryption, RsaUseKey)
+{
+    unsigned long keysize = 4096;
+    char *pub = "example/e/rsausekey.pub";
+    char *priv = "example/e/rsausekey.priv";
+    struct RSA_pubKey *pubk;
+    struct RSA_privKey *privk;
+    RSA_generateKey(keysize, &privk, &pubk);
+    RSA_pubk_to_file(pubk, pub);
+    RSA_privk_to_file(privk, priv);
+    RSA_free_public_key(pubk);
+    RSA_free_private_key(privk);
+    
+    char *in = "example/e/rsausekey.txt";
+    char *enc = "example/e/rsausekey.txt.enc";
+    char *dec = "example/e/rsausekey.txt.dec";
+
+    FILE *fin = fopen(in, "r");
+    FILE *fenc = fopen(enc, "w+");
+    cr_expect_not_null(fin);
+    cr_expect_not_null(fenc);
+    cr_expect_eq(PACKUP_encryption_stream(RSA, fin, fenc, pub), 0);
+    fclose(fin);
+    fclose(fenc);
+    fenc = fopen(enc, "r");
+    FILE *fdec = fopen(dec, "w+");
+    cr_expect_not_null(fenc);
+    cr_expect_not_null(fdec);
+    cr_expect_eq(PACKUP_decryption_stream(RSA, fenc, fdec, priv), 0);
+    fclose(fdec);
+    fclose(fenc);
+
+    FILE *reff = fopen(in, "r");
+    FILE *decf = fopen(dec, "r");
+    cr_expect_not_null(reff);
+    cr_expect_not_null(decf);
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove(enc);
+    remove(dec);
+    remove(pub);
+    remove(priv);
+}
+
+Test(PackupEncryption, ElgamalGenKey)
+{
+    char *in = "example/e/elgenkey.txt";
+    char *enc = "example/e/elgenkey.txt.enc";
+    char *dec = "example/e/elgenkey.txt.dec";
+    unsigned long keysize = 1024;
+    char *pub = "example/e/elgenkey.pub";
+    char *priv = "example/e/elgenkey.priv";
+
+    FILE *fin = fopen(in, "r");
+    FILE *fenc = fopen(enc, "w+");
+    cr_expect_not_null(fin);
+    cr_expect_not_null(fenc);
+    cr_expect_eq(PACKUP_encryption_stream(ELGAMAL, fin, fenc, pub, priv, keysize), 0);
+    fclose(fin);
+    fclose(fenc);
+    fenc = fopen(enc, "r");
+    FILE *fdec = fopen(dec, "w+");
+    cr_expect_not_null(fenc);
+    cr_expect_not_null(fdec);
+    cr_expect_eq(PACKUP_decryption_stream(ELGAMAL, fenc, fdec, priv), 0);
+    fclose(fdec);
+    fclose(fenc);
+
+    FILE *reff = fopen(in, "r");
+    FILE *decf = fopen(dec, "r");
+    cr_expect_not_null(reff);
+    cr_expect_not_null(decf);
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove(enc);
+    remove(dec);
+    remove(pub);
+    remove(priv);
+}
+
+Test(PackupEncryption, ElgamalUseKey)
+{
+    char *in = "example/e/elusekey.txt";
+    char *enc = "example/e/elusekey.txt.enc";
+    char *dec = "example/e/elusekey.txt.dec";
+    unsigned long keysize = 1024;
+    char *pub = "example/e/elusekey.pub";
+    char *priv = "example/e/elusekey.priv";
+
+    struct ELGAMAL_pubkey *pubk;
+    struct ELGAMAL_privkey *privk;
+
+    ELGAMAL_generateKey(keysize, &privk, &pubk);
+    ELGAMAL_privk_to_file(privk, priv);
+    ELGAMAL_pubk_to_file(pubk, pub);
+
+    ELGAMAL_privkey_free(privk);
+    ELGAMAL_pubkey_free(pubk);
+
+
+    FILE *fin = fopen(in, "r");
+    FILE *fenc = fopen(enc, "w+");
+    cr_expect_not_null(fin);
+    cr_expect_not_null(fenc);
+    cr_expect_eq(PACKUP_encryption_stream(ELGAMAL, fin, fenc, pub), 0);
+    fclose(fin);
+    fclose(fenc);
+    fenc = fopen(enc, "r");
+    FILE *fdec = fopen(dec, "w+");
+    cr_expect_not_null(fenc);
+    cr_expect_not_null(fdec);
+    cr_expect_eq(PACKUP_decryption_stream(ELGAMAL, fenc, fdec, priv), 0);
+    fclose(fdec);
+    fclose(fenc);
+
+    FILE *reff = fopen(in, "r");
+    FILE *decf = fopen(dec, "r");
+    cr_expect_not_null(reff);
+    cr_expect_not_null(decf);
+    cr_expect_file_contents_eq(decf, reff); 
+    fclose(reff);
+    fclose(decf);
+
+    remove(enc);
+    remove(dec);
+    remove(pub);
+    remove(priv);
+}
+
