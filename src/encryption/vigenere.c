@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -19,7 +20,6 @@ void VIGENERE_encrypt(char *data, char *key)
 
 void VIGENERE_decrypt(char *data, char *key)
 {
-
     size_t k = 0;
     for (size_t i = 0; data[i] != '\0'; ++i)
     {
@@ -66,6 +66,29 @@ int VIGENERE_decrypt_fd(int fin, int fout, char *key)
     return VIGENERE_OK;
 }
 
+int VIGENERE_encrypt_stream(FILE *fin, FILE *fout, char *key)
+{
+    int in = fileno(fin);
+    int out = fileno(fout);
+    if (in == -1 || out == -1)
+        return VIGENERE_ERROR_CANNOT_OPEN_FD;
+    int e = VIGENERE_encrypt_fd(in, out, key);
+    close(in);
+    close(out);
+    return e;
+}
+
+int VIGENERE_decrypt_stream(FILE *fin, FILE *fout, char *key)
+{
+    int in = fileno(fin);
+    int out = fileno(fout);
+    if (in == -1 || out == -1)
+        return VIGENERE_ERROR_CANNOT_OPEN_FD;
+    int e = VIGENERE_decrypt_fd(in, out, key);
+    close(in);
+    close(out);
+    return e;
+}
 int VIGENERE_encrypt_file(char *in, char *out, char *key)
 {
     if (in == NULL || out == NULL)

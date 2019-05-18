@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -49,6 +50,30 @@ int ROTN_decrypt_fd(int fin, int fout, int key)
     if (eout == -1)
         return ROTN_ERROR_CANNOT_WRITE_FD;
     return ROTN_OK;
+}
+
+int ROTN_encrypt_stream(FILE *fin, FILE *fout, int key)
+{
+    int in = fileno(fin);
+    int out = fileno(fout);
+    if (in == -1 || out == -1)
+        return ROTN_ERROR_CANNOT_OPEN_FD;
+    int e = ROTN_encrypt_fd(in, out, key);
+    close(in);
+    close(out);
+    return e;
+}
+
+int ROTN_decrypt_stream(FILE *fin, FILE *fout, int key)
+{
+    int in = fileno(fin);
+    int out = fileno(fout);
+    if (in == -1 || out == -1)
+        return ROTN_ERROR_CANNOT_OPEN_FD;
+    int e = ROTN_decrypt_fd(in, out, key);
+    close(in);
+    close(out);
+    return e;
 }
 
 int ROTN_encrypt_file(char *in, char *out, int key)

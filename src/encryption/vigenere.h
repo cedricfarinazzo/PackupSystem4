@@ -22,6 +22,10 @@ int VIGENERE_encrypt_fd(int fin, int fout, char *key);
 
 int VIGENERE_decrypt_fd(int fin, int fout, char *key);
 
+int VIGENERE_encrypt_stream(FILE *fin, FILE *fout, char *key);
+
+int VIGENERE_decrypt_stream(FILE *fin, FILE *fout, char *key);
+
 int VIGENERE_encrypt_file(char *in, char *out, char *key);
 
 int VIGENERE_decrypt_file(char *in, char *out, char *key);
