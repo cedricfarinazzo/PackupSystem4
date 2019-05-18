@@ -32,6 +32,12 @@ int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk);
 int RSA_decode_fd(int fin, int fout, struct RSA_privKey *privk);
 
 
+int RSA_encode_stream(FILE *fin, FILE *fout, struct RSA_pubKey *pubk);
+
+
+int RSA_decode_stream(FILE *fin, FILE *fout, struct RSA_privKey *privk);
+
+
 /* RSA_encode_file: encode data from in file and write on out file
  * fin: char*: path to the input file
  * fout: int: path to the output file

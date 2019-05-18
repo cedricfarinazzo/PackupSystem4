@@ -72,6 +72,30 @@ int RSA_decode_fd(int fin, int fout, struct RSA_privKey *privk)
     return RSA_OK;
 }
 
+int RSA_encode_stream(FILE *fin, FILE *fout, struct RSA_pubKey *pubk)
+{
+    int in = fileno(fin);
+    int out = fileno(fout);
+    if (in == -1 || out == -1)
+        return RSA_ERROR_CANNOT_OPEN_FD;
+    int e = RSA_encode_fd(in, out, pubk);
+    close(in);
+    close(out);
+    return e;
+}
+
+int RSA_decode_stream(FILE *fin, FILE *fout, struct RSA_privKey *privk)
+{
+    int in = fileno(fin);
+    int out = fileno(fout);
+    if (in == -1 || out == -1)
+        return RSA_ERROR_CANNOT_OPEN_FD;
+    int e = RSA_decode_fd(in, out, privk);
+    close(in);
+    close(out);
+    return e;
+}
+
 
 int RSA_encode_file(char *in, char *out, struct RSA_pubKey *pubk)
 {
