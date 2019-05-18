@@ -65,6 +65,35 @@ enum ENCRYPTION_TYPE {
 int PACKUP_encryption_stream(enum ENCRYPTION_TYPE type, FILE *in, FILE *out, ...);
 
 
+/*
+ * int PACKUP_decryption_stream(enum ENCRYPTION_TYPE type, FILE *in, FILE *out, ...)
+ * ARG: 
+ *    enum ENCRYPTION_TYPE type: decryption algorithm selection
+ *    FILE *in: stream on input file
+ *    FILE *out stream on output file
+                   |                                 ARGS                                   |
+    Algorithm      |     1     |     2     |     3     |     4      |     5     |     6     |
+  -------------------------------------------------------------------------------------------
+  No decryption    |    NONE   |    NULL   |    NULL   |     X      |     X     |     X     |
+  -------------------------------------------------------------------------------------------
+  Rotn decryption  |    ROTN   |  FILE *in | FILE *out |  int key   |     X     |     X     |
+  -------------------------------------------------------------------------------------------
+  Vigenere dec     | VIGENERE  |  FILE *in | FILE *out | char *key  |     X     |     X     |
+  -------------------------------------------------------------------------------------------
+  AES dec          |    AES    |  FILE *in | FILE *out | char *pass |     X     |     X     |
+  -------------------------------------------------------------------------------------------
+  RSA dec          |    RSA    |  FILE *in | FILE *out | char *priv |     X     |     X     |
+   (use of an      |           |           |           | (path to   |           |           |
+   existing private|           |           |           |private key)|           |           |
+   key file)       |           |           |           |            |           |           |
+  -------------------------------------------------------------------------------------------
+  ELGAMAL enc      | ELGAMAL   |  FILE *in | FILE *out | char *priv |     X     |     X     |
+   (use of an      |           |           |           | (path to   |           |           |
+   existing private|           |           |           |private key)|           |           |
+   key file)       |           |           |           |            |           |           |
+  -------------------------------------------------------------------------------------------
+ * RETURN TYPE: 0 if done otherwise an integer
+*/
 int PACKUP_decryption_stream(enum ENCRYPTION_TYPE type, FILE *in, FILE *out, ...);
 
 
