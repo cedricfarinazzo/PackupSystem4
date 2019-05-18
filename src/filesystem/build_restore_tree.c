@@ -97,10 +97,12 @@ void RS_free_restore_tree(struct restore_tree *rt)
     if (rt->son)
     {
         struct restore_tree *child = rt->son;
+        struct restore_tree *temp;
         while (child)
         {
+            temp = child->sibling;
             RS_free_restore_tree(child);
-            child = child->sibling;
+            child = temp;
         }
     }
     free(rt);
