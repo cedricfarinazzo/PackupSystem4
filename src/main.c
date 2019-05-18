@@ -25,6 +25,9 @@
 #include "encryption/aes/aes_mixcolumns.h"
 #include "encryption/aes/hashpass.h"
 
+#include "encryption/elgamal/elgamal.h"
+#include "encryption/elgamal/genkey.h"
+
 #include "compression/huffman/huffman.h"
 #include "compression/struct.h"
 #include "compression/file.h"
