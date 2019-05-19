@@ -162,8 +162,8 @@ struct chained *RS_create_save_list(char *save_dir)
         {
             case DT_REG:
                 strcpy(start, next->d_name);
-                chained_insert(list, nextname);
                 printf(nextname);
+                //chained_insert(list, nextname);
                 break;
             default:
                 break;
