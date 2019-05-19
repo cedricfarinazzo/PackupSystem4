@@ -126,13 +126,15 @@ void chained_insert(struct chained *list, char *file)
     strcpy(node->path, file);
     node->mtime = fs.st_mtime;
     struct chained *temp = list;
-    while (temp->next)
+    size_t k = 0;
+    while (temp->next && k < 10)
     {
         if (temp->next->mtime > node->mtime)
         {
             break;
         }
         temp = temp->next;
+        k++;
     }
     node->next = temp->next;
     temp->next = node;
@@ -144,7 +146,7 @@ struct chained *RS_create_save_list(char *save_dir)
     struct dirent *next;
     char nextname[4096];
     size_t k;
-    for (k = 0; *(save_dir + k) != '\0' && k < 2048; k++)
+    for (k = 0; *(save_dir + k) != '\0' && k < 4096; k++)
     {
         nextname[k] = *(save_dir + k);
     }
@@ -152,8 +154,9 @@ struct chained *RS_create_save_list(char *save_dir)
     *start = '/';
     start += 1;
     *start = 0;
+    printf(nextname);
     struct chained *list = calloc(1, sizeof(struct chained));
-    while ((next = readdir(saves)))
+    while ((next = readdir(saves)) != NULL)
     {
         switch (next->d_type)
         {

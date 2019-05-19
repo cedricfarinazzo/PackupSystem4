@@ -9,7 +9,7 @@
 struct chained
 {
     time_t mtime;
-    char path[2048];
+    char path[4096];
     struct chained *next;
 }chained;
 
