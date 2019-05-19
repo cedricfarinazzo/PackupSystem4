@@ -215,7 +215,7 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
     {
         printf("Sourcefile: %s\nFilename: %s\n", tree->data->src, tree->data->file);
     }
-    if (tree->son == NULL)
+    /*if (tree->son == NULL)
     {
         FILE *src = fopen(tree->data->src, "r");
         FILE *dst = fopen(tree->data->file, "w");
@@ -227,17 +227,17 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
         buf.actime = time(NULL);
         buf.modtime = tree->data->mtime;
         utime(tree->data->file, &buf);
-    }
-    else
-    {
-        mkdir(tree->data->file, tree->data->mode);
+    }*/
+    //else
+    //{
+        //mkdir(tree->data->file, tree->data->mode);
         struct restore_tree *temp = tree->son;
         while (temp)
         {
             RS_restore_from_restore_tree(temp);
             temp = temp->sibling;
         }
-    }
+    //}
 }
 
 void FILESYSTEM_restore_save(char *savedir)
