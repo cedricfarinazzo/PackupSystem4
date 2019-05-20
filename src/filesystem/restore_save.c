@@ -218,7 +218,7 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
     {
         printf("Sourcefile: %s\nFilename: %s\n", tree->data->src, tree->data->file);
     }
-    /*if (tree->son == NULL)
+    if (tree->son == NULL)
     {
         FILE *src = fopen(tree->data->src, "r");
         FILE *dst = fopen(tree->data->file, "w");
@@ -230,23 +230,23 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
         buf.actime = time(NULL);
         buf.modtime = tree->data->mtime;
         utime(tree->data->file, &buf);
-    }*/
-    //else
-    //{
-        //mkdir(tree->data->file, tree->data->mode);
+    }
+    else
+    {
+        mkdir(tree->data->file, tree->data->mode);
         struct restore_tree *temp = tree->son;
         while (temp)
         {
             RS_restore_from_restore_tree(temp);
             temp = temp->sibling;
         }
-    //}
+    }
 }
 
 void FILESYSTEM_restore_save(char *savedir)
 {
     struct chained *list = RS_create_save_list(savedir);
-    struct chained *temp = list->next;
+    /*struct chained *temp = list->next;
     struct restore_tree *rt = calloc(1, sizeof(struct restore_tree));
 	while (temp)
     {
@@ -254,10 +254,10 @@ void FILESYSTEM_restore_save(char *savedir)
         RS_update_restore_tree_from_mt(rt, temptree, temp->path);
         FILESYSTEM_free_metatree(temptree);
         temp = temp->next;
-    }
+    }*/
     RS_free_save_list(list);
-    RS_restore_from_restore_tree(rt);
-    RS_free_restore_tree(rt);
+    /*RS_restore_from_restore_tree(rt);
+    RS_free_restore_tree(rt);*/
 }
 
 void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
