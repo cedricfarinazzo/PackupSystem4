@@ -290,30 +290,7 @@ void compress_lz78(char *data_path, char *dico_path, char *tmp_path)
     return;
 }
 
-void compress_lz78(unsigned char *output, unsigned char *input, int len
-        char *dico_path)
-{
-    /* Arguments :
-     * Dictionnary path "dico_path"
-     * Input string to compress "input"
-     * Size of Input string "len"
-     * Output string "output"
-     * Return :
-     * Size of compressed string
-     */
-
-    int point = 0; /* Pointer on input string */
-    int taille = 1; /* Size of accu, to check in the dico */
-    struct pylist *out = new_py();
-    create_dico(table, input, len, out);
-    list_to_string(out, output); /* Converter dynamic to static */
-    int len_out = py->len; /* Len to output string */
-    freepy(out); /* Free pylist */
-
-
-}
-
-void decompress_lz78(char *dico_path, char *data_path, char *data_out)
+void decompress_lz78(char *data_path, char *dico_path, char *out_path)
 {
     unsigned char *tdata;
     size_t lendata;
@@ -329,10 +306,4 @@ void decompress_lz78(char *dico_path, char *data_path, char *data_out)
     free(data);
     free_dico(table);
     return;
-}
-
-void principale(unsigned char *input, int len)
-{
-    struct dico *table = new_dico(len / 4);
-    create_dico(table, input, len);
 }
