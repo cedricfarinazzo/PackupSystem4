@@ -152,7 +152,6 @@ struct chained *RS_create_save_list(char *save_dir)
     *start = '/';
     start += 1;
     *start = 0;
-    printf(nextname);
     struct chained *list = calloc(1, sizeof(struct chained));
     while ((next = readdir(saves)) != NULL)
     {
@@ -253,9 +252,9 @@ void print_restore_tree(struct restore_tree *rt, int indent)
     {
         printf("%sfile: %s |", indents, rt->data->file);
         printf("save: %s|", rt->data->src);
-        printf("mode: %d|", rt->data->mode);
-        printf("offset: %d|", rt->data->offset);
-        printf("mtime: %d", rt->data->mtime);
+        printf("mode: %ld|", rt->data->mode);
+        printf("offset: %ld|", rt->data->offset);
+        printf("mtime: %ld", rt->data->mtime);
         printf("\n");
     }
 }
@@ -269,7 +268,7 @@ void FILESYSTEM_restore_save(char *savedir)
         printf("Savefile: %s\nmtime: %d\n", temp->path, temp->mtime);
         temp = temp->next;
     }
-    struct chained *temp = list->next;
+    temp = list->next;
     struct restore_tree *rt = calloc(1, sizeof(struct restore_tree));
 	while (temp)
     {
