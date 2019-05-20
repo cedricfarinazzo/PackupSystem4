@@ -147,6 +147,8 @@ STATICFILES_DIRS = [
     #'/home/hyperion/packupsystem4/website/static/',
 ]
 
+PACKUP_BIN = os.path.join(BASE_DIR, 'webin/packup')
+
 try:
     from website.local_conf import *
 except ImportError:

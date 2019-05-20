@@ -226,20 +226,20 @@ def backup_view(request, id):
 def backup_download(request, id):
     if not request.user.is_authenticated:
         return redirect('/')
-    backup = None
+    backupf = None
     try:
-        backup = Backup.objects.filter(user=request.user, id=id).all()[0]
-        if backup == None or backup == []:
+        backupf = BackupFile.objects.filter(id=id).all()[0]
+        if backupf == None or backupf == []:
             raise Exception()
     except:
         return redirect('/backup/')
-    file_path = os.path.join(settings.MEDIA_ROOT, backup.backup.url)
+    file_path = os.path.join(settings.MEDIA_ROOT, backupf.backupfile.url)
     file_wrapper = FileWrapper(open(file_path,'rb'))
     file_mimetype = mimetypes.guess_type(file_path)
     response = HttpResponse(file_wrapper, content_type=file_mimetype )
     response['X-Sendfile'] = file_path
     response['Content-Length'] = os.stat(file_path).st_size
-    response['Content-Disposition'] = 'attachment; filename=%s' % (backup.filename)
+    response['Content-Disposition'] = 'attachment; filename=%s' % (backupf.filename)
     return response 
 
 def backup_add(request):
@@ -254,15 +254,25 @@ def backup_add(request):
             if created:
                 storage.user = request.user
                 storage.usage = 0
-            if storage.usage + request.FILES['backup_file'].size  < 5000000:
-                storage.usage += request.FILES['backup_file'].size
+            usage = 0
+            files = request.FILES.getlist('backup_file')
+            for e in files:
+                usage += e.size
+            if storage.usage + usage < 5000000:
+                storage.usage += usage
                 storage.save()
                 backup = Backup()
-                backup.filename = request.FILES['backup_file'].name
-                backup.backup = request.FILES['backup_file']
                 backup.enc_type = request.POST['enc_type']
                 backup.user = request.user
+                backup.pass_backup = ""
                 backup.save()
+                for e in files:
+                    bf = BackupFile()
+                    bf.user = request.user
+                    bf.backupfile = e
+                    bf.filename = e.name
+                    bf.backup = backup
+                    bf.save()
                 context['success'] = "Backup uploaded with success"
             else:
                 context['error'] = "Not enough cloud space!"

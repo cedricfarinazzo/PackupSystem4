@@ -14,7 +14,7 @@
         </div>
         <div class="col s2 offset-s10">
             <div class="progress">
-                <div class="determinate" style="width: {{ usage_percentage }}%"></div> 
+                <div class="determinate" style="width: {{ usage_percentage }}%"></div>
             </div>
         </div>
     </div>
@@ -32,18 +32,22 @@
                 <tr>
                 <th>ID</th>
                 <th>Filename</th>
-                <th>Size</th>
                 <th>Cipher type</th>
+                <th>Date created</th>
                 <th>View</th>
             </tr>
             </thead>
             <tbody>
-                {% for b in backups  %}
+                {% for b in backups %}
                 <tr>
                     <td>{{ b.id }}</td>
-                    <td>{{ b.filename }}</td>
-                    <td>{{ b.normal_size }}</td>
+                    <td>
+                    {% for f in b.get_files %}
+                    {{ f.filename }}<br/>
+                    {% endfor %}
+                    </td>
                     <td>{{ b.enc_type }}</td>
+                    <td>{{ b.date_created }}</td>
                     <td><a href="{% url "ps4:backup_view" b.id %}">View</a></td>
                 </tr>
                 {% endfor %}
@@ -59,6 +63,6 @@
                 </button>
             </div>
         </form>
-    </div>  
+    </div>
 
 {% endblock %}

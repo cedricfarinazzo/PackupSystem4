@@ -1,7 +1,7 @@
 {% extends 'ps4/layout.html' %}
 
 {% block content %}
-<h1 class="center">Backup N°{{ b.id }}</h1>
+<h1 class="center">Backup n°{{ b.id }}</h1>
     <div class="row">
         <div class="col s10">
             <a class="waves-effect waves-light btn" href="{% url "ps4:backup" %}">
@@ -26,37 +26,48 @@
     <div class="divider"></div>
     <div class="container">
         <h4 class="center">Backup data</h4>
-        <div class="container">
-        <table class="centered responsive-table">
-            <thead>
-                <tr>
-                <th>ID</th>
-                <th>Filename</th>
-                <th>Size</th>
-                <th>Cipher type</th>
-                <th>Download</th>
-            </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ b.id }}</td>
-                    <td><a href="{% url "ps4:backup_download" b.id %}">{{ b.filename }}</a></td>
-                    <td>{{ b.normal_size }}</td>
-                    <td>{{ b.enc_type }}</td>
-                    <td><a href="{% url "ps4:backup_download" b.id %}">{{ b.filename }}</a></td>
-                </tr>
-            </tbody>
-        </table>
         <br/>
-        <form action="{% url "ps4:backup_view" b.id %}" method="post">
-            {% csrf_token %}
-            <div class="row center-align">
-                <button class="btn waves-effect waves-light center-align red darken-1" type="submit" onclick="return confirm('Remove this backup?');" name="submit-delete">
-                    Remove this backup
-                    <i class="material-icons right">delete</i>
-                </button>
-            </div>
-        </form>
+        <div class="container">
+            <ul class="collection center">
+                <li class="collection-item">ID : {{ b.id  }}</li>
+                <li class="collection-item">Cipher type : {{ b.enc_type }}</li>
+                <li class="collection-item">Date created : {{ b.date_created }}</li>
+            </ul>
+        </div>
+        <div class="container">
+            <table class="centered responsive-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>File type</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for f in b.get_files %}
+                    <tr>
+                        <td>{{ f.id }}</td>
+                        <td>{{ f.filename }}</td><F5>
+                        <td>{{ f.normal_size }}</td>
+                        <td>{{ f.file_type }}</td>
+                        <td><a href="{% url "ps4:backup_download" f.id %}">{{ f.filename }}</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <br/>
+            <form action="{% url "ps4:backup_view" b.id %}" method="post">
+                {% csrf_token %}
+                <div class="row center-align">
+                    <button class="btn waves-effect waves-light center-align red darken-1" type="submit" onclick="return confirm('Remove this backup?');" name="submit-delete">
+                        Remove this backup
+                        <i class="material-icons right">delete</i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>  
 
 {% endblock %}
