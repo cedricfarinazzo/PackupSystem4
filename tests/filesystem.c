@@ -103,6 +103,7 @@ void remove_dir2()
     rmdir("./testfiles/content2/subdir02");
     remove("./testfiles/content2/file01");
     remove("./testfiles/content2/file02");
+    remove("./testfiles/content2/file03");
 }
 
 Test(FILESYSTEM, Build_Tree)
