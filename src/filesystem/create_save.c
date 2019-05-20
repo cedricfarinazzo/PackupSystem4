@@ -92,6 +92,7 @@ struct meta_tree *CS_find_on_level(struct meta_tree *src, struct meta_tree *dst)
     }
     while (dst)
     {
+        printf("src file: %s\ndst file: %s\n", src->data->path, dst->data->path);
         if (strcmp(dst->data->path, src->data->path))
         {
             return dst;
@@ -104,10 +105,6 @@ struct meta_tree *CS_find_on_level(struct meta_tree *src, struct meta_tree *dst)
 void CS_cmp_and_save(struct meta_tree *current, struct meta_tree *previous, FILE *save)
 {
     struct meta_tree *eq = CS_find_on_level(current, previous);
-    if (eq == NULL)
-    {
-        printf("Eq not found: %s\n", current->data->path);
-    }
     if (current->data)
     {
         CS_save_data(current->data, save);
