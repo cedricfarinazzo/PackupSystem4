@@ -36,6 +36,7 @@ void print_tree(struct meta_tree *tree, int indent)
         printf("%spath:%s | ", indents, tree->data->path);
         printf("size:%ld o | ",  tree->data->fs.st_size);
         printf("mode: %d | ", tree->data->fs.st_mode);
+        printf("offset: %d", tree->data->file_content);
         printf("\n");
 
         struct meta_tree *c = tree->son;
