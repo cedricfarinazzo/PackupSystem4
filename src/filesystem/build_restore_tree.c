@@ -29,6 +29,7 @@ struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
         {
             t2->sibling = _init_restore_tree(temp, savepath);
             t2 = t2->sibling;
+            temp = temp->sibling;
         }
         tree->son = t;
     }
@@ -77,7 +78,7 @@ void RS_update_restore_tree_from_mt(struct restore_tree *rt, struct meta_tree *m
 {
     if (rt->son == NULL)
     {
-        rt->son = _init_restore_tree(mt, savepath);
+        rt->son = _init_restore_tree(mt->son, savepath);
     }
     else
     {
