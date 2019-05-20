@@ -125,7 +125,9 @@ void chained_insert(struct chained *list, char *file)
     struct chained *node = malloc(sizeof(struct chained));
     strcpy(node->path, file);
     node->mtime = fs.st_mtime;
-    struct chained *temp = list;
+    printf("File name: %s\nMod time: %d\n", node->path, node->mtime);
+    free(node);
+    /*struct chained *temp = list;
     size_t k = 0;
     while (temp->next && k < 10)
     {
@@ -137,7 +139,7 @@ void chained_insert(struct chained *list, char *file)
         k++;
     }
     node->next = temp->next;
-    temp->next = node;
+    temp->next = node;*/
 }
 
 struct chained *RS_create_save_list(char *save_dir)
@@ -162,8 +164,8 @@ struct chained *RS_create_save_list(char *save_dir)
         {
             case DT_REG:
                 strcpy(start, next->d_name);
-                printf(nextname);
-                //chained_insert(list, nextname);
+                printf("Nextfile: %s\n"nextname);
+                chained_insert(list, nextname);
                 break;
             default:
                 break;
