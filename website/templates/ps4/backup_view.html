@@ -58,17 +58,29 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <br/>
-            <form action="{% url "ps4:backup_view" b.id %}" method="post">
-                {% csrf_token %}
-                <div class="row center-align">
-                    <button class="btn waves-effect waves-light center-align red darken-1" type="submit" onclick="return confirm('Remove this backup?');" name="submit-delete">
-                        Remove this backup
-                        <i class="material-icons right">delete</i>
-                    </button>
-                </div>
-            </form>
         </div>
+        <br/>
+        <div class="center">
+            <h5>Archive content</h5>
+        </div>
+        <br/>
+        <pre class="backup-view grey darken-3 white-text">
+            {% if backup_view is None %}
+                The content of the archive is not yet available. Thank you try again later.
+            {% else %}
+                {{ backup_view }}
+            {% endif %}
+        </pre>
+        <br/>
+        <form action="{% url "ps4:backup_view" b.id %}" method="post">
+            {% csrf_token %}
+            <div class="row center-align">
+                <button class="btn waves-effect waves-light center-align red darken-1" type="submit" onclick="return confirm('Remove this backup?');" name="submit-delete">
+                    Remove this backup
+                    <i class="material-icons right">delete</i>
+                </button>
+            </div>
+        </form>
     </div>  
 
 {% endblock %}

@@ -6,3 +6,10 @@
 .error-list {
     font-size: 1.1em;
 }
+
+.backup-view {
+    margin: auto;
+    border: 1px outset black;
+    border-radius: 5px;
+    box-shadow: 2px 2px 6px black;
+}
