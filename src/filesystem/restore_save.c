@@ -251,11 +251,20 @@ void print_restore_tree(struct restore_tree *rt, int indent)
     if (rt != NULL && rt->data != NULL)
     {
         printf("%sfile: %s |", indents, rt->data->file);
-        printf("save: %s|", rt->data->src);
+        if (rt->data->offset)
+            printf("save: %s|", rt->data->src);
+        else
+            printf("save: NULL|");
         printf("mode: %d|", rt->data->mode);
         printf("offset: %ld|", rt->data->offset);
         printf("mtime: %ld", rt->data->mtime);
         printf("\n");
+    }
+    struct restore_tree *temp = rt->son;
+    while (temp)
+    {
+        print_restore_tree(temp, indent + 4);
+        temp = temp->sibling;
     }
 }
 
