@@ -41,7 +41,7 @@ struct meta_tree *_find_mt_node(struct restore_tree *rt, struct meta_tree *mt)
     char *file = rt->data->file;
     while (mt)
     {
-        if (strcmp(mt->data->path, file))
+        if (strcmp(mt->data->path, file) == 0)
         {
             return mt;
         }
@@ -53,7 +53,7 @@ struct meta_tree *_find_mt_node(struct restore_tree *rt, struct meta_tree *mt)
 void _update_restore_tree(struct restore_tree *rt, struct meta_tree *mt, char *savepath)
 {
     printf("entered update_restore_tree\n");
-    /*if (rt->son)
+    if (rt->son)
     {
         struct restore_tree *temp = rt->son;
         while (temp)
@@ -72,7 +72,7 @@ void _update_restore_tree(struct restore_tree *rt, struct meta_tree *mt, char *s
             }
             temp = temp->sibling;
         }
-    }*/
+    }
 }
 
 void RS_update_restore_tree_from_mt(struct restore_tree *rt, struct meta_tree *mt, char *savepath)
