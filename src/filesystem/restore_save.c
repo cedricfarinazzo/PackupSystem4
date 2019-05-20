@@ -128,7 +128,7 @@ void chained_insert(struct chained *list, char *file)
     struct chained *temp = list;
     while (temp->next)
     {
-        if (temp->next->mtime > node->mtime)
+        if (temp->next->mtime < node->mtime)
         {
             break;
         }
