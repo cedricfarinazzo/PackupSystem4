@@ -5,7 +5,7 @@ struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
     printf("entered init_restore_tree\n");
     
     struct restore_tree *tree = calloc(1, sizeof(struct restore_tree));
-    /*if (mt->data)
+    if (mt->data)
     {
         struct restore_data *data = malloc(sizeof(struct restore_data));
         data->mode = mt->data->fs.st_mode;
@@ -34,7 +34,7 @@ struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
             temp = temp->sibling;
         }
         tree->son = t;
-    }*/
+    }
     return tree;
 }
 
