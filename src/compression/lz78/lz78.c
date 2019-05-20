@@ -19,7 +19,8 @@
  * len of char*
  */
 
-/* In dico file:
+/*
+ * In dico file:
  * Header:
  * Taux in 256 base on 4 Bytes
  * Letter (1 Byte per letter) on Taux Bytes
@@ -59,7 +60,7 @@ int check_adddico(struct dico *table, unsigned char *accu, int len)
     dico->letter[dico->taux] = accu[len - 1]; //Add new letter
     dico->vector[dico->taux] = point;
     dico->taux += 1;
-    return point;
+    return dico->taux - 1;
 }
 
 int endcheck_dico(struct dico *table, unsigned char *accu, int len)
@@ -82,7 +83,7 @@ int endcheck_dico(struct dico *table, unsigned char *accu, int len)
     return point;
 }
 
-void create_dico(struct dico *table, unsigned char *input, int len,
+void create_dico(struct dico *table, unsigned char *input, ssize_t len,
         struct pylist *out)
 {
     int point = 0; /* Pointer on input string */
@@ -93,7 +94,7 @@ void create_dico(struct dico *table, unsigned char *input, int len,
         unsigned char *accu = malloc(sizeof(unsigned char) * taille);
         int actu = 0; /* Pointer on accu string */
         int isIN = -2; /* If add in the dico */
-        while (actu < taille || isIN == -2)
+        while (actu < taille && isIN == -2)
         {
             accu[actu++] = input[point];
             isIN = check_adddico(table, accu, actu);
@@ -116,7 +117,7 @@ void create_dico(struct dico *table, unsigned char *input, int len,
 
 void list_to_string(struct pylist *py, unsigned char *output)
 {
-    /* Converter from char list to pylist */
+    /* Converter from pylist to uchar list */
 
     output = malloc(sizeof(unsigned char) * py->len);
     struct pyele *actuel = py->begin; /* Pointer in py */
@@ -127,6 +128,47 @@ void list_to_string(struct pylist *py, unsigned char *output)
         ++point;
         actuel = actuel->next;
     }
+}
+
+size_t pylist_to_string(struct pylist *py, unsigned char *output)
+{
+    /* Convert pylist (size_t*) to uchar* 
+     * Each size_t will encoded on 4B 
+     */
+    output = malloc(sizeof(unsigned char) * py->len);
+    struct pyele *actuel = py->begin; /* Pointer for py */
+    int point = 0; /* Pointeur for output */
+    unsigned char buf = malloc(sizeof(unsigned char) * 4);
+    while (actuel != NULL)
+    {
+        buf = (unsigned char)len_to_file(actuel->key);
+        actuel = actuel->next;
+        for (int i = 0; i < 4; ++i)
+        {
+            output[point * 4 + i] = buf[i];
+        }
+        ++point;
+    }
+    free(buf);
+    return py->len;
+}
+
+size_t string_to_pylist(struct pylist *py, unsigned char *input, size_t len)
+{
+    /* Converter uchar* to pylist (size_t*)
+     * Each size_t produce from 4 uchar
+     */
+    size_t point = 0;
+    unsigned char *buf = malloc(sizeof(unsigned char) * 4);
+    while (point < len)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            buf[i] = input[point++];
+        }
+        addpy(py, file_to_len(buf));
+    }
+    return py->len;
 }
 
 char *len_to_file(size_t len)
@@ -175,6 +217,56 @@ unsigned char *dico_name(unsigned char *file)
     return name;
 }
 
+size_t search_in_dico(struct dico *table, size_t index,
+        unsigned char *output)
+{
+    struct pylist *tmp = new_py();
+    size_t act_index = index;
+    while (act_index > 0)
+    {
+        addpy(tmp, table->letter[index]);
+        act_index = table->vector[act_index];
+    }
+    unsigned char *output = malloc(sizeof(unsigned char) * tmp->len);
+    struct pyele *actu = tmp->begin;
+    for (size_t i = 0; i < tmp->len; ++i)
+    {
+        output[tmp->len - i- 1] = actu->key;
+        actu = actu->next;
+    }
+    size_t len = tmp->len
+    freepy(tmp);
+    return len;
+}
+
+void dico_to_data(struct dico *table, unsigned char *out,
+        struct pylist *data)
+{
+    size_t point = 0; //Pointeur on data
+    size_t tmp_len;
+    struct pyele *actu = data->begin;
+    struct pylist *output = new_py();
+    for (;point < data->len; ++point)
+    {
+        unsigned char *tmp;
+        tmp_len = search_in_dico(table, actu->key, tmp);
+        for (size_t i = 0; i < tmp_len; ++i)
+        {
+            addpy(output, tmp[i]);
+        }
+        free(tmp);
+        actu = actu->next;
+    }
+    out = malloc(sizeof(unsigned char) * output->len);
+    actu = output->begin;
+    for (size_t i = 0; i < output->len; ++i)
+    {
+        out[i] = actu->key;
+        actu = actu->next;
+    }
+    freepy(output);
+}
+
 void compress_lz78(unsigned char *output, unsigned char *input, int len
         char *dico_path)
 {
@@ -200,7 +292,11 @@ void compress_lz78(unsigned char *output, unsigned char *input, int len
 
 void decompress_lz78(char *dico_path, char *data_path)
 {
-    
+    unsigned char *data;
+    load_data_file(data_path, data);
+    struct dico *table;
+    load_dico_file(table, dico_path);
+
 }
 
 void principale(unsigned char *input, int len)
