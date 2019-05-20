@@ -97,12 +97,12 @@ void remove_dir2()
     rmdir("./testfiles/content2/subdir01/subdir03");
     remove("./testfiles/content2/subdir01/file04");
     remove("./testfiles/content2/subdir01/file05");
+    remove("./testfiles/content2/subdir01/file03");
     rmdir("./testfiles/content2/subdir01");
     remove("./testfiles/content2/subdir02/file07");
     rmdir("./testfiles/content2/subdir02");
     remove("./testfiles/content2/file01");
     remove("./testfiles/content2/file02");
-    remove("./testfiles/content2/file03");
 }
 
 Test(FILESYSTEM, Build_Tree)
