@@ -32,7 +32,8 @@
                 <tr>
                 <th>ID</th>
                 <th>Filename</th>
-                <th>Cipher type</th>
+                <th>Encryption algorithm</th>
+                <th>Compression algorithm</th>
                 <th>Date created</th>
                 <th>View</th>
             </tr>
@@ -47,6 +48,7 @@
                     {% endfor %}
                     </td>
                     <td>{{ b.enc_type }}</td>
+                    <td>{{ b.comp_type }}</td>
                     <td>{{ b.date_created }}</td>
                     <td><a href="{% url "ps4:backup_view" b.id %}">View</a></td>
                 </tr>

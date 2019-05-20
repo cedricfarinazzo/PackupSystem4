@@ -10,7 +10,7 @@ admin.site.register(BackupFile, BackupFileAdmin)
 
 class BackupAdmin(admin.ModelAdmin):
     model = Backup
-    list_display = ('id', 'user', 'enc_type', 'date_created')
+    list_display = ('id', 'user', 'enc_type', 'comp_type', 'date_created')
 admin.site.register(Backup, BackupAdmin)
 
 class StorageUserAdmin(admin.ModelAdmin):

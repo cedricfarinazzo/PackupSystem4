@@ -93,6 +93,18 @@ class Backup(models.Model):
         choices=ENCRYPTION_TYPE,
         default=NONE,
     )
+    HUFF = 'Huffman'
+    LZ78 = 'Lz78'
+    COMPRESSION_TYPE = (
+        (NONE, 'None'),
+        (HUFF, 'Huffman'),
+        (LZ78, 'Lz78'),
+    )
+    comp_type = models.CharField(
+        max_length=11,
+        choices=COMPRESSION_TYPE,
+        default=NONE,
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     pass_backup = models.TextField(null=True, blank=True)

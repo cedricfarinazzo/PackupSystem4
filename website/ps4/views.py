@@ -249,6 +249,7 @@ def backup_add(request):
     storage = None
     if request.method == 'POST':
         form = BackupForm(request.POST, request.FILES)
+        print(form)
         if form.is_valid():
             storage, created = StorageUser.objects.get_or_create(user=request.user)
             if created:
@@ -258,14 +259,44 @@ def backup_add(request):
             files = request.FILES.getlist('backup_file')
             for e in files:
                 usage += e.size
-            if storage.usage + usage < 5000000:
+            try:
+                usage += request.FILES['backup_public_key_file'].size
+            except:
+                pass
+            try:
+                usage += request.FILES['backup_private_key_file'].size
+            except:
+                pass
+            if storage.usage + usage < usage_max:
                 storage.usage += usage
                 storage.save()
                 backup = Backup()
                 backup.enc_type = request.POST['enc_type']
+                backup.comp_type = request.POST['comp_type']
                 backup.user = request.user
                 backup.pass_backup = ""
+                if backup.enc_type in [Backup.ROTN, Backup.VIG, Backup.AES]:
+                    try:
+                        backup.pass_backup = form.backup_pass
+                    except:
+                        pass
                 backup.save()
+                if backup.enc_type in [Backup.RSA, Backup.EL]:
+                    pub = BackupFile()
+                    pub.user = request.user
+                    pub.backupfile = request.FILES['backup_public_key_file']
+                    pub.filename = request.FILES['backup_public_key_file'].name
+                    pub.backup = backup
+                    pub.file_type = BackupFile.PUBLIC_KEY
+                    pub.save()
+                    pri = BackupFile()
+                    pri.user = request.user
+                    pri.backupfile = request.FILES['backup_private_key_file']
+                    pri.filename = request.FILES['backup_private_key_file'].name
+                    pri.backup = backup
+                    pri.file_type = BackupFile.PRIVATE_KEY
+                    pri.save()
+
                 for e in files:
                     bf = BackupFile()
                     bf.user = request.user
