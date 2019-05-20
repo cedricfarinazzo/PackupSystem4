@@ -124,7 +124,7 @@ void chained_insert(struct chained *list, char *file)
     stat(file, &fs);
     struct chained *node = malloc(sizeof(struct chained));
     strcpy(node->path, file);
-    node->mtime = fs.st_mtime;
+    node->mtime = fs.st_atime;
     printf("File name: %s\nMod time: %d\n", node->path, node->mtime);
     free(node);
     list = list;
