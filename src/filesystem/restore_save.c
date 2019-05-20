@@ -44,6 +44,7 @@ off_t RS_skip_file_content(FILE *file)
     fread(&length, sizeof(size_t), 1, file);
     if (length == 0)
     {
+        printf("returned 0.\n");
         return 0;
     }
     fseek(file, length, SEEK_CUR);
