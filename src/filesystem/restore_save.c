@@ -248,11 +248,11 @@ void print_restore_tree(struct restore_tree *rt, int indent)
         indents[i] = ' ';
     }
     indents[indent] = 0;
-    if (rt != null)
+    if (rt != NULL)
     {
         printf("%sfile: %s |", indents, rt->data->file);
         printf("save: %s|", rt->data->src);
-        printf("mode: %ld|", rt->data->mode);
+        printf("mode: %d|", rt->data->mode);
         printf("offset: %ld|", rt->data->offset);
         printf("mtime: %ld", rt->data->mtime);
         printf("\n");
@@ -265,7 +265,7 @@ void FILESYSTEM_restore_save(char *savedir)
     struct chained *temp = list->next;
     while (temp)
     {
-        printf("Savefile: %s\nmtime: %d\n", temp->path, temp->mtime);
+        printf("Savefile: %s\nmtime: %ld\n", temp->path, temp->mtime);
         temp = temp->next;
     }
     temp = list->next;
