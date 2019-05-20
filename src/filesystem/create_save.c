@@ -93,7 +93,7 @@ struct meta_tree *CS_find_on_level(struct meta_tree *src, struct meta_tree *dst)
     while (dst)
     {
         printf("src file: %s\ndst file: %s\n", src->data->path, dst->data->path);
-        if (strcmp(dst->data->path, src->data->path))
+        if (strcmp(dst->data->path, src->data->path) == 0)
         {
             printf("found match.\n");
             break;
