@@ -168,6 +168,7 @@ size_t string_to_pylist(struct pylist *py, unsigned char *input, size_t len)
         }
         addpy(py, file_to_len(buf));
     }
+    free(buf);
     return py->len;
 }
 
@@ -239,7 +240,7 @@ size_t search_in_dico(struct dico *table, size_t index,
     return len;
 }
 
-void dico_to_data(struct dico *table, unsigned char *out,
+size_t dico_to_data(struct dico *table, unsigned char *out,
         struct pylist *data)
 {
     size_t point = 0; //Pointeur on data
@@ -264,7 +265,29 @@ void dico_to_data(struct dico *table, unsigned char *out,
         out[i] = actu->key;
         actu = actu->next;
     }
+    size_t len = output->len;
     freepy(output);
+    return len;
+}
+
+void compress_lz78(char *data_path, char *dico_path, char *tmp_path)
+{
+    size_t len_data;
+    unsigned char *data;
+    load_data_file(data_path, data, len_data);
+    struct dico *table;
+    load_dico_file(table, dico_path);
+    struct pylist *data_c_l = new_py();
+    create_dico(table, data, len_data, data_c_l);
+    free(data);
+    write_dico_file(table, dico_path);
+    free_dico(table);
+    unsigned char *data_compress;
+    len_data = pylist_to_string(data_c_l, data_compress);
+    freepy(data_c_l);
+    write_data_file((char *)(data_compress), len_data, tmp_path);
+    free(data_compress);
+    return;
 }
 
 void compress_lz78(unsigned char *output, unsigned char *input, int len
@@ -290,13 +313,22 @@ void compress_lz78(unsigned char *output, unsigned char *input, int len
 
 }
 
-void decompress_lz78(char *dico_path, char *data_path)
+void decompress_lz78(char *dico_path, char *data_path, char *data_out)
 {
-    unsigned char *data;
-    load_data_file(data_path, data);
+    unsigned char *tdata;
+    size_t lendata;
+    load_data_file(data_path, tdata, lendata);
     struct dico *table;
     load_dico_file(table, dico_path);
-
+    struct pylist *data= new_py();
+    data->len = string_to_pylist(data, tdata, lendata);
+    free(tdata);
+    unsigned char *data_decomp;
+    size_t lendatad = dico_to_data(table, data_decomp, data);
+    write_data_file((char*)(data_decomp), lendatad, data_out);
+    free(data);
+    free_dico(table);
+    return;
 }
 
 void principale(unsigned char *input, int len)
