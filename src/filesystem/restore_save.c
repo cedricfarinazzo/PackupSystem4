@@ -247,7 +247,7 @@ void FILESYSTEM_restore_save(char *savedir)
     struct chained *temp = list->next;
     while (temp)
     {
-        printf("Savefile: %s\nmtime: %s\n");
+        printf("Savefile: %s\nmtime: %d\n", temp->path, temp->mtime);
         temp = temp->next;
     }
     /*struct chained *temp = list->next;
