@@ -159,7 +159,6 @@ struct chained *RS_create_save_list(char *save_dir)
         {
             case DT_REG:
                 strcpy(start, next->d_name);
-                printf("Nextfile: %s\n", nextname);
                 chained_insert(list, nextname);
                 break;
             default:
@@ -272,12 +271,6 @@ void FILESYSTEM_restore_save(char *savedir)
 {
     struct chained *list = RS_create_save_list(savedir);
     struct chained *temp = list->next;
-    while (temp)
-    {
-        printf("Savefile: %s\nmtime: %ld\n", temp->path, temp->mtime);
-        temp = temp->next;
-    }
-    temp = list->next;
     struct restore_tree *rt = calloc(1, sizeof(struct restore_tree));
 	while (temp)
     {

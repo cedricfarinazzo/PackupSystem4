@@ -2,8 +2,6 @@
 
 struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
 {
-    printf("entered init_restore_tree\n");
-    
     struct restore_tree *tree = calloc(1, sizeof(struct restore_tree));
     if (mt->data)
     {
