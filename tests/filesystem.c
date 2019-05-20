@@ -182,10 +182,13 @@ Test(FILESYSTEM, create_saves)
     fclose(file01);
     printf("DEBUG: first file modified.");
     struct meta_tree *tree01 = FILESYSTEM_build_metatree("./testfiles/content2");
+    printf("printing tree1:\n");
     print_tree(tree01->son, 0);
     FILESYSTEM_create_new_save("./testfiles/content2", "./testfiles/saves2/save02", "./testfiles/saves2/save01");
     sleep(10);
     struct meta_tree *tree01_r = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves2/save02");
+    printf("printing restoration of tree1:\n");
+    print_tree(tree01_r->son, 0);
     cmp_tree(tree01->son, tree01_r->son);
     FILESYSTEM_free_metatree(tree01);
     FILESYSTEM_free_metatree(tree01_r);
@@ -195,10 +198,13 @@ Test(FILESYSTEM, create_saves)
     fclose(file03);
     printf("DEBUG: second file modified.\n");
     struct meta_tree *tree02 = FILESYSTEM_build_metatree("./testfiles/content2");
+    printf("printing tree2:\n");
     print_tree(tree02->son, 0);
     FILESYSTEM_create_new_save("./testfiles/content2", "./testfiles/saves2/save03", "./testfiles/saves2/save02");
     sleep(10);
     struct meta_tree *tree02_r = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves2/save03");
+    printf("printing restoration of tree2:\n");
+    print_tree(tree02_r->son, 0);
     cmp_tree(tree02->son, tree02_r->son);
     FILESYSTEM_free_metatree(tree02_r);
     printf("DEBUG: third save created.\n");
