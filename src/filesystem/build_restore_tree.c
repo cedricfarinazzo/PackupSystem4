@@ -39,9 +39,18 @@ struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
 struct meta_tree *_find_mt_node(struct restore_tree *rt, struct meta_tree *mt)
 {
     char *file = rt->data->file;
+    if (file == NULL)
+    {
+        printf("DEBUG: file absent.\n");
+        return NULL;
+    }
     while (mt)
     {
-        if (strcmp(mt->data->path, file) == 0)
+        if (mt->data)
+        {
+            printf("DEBUG: meta_tree path: %s\n", mt->data->path);
+        }
+        if (mt->data && strcmp(mt->data->path, file) == 0)
         {
             return mt;
         }
