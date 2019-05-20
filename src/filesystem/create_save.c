@@ -95,11 +95,12 @@ struct meta_tree *CS_find_on_level(struct meta_tree *src, struct meta_tree *dst)
         printf("src file: %s\ndst file: %s\n", src->data->path, dst->data->path);
         if (strcmp(dst->data->path, src->data->path))
         {
-            return dst;
+            printf("found match.\n");
+            break;
         }
         dst = dst->sibling;
     }
-    return NULL;
+    return dst;
 }
 
 void CS_cmp_and_save(struct meta_tree *current, struct meta_tree *previous, FILE *save)
