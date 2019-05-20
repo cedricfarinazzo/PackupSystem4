@@ -4,19 +4,22 @@
 #include <unistd.h>
 #include <string.h>
 #include <err.h>
+#include <fcntl.h>
 
 #include "../struct.h"
 #include "../lz78/dico.h"
 #include "../lz78/lz78.h"
 
-void load_data_file(char *file_path, unsigned char *data_file, ssize_t len_data)
+void load_data_file(char *file_path, unsigned char *data_file, size_t len_data)
 {
-    len_data = findSize(file_path);
-    int *DATA_FILE = open(file_path, O_RDONLY, 0666);
+    struct stat st;
+    stat(file_path, &st);
+    len_data = st.st_size;
+    int DATA_FILE = open(file_path, O_RDONLY, 0666);
     if (DATA_FILE == -1)
         errx(EXIT_FAILURE, "Fail to open data file");
     data_file = malloc(sizeof(unsigned char) * len_data);
-    int r = read(file_path, data_file, len_data);
+    int r = read(DATA_FILE, data_file, len_data);
     if (r == -1)
         errx(EXIT_FAILURE, "Fail to read data file");
     close(DATA_FILE);
@@ -29,10 +32,10 @@ void load_dico_file(struct dico *table, char *path_dico)
     int len_path = strlen(path_dico);
     char *path_dico_e = malloc(sizeof(char) * (len_path + 5));
     path_dico_e = strncpy(path_dico_e, path_dico, len_path);
-    path_dico_e = strcat(path_dico_e, ".dic", 4);
+    path_dico_e = strncat(path_dico_e, ".dic", 4);
     if (access(path_dico_e, W_OK) == -1)
     {
-        table = new_dico(0, NULL);
+        table = new_dico(0, 0);
     }
     else
     {
@@ -44,10 +47,12 @@ void load_dico_file(struct dico *table, char *path_dico)
          * Each size_t is coded on 4B in file dico
          */
 
-        int *DICO = open(path_dico_e, O_RDONLY, 0666);
+        int DICO = open(path_dico_e, O_RDONLY, 0666);
         if (DICO == -1)
             errx(EXIT_FAILURE, "Fail to open dico file");
-        size_t len_dico = findSize(path_dico_e);
+        struct stat st;
+        stat(path_dico, &st);
+        size_t len_dico = st.st_size;
         char *tmp_dico = malloc(sizeof(char) * len_dico);
         int r = read(DICO, tmp_dico, len_dico);
         if (r == -1)
@@ -69,13 +74,13 @@ void load_dico_file(struct dico *table, char *path_dico)
         table = new_dico(len, taux);
 
         //table->letter
-        for (ssize_t i = 0; i < table->taux; ++i)
+        for (size_t i = 0; i < table->taux; ++i)
         {
             table->letter[i] = tmp_dico[i + 4];
         }
 
         //table->vector
-        for (ssize_t i = 0; i < table->taux; ++i)
+        for (size_t i = 0; i < table->taux; ++i)
         {
             /*
              * Each size_t vector are store on 4B
@@ -92,7 +97,7 @@ void load_dico_file(struct dico *table, char *path_dico)
 
 void write_data_file(char *data, ssize_t len_data, char *path_file)
 {
-    int *DATA_FILE = open(path_file, O_WRONLY | O_TRUNC | O_CREATE, 0666);
+    int DATA_FILE = open(path_file, O_WRONLY | O_TRUNC | O_CREAT, 0666);
     if (DATA_FILE == -1)
         errx(EXIT_FAILURE, "Fail to create temp data file");
     int r = write(DATA_FILE, data, len_data);
@@ -106,7 +111,7 @@ void write_data_file(char *data, ssize_t len_data, char *path_file)
 void write_dico_file(struct dico *table, char *path_dico)
 {
     path_dico = strcat(path_dico, ".dic");
-    int *DICO = open(path_dico, O_WRONLY | O_TRUNC |O_CREAT, 0666);
+    int DICO = open(path_dico, O_WRONLY | O_TRUNC |O_CREAT, 0666);
     if (DICO == -1)
         errx(EXIT_FAILURE, "Fail to open dico file");
     int r = 0;
@@ -122,7 +127,7 @@ void write_dico_file(struct dico *table, char *path_dico)
         errx(EXIT_FAILURE, "Fail to write letters in file");
 
     //Write vector of dico (4B per size_t number => (4 * taux)B)
-    for (ssize_t i = 0; i < table->taux; ++i)
+    for (size_t i = 0; i < table->taux; ++i)
     {
         char *buf = len_to_file(table->vector[i]);
         r = write(DICO, buf, 4);

@@ -1,9 +1,19 @@
 #ifndef _SRC_COMPRESSION_LZ78_DICO_H_
 #define _SRC_COMPRESSOPM_LZ78_DICO_H_
 
-struct dico *new_dico(int len);
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-void transfert(unsigned char *src, size_t *dst, ssize_t len);
+#include "../struct.h"
+#include "../liste/liste.h"
+#include "../liste/pylist.h"
+
+struct dico *new_dico(size_t len, size_t taux);
+
+void transfert_vector(size_t *src, size_t *dst, size_t len);
+
+void transfert_letter(unsigned char *src, unsigned char *dst, size_t len);
 
 void extension_dico(struct dico *Dico);
 

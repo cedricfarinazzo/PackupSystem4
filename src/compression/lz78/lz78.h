@@ -13,7 +13,6 @@
 #include "../file/file.h"
 #include "../liste/pylist.h"
 #include "dico.h"
-#include "lz78.h"
 
 void list_to_string(struct pylist *py, unsigned char *output);
 
@@ -28,3 +27,5 @@ size_t file_to_len(char *f_len);
 void compress_lz78(char *data_path, char *dico_path, char *tmp_path);
 
 void decompress_lz78(char *data_path, char *dico_path, char *out_path);
+
+#endif /* _SRC_COMPRESSION_LZ78_LZ78_H_*/
