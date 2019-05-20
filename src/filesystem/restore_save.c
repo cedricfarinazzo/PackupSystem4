@@ -241,6 +241,25 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
     }
 }
 
+void print_restore_tree(struct restore_tree *rt, int indent)
+{
+    char indents[indent + 1];
+    for (int i = 0; i < indent; ++i)
+    {
+        indents[i] = ' ';
+    }
+    indents[indent] = 0;
+    if (rt != null)
+    {
+        printf("%sfile: %s |", indents, rt->data->file);
+        printf("save: %s|", rt->data->src);
+        printf("mode: %d|", rt->data->mode);
+        printf("offset: %d|", rt->data->offset);
+        printf("mtime: %d", rt->data->mtime);
+        printf("\n");
+    }
+}
+
 void FILESYSTEM_restore_save(char *savedir)
 {
     struct chained *list = RS_create_save_list(savedir);
@@ -250,18 +269,19 @@ void FILESYSTEM_restore_save(char *savedir)
         printf("Savefile: %s\nmtime: %d\n", temp->path, temp->mtime);
         temp = temp->next;
     }
-    /*struct chained *temp = list->next;
+    struct chained *temp = list->next;
     struct restore_tree *rt = calloc(1, sizeof(struct restore_tree));
 	while (temp)
     {
         struct meta_tree *temptree = FILESYSTEM_SAVE_restore_metatree_from_save(temp->path);
         RS_update_restore_tree_from_mt(rt, temptree, temp->path);
         FILESYSTEM_free_metatree(temptree);
+        print_restore_tree(rt, 0);
         temp = temp->next;
-    }*/
+    }
     RS_free_save_list(list);
-    /*RS_restore_from_restore_tree(rt);
-    RS_free_restore_tree(rt);*/
+    //RS_restore_from_restore_tree(rt);
+    RS_free_restore_tree(rt);
 }
 
 void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
