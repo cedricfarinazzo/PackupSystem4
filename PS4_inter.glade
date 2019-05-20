@@ -98,7 +98,6 @@ for your Backup.</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_encrypt_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -113,7 +112,6 @@ for your Backup.</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_compr_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -151,12 +149,12 @@ for your Backup.</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="save">
+              <object class="GtkButton" id="save_load">
                 <property name="label" translatable="yes">Save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_save_clicked" swapped="no"/>
+                <signal name="clicked" handler="on_save_load_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -228,13 +226,12 @@ on your first Backup.</property>
                 <property name="spacing">60</property>
                 <property name="layout_style">start</property>
                 <child>
-                  <object class="GtkCheckButton" id="decrypt">
-                    <property name="label" translatable="yes">Decryption</property>
+                  <object class="GtkCheckButton" id="encrypt_load">
+                    <property name="label" translatable="yes">Encryption</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_decrypt_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -243,13 +240,12 @@ on your first Backup.</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="decompr">
-                    <property name="label" translatable="yes">Decompression</property>
+                  <object class="GtkCheckButton" id="compr_load">
+                    <property name="label" translatable="yes">Compression</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_decompr_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -268,7 +264,7 @@ on your first Backup.</property>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">2</property>
+            <property name="position">3</property>
           </packing>
         </child>
       </object>
@@ -364,13 +360,12 @@ for your Backup.</property>
                 <property name="spacing">60</property>
                 <property name="layout_style">start</property>
                 <child>
-                  <object class="GtkCheckButton" id="decrypt_restore">
+                  <object class="GtkCheckButton" id="decrypt">
                     <property name="label" translatable="yes">Decryption</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_decrypt_restore_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -379,13 +374,12 @@ for your Backup.</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="compr1">
-                    <property name="label" translatable="yes">Compression</property>
+                  <object class="GtkCheckButton" id="decompr">
+                    <property name="label" translatable="yes">Decompression</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_compr1_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
