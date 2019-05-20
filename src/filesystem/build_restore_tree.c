@@ -2,8 +2,10 @@
 
 struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
 {
+    printf("entered init_restore_tree\n");
+    
     struct restore_tree *tree = calloc(1, sizeof(struct restore_tree));
-    if (mt->data)
+    /*if (mt->data)
     {
         struct restore_data *data = malloc(sizeof(struct restore_data));
         data->mode = mt->data->fs.st_mode;
@@ -32,7 +34,7 @@ struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
             temp = temp->sibling;
         }
         tree->son = t;
-    }
+    }*/
     return tree;
 }
 
@@ -52,26 +54,27 @@ struct meta_tree *_find_mt_node(struct restore_tree *rt, struct meta_tree *mt)
 
 void _update_restore_tree(struct restore_tree *rt, struct meta_tree *mt, char *savepath)
 {
-   if (rt->son)
-   {
-       struct restore_tree *temp = rt->son;
-       while (temp)
-       {
-           if (temp->data->offset)
-               continue;
-           struct meta_tree *tempmt = _find_mt_node(temp, mt);
-           if (tempmt)
-           {
-               if (tempmt->data->file_content)
-               {
-                   temp->data->offset = tempmt->data->file_content;
-                   strcpy(temp->data->src, savepath);
-               }
-               _update_restore_tree(temp, tempmt, savepath);
-           }
-           temp = temp->sibling;
-       }
-   }
+    printf("entered update_restore_tree\n");
+    /*if (rt->son)
+    {
+        struct restore_tree *temp = rt->son;
+        while (temp)
+        {
+            if (temp->data->offset)
+                continue;
+            struct meta_tree *tempmt = _find_mt_node(temp, mt);
+            if (tempmt)
+            {
+                if (tempmt->data->file_content)
+                {
+                    temp->data->offset = tempmt->data->file_content;
+                    strcpy(temp->data->src, savepath);
+                }
+                _update_restore_tree(temp, tempmt, savepath);
+            }
+            temp = temp->sibling;
+        }
+    }*/
 }
 
 void RS_update_restore_tree_from_mt(struct restore_tree *rt, struct meta_tree *mt, char *savepath)

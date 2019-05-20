@@ -248,7 +248,7 @@ void print_restore_tree(struct restore_tree *rt, int indent)
         indents[i] = ' ';
     }
     indents[indent] = 0;
-    if (rt != NULL)
+    if (rt != NULL && rt->data != NULL)
     {
         printf("%sfile: %s |", indents, rt->data->file);
         printf("save: %s|", rt->data->src);
@@ -275,7 +275,7 @@ void FILESYSTEM_restore_save(char *savedir)
         struct meta_tree *temptree = FILESYSTEM_SAVE_restore_metatree_from_save(temp->path);
         RS_update_restore_tree_from_mt(rt, temptree, temp->path);
         FILESYSTEM_free_metatree(temptree);
-        print_restore_tree(rt, 0);
+        print_restore_tree(rt->son, 0);
         temp = temp->next;
     }
     RS_free_save_list(list);
