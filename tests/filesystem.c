@@ -174,6 +174,7 @@ Test(FILESYSTEM, create_saves)
     FILESYSTEM_free_metatree(tree);
     printf("DEBUG: Tree Built.");
     FILESYSTEM_create_save("./testfiles/content2", "./testfiles/saves2/save01");
+    sleep(10);
     printf("DEBUG: First save created.");
     FILE *file01 = fopen("./testfiles/content2/file01", "a");
     fwrite("I love bananas.\n\n\n",1, 15, file01);
@@ -182,6 +183,7 @@ Test(FILESYSTEM, create_saves)
     struct meta_tree *tree01 = FILESYSTEM_build_metatree("./testfiles/content2");
     print_tree(tree01->son, 0);
     FILESYSTEM_create_new_save("./testfiles/content2", "./testfiles/saves2/save02", "./testfiles/saves2/save01");
+    sleep(10);
     struct meta_tree *tree01_r = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves2/save02");
     cmp_tree(tree01->son, tree01_r->son);
     FILESYSTEM_free_metatree(tree01);
@@ -194,6 +196,7 @@ Test(FILESYSTEM, create_saves)
     struct meta_tree *tree02 = FILESYSTEM_build_metatree("./testfiles/content2");
     print_tree(tree02->son, 0);
     FILESYSTEM_create_new_save("./testfiles/content2", "./testfiles/saves2/save03", "./testfiles/saves2/save02");
+    sleep(10);
     struct meta_tree *tree02_r = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves2/save03");
     cmp_tree(tree02->son, tree02_r->son);
     FILESYSTEM_free_metatree(tree02_r);
