@@ -92,10 +92,8 @@ struct meta_tree *CS_find_on_level(struct meta_tree *src, struct meta_tree *dst)
     }
     while (dst)
     {
-        printf("src file: %s\ndst file: %s\n", src->data->path, dst->data->path);
         if (strcmp(dst->data->path, src->data->path) == 0)
         {
-            printf("found match.\n");
             break;
         }
         dst = dst->sibling;
@@ -112,12 +110,10 @@ void CS_cmp_and_save(struct meta_tree *current, struct meta_tree *previous, FILE
         CS_save_inheritance(current, save);
         if (eq == NULL || eq->data->fs.st_mtime != current->data->fs.st_mtime)
         {
-            printf("Saved file: %s\n", current->data->path);
             CS_save_file(current->data->path, save);
         }
         else
         {
-            printf("file already saved: %s\n", current->data->path);
             long z = 0;
             fwrite(&z, sizeof(long), 1, save);
         }
@@ -142,6 +138,7 @@ void FILESYSTEM_create_new_save(char *path, char *savepath, char *oldsave)
     struct meta_tree *cur = FILESYSTEM_build_metatree(path);
     struct meta_tree *prev = FILESYSTEM_SAVE_restore_metatree_from_save(oldsave);
     CS_cmp_and_save(cur->son, prev->son, save);
+    printf("Save %s created.\n", savepath);
     FILESYSTEM_free_metatree(cur);
     FILESYSTEM_free_metatree(prev);
 }
