@@ -1,6 +1,35 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gtk/gtk.h>
+#include "../encryption/rotn.h"
+#include "../encryption/vigenere.h"
+
+#include "../encryption/rsa/rsa.h"
+#include "../encryption/rsa/genkey.h"
+#include "../encryption/rsa/tools.h"
+#include "../encryption/rsa/rsa_file.h"
+
+#include "../encryption/aes/aes.h"
+#include "../encryption/aes/aes_file.h"
+#include "../encryption/aes/aes_matrix.h"
+#include "../encryption/aes/aes_addroundkey.h"
+#include "../encryption/aes/aes_shiftrows.h"
+#include "../encryption/aes/aes_subbytes.h"
+#include "../encryption/aes/aes_mixcolumns.h"
+#include "../encryption/aes/hashpass.h"
+
+#include "../compression/huffman/huffman.h"
+#include "../compression/struct.h"
+#include "../compression/file.h"
+
+#include "../filesystem/build_metatree.h"
+#include "../filesystem/save_metatree.h"
+#include "../filesystem/build_restore_tree.h"
+#include "../filesystem/save_file_content.h"
+#include "../filesystem/restore_save.h"
+#include "../filesystem/create_save.h"
+
+
 
 GtkWidget *window;
 GtkBuilder *builder;
@@ -10,19 +39,31 @@ GtkWidget *make_backup;
 GtkWidget *ask_file_load;
 GtkWidget *ask_file_restore;
 GtkWidget *ask_file_create;
+GtkWidget *Encryption;
+GtkWidget *Decryption;
+GtkWidget *Compr;
+GtkWidget *Decompr;
+GtkWidget *Rotn_window;
+GtkWidget *Vigenere_window;
+GtkWidget *AES_window;
 
 GtkToggleButton *compr_toggle;
 GtkToggleButton *crypt_toggle;
 GtkToggleButton *compr_load_toggle;
 GtkToggleButton *crypt_load_toggle;
-
 GtkToggleButton *decompr_toggle;
 GtkToggleButton *decrypt_toggle;
+
+GtkEntry *rotn_entry;
+GtkEntry *vigenere_entry;
+GtkEntry *aes_entry;
 
 gboolean crypt_state;
 gboolean compr_state;
 gboolean decrypt_state;
 gboolean decompr_state;
+
+char *path;
 
 int interface(int argc,char *argv[])
 {
@@ -39,6 +80,13 @@ int interface(int argc,char *argv[])
     ask_file_load = GTK_WIDGET(gtk_builder_get_object(builder, "ask_file_load"));
     ask_file_create = GTK_WIDGET(gtk_builder_get_object(builder, "ask_file_create"));
     ask_file_restore = GTK_WIDGET(gtk_builder_get_object(builder, "ask_file_restore"));
+    Encryption = GTK_WIDGET(gtk_builder_get_object(builder, "Encryption"));
+    Decryption = GTK_WIDGET(gtk_builder_get_object(builder, "Decryption"));
+    Compr = GTK_WIDGET(gtk_builder_get_object(builder, "Compr"));
+    Decompr = GTK_WIDGET(gtk_builder_get_object(builder, "Decompr"));
+    Rotn_window = GTK_WIDGET(gtk_builder_get_object(builder, "Rotn_window"));
+    Vigenere_window = GTK_WIDGET(gtk_builder_get_object(builder, "Vigenere_window"));
+    AES_window = GTK_WIDGET(gtk_builder_get_object(builder, "AES_window"));
 
     crypt_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"encrypt"));
     compr_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"compr"));
@@ -46,6 +94,10 @@ int interface(int argc,char *argv[])
     compr_load_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"compr_load"));
     decrypt_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"decrypt"));
     decompr_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"decompr"));
+
+    rotn_entry=GTK_ENTRY(gtk_builder_get_object(builder, "rotn_entry"));
+    vigenere_entry=GTK_ENTRY(gtk_builder_get_object(builder, "vigenere_entry"));
+    aes_entry=GTK_ENTRY(gtk_builder_get_object(builder, "aes_entry"));
 
     gtk_builder_connect_signals(builder,NULL);
 
@@ -96,64 +148,262 @@ void on_load_clicked()
 
 void on_save_load_clicked()
 {
-    //GtkToggleButton *compr_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"encrypt"));
-    //GtkToggleButton *crypt_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"compr"));
+    GtkFileChooser *chooser = GTK_FILE_CHOOSER(ask_file_load);
+    path = gtk_file_chooser_get_filename(chooser);
 
     compr_state = gtk_toggle_button_get_active(compr_load_toggle);
     crypt_state = gtk_toggle_button_get_active(crypt_load_toggle);
 
-    printf("TODO : Lauch Save\n");
+    printf("TODO : Launch Load andSave\n");
 
-    if(compr_state)
-    {
-        printf("TODO : Lauch Compression\n");
-    }
     if(crypt_state)
     {
-        printf("TODO : Lauch Encryption\n");
+	gtk_widget_hide(ask_file_load);
+        gtk_widget_show(Encryption);
+
     }
+    else{
+       if(compr_state)
+       {
+           gtk_widget_hide(ask_file_load);
+           gtk_widget_show(Compr);
+       }
+    }
+
+
+    printf("PATH: %s\n", path);
 }
 
 void on_save_create_clicked()
 {
-    //GtkToggleButton *compr_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"encrypt"));
-    //GtkToggleButton *crypt_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"compr"));
-
+    GtkFileChooser *chooser = GTK_FILE_CHOOSER(ask_file_create);
+    path = gtk_file_chooser_get_filename(chooser);
         
     compr_state = gtk_toggle_button_get_active(compr_toggle);
     crypt_state = gtk_toggle_button_get_active(crypt_toggle);
 
-    printf("TODO : Lauch Save\n");
+    printf("TODO : Launch Create and Save\n");
 
-    if(compr_state)
-    {
-        printf("TODO : Lauch Compression\n");
-    }
     if(crypt_state)
-    { 
-        printf("TODO : Lauch Encryption\n");
+    {
+        gtk_widget_hide(ask_file_create);
+        gtk_widget_show(Encryption);
+
+    }
+    else
+    {
+       if(compr_state)
+       {
+           gtk_widget_hide(ask_file_create);
+           gtk_widget_show(Compr);
+       }
     }
 
-    
+    printf("PATH: %s\n", path);    
 }
 
 void on_restore_button_clicked()
 {
-    //GtkToggleButton *decompr_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"dencrypt"));
-    //GtkToggleButton *decrypt_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"decompr"));
-        
+    GtkFileChooser *chooser = GTK_FILE_CHOOSER(ask_file_restore);
+    path = gtk_file_chooser_get_filename(chooser);
+
     decompr_state = gtk_toggle_button_get_active(decompr_toggle);
     decrypt_state = gtk_toggle_button_get_active(decrypt_toggle);
 
-    printf("TODO : Lauch restore\n");
+    printf("TODO : Launch restore\n");
 
-    if(decompr_state)
-    {
-        printf("TODO : Lauch Compression\n");
-    }
     if(decrypt_state)
     {
-            printf("TODO : Lauch Encryption\n");
+        gtk_widget_hide(ask_file_restore);
+        gtk_widget_show(Decryption);
+
+    }
+    else
+    {
+       if(decompr_state)
+       {
+           gtk_widget_hide(ask_file_restore);
+           gtk_widget_show(Decompr);
+       }
     }
     
+    printf("PATH: %s\n", path);
+}
+
+void on_Rotn_clicked()
+{
+    gtk_widget_hide(Encryption);
+    gtk_widget_show(Rotn_window);
+}
+
+void on_Vigenere_clicked()
+{
+    gtk_widget_hide(Encryption);
+    gtk_widget_show(Vigenere_window);
+}
+
+
+void on_AES_clicked()
+{
+    gtk_widget_hide(Encryption);
+    gtk_widget_show(AES_window);
+}
+
+
+void on_valid_rotn_clicked()
+{
+     const char* entry_text;
+
+     entry_text = gtk_entry_get_text(rotn_entry);
+     int key = atoi(entry_text);
+	
+     if(crypt_state)
+     {
+	if(compr_state)
+        {
+	   printf("TO DO: Encryption Rotn with the key %d\n", key);
+           gtk_widget_hide(Rotn_window);
+           gtk_widget_show(Compr);
+        }
+     }
+     else
+     {
+        if(decompr_state)
+        {
+            printf("TO DO: Decryption Rotn with the key %i\n",key);
+            gtk_widget_hide(Rotn_window);
+            gtk_widget_show(Decompr);
+         }       
+     }
+}
+
+void on_valid_vigenere_clicked()
+{
+    const char* entry_text;
+
+    entry_text = gtk_entry_get_text(vigenere_entry);
+
+    if(crypt_state)
+    {
+       if(compr_state)
+       {
+	  printf("TO DO: Encryption Vigenere with the key \"%s\"\n", entry_text);
+          gtk_widget_hide(Vigenere_window);
+          gtk_widget_show(Compr);
+       }
+    }
+    else
+    {
+      if(decompr_state)
+      {
+	printf("TO DO: Decryption Vigenere with the key \"%s\"\n",entry_text);
+        gtk_widget_hide(Vigenere_window);
+        gtk_widget_show(Decompr);
+      }
+    }
+}
+
+void on_valid_aes_clicked()
+{
+    const char* entry_text;
+
+    entry_text = gtk_entry_get_text(aes_entry);
+    if(crypt_state)
+    {
+       printf("TO DO: Encryption AES \"%s\"\n", entry_text);
+       if(compr_state)
+      {
+         gtk_widget_hide(AES_window);
+         gtk_widget_show(Compr);
+      }
+    }
+    else
+    {
+       if(decompr_state)
+        {
+	   printf("TO DO: Decryption AES with the key \"%s\"\n", entry_text);
+           gtk_widget_hide(AES_window);
+           gtk_widget_show(Decompr);
+        }
+    }
+}
+
+void on_RSA_clicked()
+{
+    printf("TO DO: Encryption RSA\n");
+    if(compr_state)
+     {
+        gtk_widget_hide(Encryption);
+        gtk_widget_show(Compr);
+     }
+}
+
+void on_ELGAMAL_clicked()
+{
+    printf("TO DO: Encryption ELGAMAL\n");
+    if(compr_state)
+     {
+        gtk_widget_hide(Encryption);
+        gtk_widget_show(Compr);
+     }
+}
+
+void on_Rotn_decrypt_clicked()
+{
+    gtk_widget_hide(Decryption);
+    gtk_widget_show(Rotn_window);
+}
+
+void on_Vigenere_decrypt_clicked()
+{
+    gtk_widget_hide(Decryption);
+    gtk_widget_show(Vigenere_window);
+}
+
+void on_AES_decrypt_clicked()
+{
+    gtk_widget_hide(Decryption);
+    gtk_widget_show(AES_window);
+}
+
+void on_RSA_decrypt_clicked()
+{
+    printf("TO DO: Decryption RSA\n");
+    if(decompr_state)
+     {
+        gtk_widget_hide(Decryption);
+        gtk_widget_show(Decompr);
+     }
+
+}
+
+void on_ELGAMAL_decrypt_clicked()
+{
+    printf("TO DO: Decryption ELGAMAL\n");
+    if(decompr_state)
+     {
+        gtk_widget_hide(Decryption);
+        gtk_widget_show(Decompr);
+     }
+
+}
+
+void on_Huffman_clicked()
+{
+    printf("TO DO: Compression Huffman\n");
+}
+
+void on_lz78_clicked()
+{
+    printf("TO DO: Compression lz78\n");
+}
+
+void on_Huffman_decompr_clicked()
+{
+    printf("TO DO: Decompression Huffman\n");
+}
+
+void on_lz78_decompr_clicked()
+{
+    printf("TO DO: Decompression lz78\n");
 }
