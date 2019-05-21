@@ -70,8 +70,133 @@ void print_ascii(unsigned char *a)
         printf("%d ", a[i]);
 }
 
+char *restore_clear_saves(char *save_dir, int enc, int comp)
+{
+    enc = enc;
+    comp = comp;
+    //TODO
+    DIR *directory = opendir(save_dir);
+    dirent *next;
+    char tempdir[4096];
+    strcpy(tempdir, save_dir);
+    char *start = tempdir + strlen(save_dir);
+    strcpy(start, "/tempsaves");
+    mkdir(tempdir, 0666);
+    char tempname[4096];
+    strcpy(tempname, tempdir);
+    start = tempname + strlen(tempdir);
+    while ((next = readdir(directory)))
+    {
+    }
+    return tempdir;
+}
+
+void remove_dir(char *dir)
+{
+    dir = dir;
+    //TODO
+}
+
 int main(int argc, char *argv[])
 {
+    argc = argc;
+    argv = argv;
+    printf("Hello, welcome to PackupSystem4.\n");
+    printf("Do you want to save a directory or restore it ?\n"
+            "(0 => save, 1 => restore)");
+    if (/*save a dir*/0)
+    {
+        printf("You have chosen to save a directory.\n"
+            "Do you already have a save or is it the first one ?\n"
+            "(0 => no prior save, 1 => a save already exists)\n");
+        printf("Please give the name of the directory you want to save:\n");
+        char *dirpath;
+        printf("Please give the name of the file in which you want to save it. Please note that it will\n"
+            "be lost if it already exists:\n");
+        char *savepath;
+        char tempfile[4096];
+        strcpy(tempfile, savepath);
+        char *start = tempfile + strlen(savepath);
+        strcpy(start, ".rdtgs");
+        if (/*a save already exists*/0)
+        {
+            printf("Please give the name of the previous save:\n");
+            char *previous_save;
+            printf("Which encrypton was used ?\n"
+                   "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
+            int enc;
+            printf("Which compression was used ?\n"
+                   "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
+            int comp;
+            //decompresser et dechiffrer l'ancienne save
+            char *prev;
+            FILESYSTEM_create_new_save(dirpath, tempfile, prev);
+        }
+        else
+        {
+            FILESYSTEM_create_save(dirpath, tempfile);
+        }
+        printf("Please say which compression you want to use: (0 => no compression, 1 => Huffman, 2 => LZ)\n");
+        int comp;
+        char secondtempfile[4096];
+        switch (comp)
+        {
+            case 0:
+                break;
+            case 1:
+                //compression huffman
+                break;
+            case 2:
+                //compression LZ
+                break;
+            default:
+                break;
+        }
+        remove(tempfile);
+        printf("Please say which encryption you want to use:\n"
+            "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
+        int enc;
+        switch (enc)
+        {
+            case 0:
+                break;
+            case 1:
+                //encryption rotn
+                break;
+            case 2:
+                //encryption vigenere
+                break;
+            case 3:
+                //encryption aes
+                break;
+            case 4:
+                //encryption rsa
+                break;
+            case 5:
+                //encryption elgamal
+                break;
+            default:
+                break;
+        }
+        remove(secondtempfile);
+        printf("Save created\n");
+    }
+    if (/*restore a dir*/0)
+    {
+        printf("You have chosen to restore a dir.\n");
+        printf("Please give the directory in which the saves are:\n");
+        char *save_dir;
+        printf("Please give the way it was encrypted:\n"
+               "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
+        int enc;
+        printf("Please give the way it was compressed:\n"
+               "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
+        int comp;
+        char *temp_saves = restore_clear_saves(save_dir, enc, comp);
+        FILESYSTEM_restore_save(temp_saves);
+        printf("Restoration done\n");
+    }
+    /*
     srand(time(NULL));
 
     if (argc == 1)
@@ -327,6 +452,6 @@ int main(int argc, char *argv[])
                 errx(e, "aes file dec: error ");
         }
         
-    }
+    }*/
     return EXIT_SUCCESS;
 }
