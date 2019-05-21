@@ -4,7 +4,7 @@
 
 #include "../struct.h"
 
-struct pylist *newpy(void)
+struct pylist *new_py(void)
 {
     struct pylist *newpylist = malloc(sizeof(struct pylist));
     if (newpylist == NULL)
@@ -19,13 +19,13 @@ void addpy(struct pylist *py, size_t element)
 {
     if (py->end == NULL)
     {
-        py->end = malloc(sizeof(struct pylist));
+        py->end = malloc(sizeof(struct pyele));
         py->end->next = NULL;
         py->end->key = element;
         py->end->prec = NULL;
         py->begin = py->end;
     }
-    py->end->next = malloc(sizeof(struct pylist));
+    py->end->next = malloc(sizeof(struct pyele));
     py->end->next->next = NULL;
     py->end->next->key = element;
     py->end->next->prec = py->end;

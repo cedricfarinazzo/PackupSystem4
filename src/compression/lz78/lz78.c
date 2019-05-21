@@ -160,7 +160,7 @@ size_t dico_to_data(struct dico *table, unsigned char *out,
     struct pylist *output = new_py();
     for (;point < data->len; ++point)
     {
-        unsigned char *tmp;
+        unsigned char *tmp = NULL;
         tmp_len = search_in_dico(table, actu->key, tmp);
         for (size_t i = 0; i < tmp_len; ++i)
         {
