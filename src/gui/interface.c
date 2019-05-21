@@ -201,18 +201,18 @@ void on_save_create_clicked()
 
     printf("TODO : Launch Create and Save\n");
 
-    if(crypt_state)
+    if(compr_state)
     {
         gtk_widget_hide(ask_file_create);
-        gtk_widget_show(Encryption);
+        gtk_widget_show(Compr);
 
     }
     else
     {
-       if(compr_state)
+       if(crypt_state)
        {
            gtk_widget_hide(ask_file_create);
-           gtk_widget_show(Compr);
+           gtk_widget_show(Encryption);
        }
     }
 
@@ -279,8 +279,6 @@ void on_valid_rotn_clicked()
 	if(compr_state)
         {
 	   printf("TO DO: Encryption Rotn with the key %d\n", key);
-           gtk_widget_hide(Rotn_window);
-           gtk_widget_show(Compr);
         }
      }
      else
@@ -290,7 +288,7 @@ void on_valid_rotn_clicked()
             printf("TO DO: Decryption Rotn with the key %i\n",key);
             gtk_widget_hide(Rotn_window);
             gtk_widget_show(Decompr);
-         }       
+         }
      }
 }
 
@@ -305,8 +303,6 @@ void on_valid_vigenere_clicked()
        if(compr_state)
        {
 	  printf("TO DO: Encryption Vigenere with the key \"%s\"\n", entry_text);
-          gtk_widget_hide(Vigenere_window);
-          gtk_widget_show(Compr);
        }
     }
     else
@@ -328,11 +324,6 @@ void on_valid_aes_clicked()
     if(crypt_state)
     {
        printf("TO DO: Encryption AES \"%s\"\n", entry_text);
-       if(compr_state)
-      {
-         gtk_widget_hide(AES_window);
-         gtk_widget_show(Compr);
-      }
     }
     else
     {
@@ -429,20 +420,10 @@ void on_valid_key_entry_clicked()
        if (do_rsa)
        { 
            printf("generate private key from the long %lu for RSA Encryption in the path : %s\n", key, key_path);
-	   if(compr_state)
-	   {
-	      gtk_widget_hide(generate_key);
-	      gtk_widget_show(Compr);
-	   }
        }
        else
        {
           printf("generate private key from the long %lu for ELGAMAL Encryption in the path : %s\n", key, key_path);
-	  if(compr_state)
-           {
-              gtk_widget_hide(generate_key);
-              gtk_widget_show(Compr);
-           }
        }
     }
     else
@@ -450,20 +431,10 @@ void on_valid_key_entry_clicked()
        if (do_rsa)
        {
           printf("generate public key from the long %lu for RSA Encryption in the path : %s\n", key,key_path);
-	  if(compr_state)
-           {
-              gtk_widget_hide(generate_key);
-              gtk_widget_show(Compr);
-           }
        }
        else
        {
           printf("generate public key from the long %lu for ELGAMAL Encryption in the path: %s\n", key, key_path);
-          if(compr_state)
-           {
-              gtk_widget_hide(generate_key);
-              gtk_widget_show(Compr);
-           }
        }
     } 
 }
@@ -478,20 +449,10 @@ void on_use_key_clicked()
       if(do_rsa)
       {
          printf("Encoding using public key for RSA Encryption in the path : %s\n", key_path);
-	 if(compr_state)
-           {
-              gtk_widget_hide(ask_path_key);
-              gtk_widget_show(Compr);
-           }
       }
       else
       {
          printf("Encoding using public key for ELGAMAL Encryption in the path : %s\n", key_path);
-	 if(compr_state)
-           {
-              gtk_widget_hide(ask_path_key);
-              gtk_widget_show(Compr);
-           }
       }
    }
    else
@@ -520,11 +481,21 @@ void on_use_key_clicked()
 void on_Huffman_clicked()
 {
     printf("TO DO: Compression Huffman\n");
+    if(crypt_state)
+    {
+        gtk_widget_hide(Compr);
+	gtk_widget_show(Encryption);
+    }
 }
 
 void on_lz78_clicked()
 {
     printf("TO DO: Compression lz78\n");
+    if(crypt_state)
+    {
+        gtk_widget_hide(Compr);
+        gtk_widget_show(Encryption);
+    }
 }
 
 void on_Huffman_decompr_clicked()
