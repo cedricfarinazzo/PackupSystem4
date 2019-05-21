@@ -273,7 +273,6 @@ int remove_dir(const char *path)
 }
 
 
-
 void ask_string_with_text(char *text, char *out)
 {
     int awnser = -1;
@@ -308,7 +307,14 @@ void ask_predef_with_text(char *text, char **allowed, size_t len, char *line)
     }
 }
 
-void restore_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp_type, char *tmp_dir, char *out)
+void comp_chiff_file(char *save_file, enum ENCRYPTION_TYPE enc_type, int comp_type)
+{
+    if (enc_type == NONE && comp_type == 0)
+        return;
+    //TO DO
+}
+
+void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp_type, char *tmp_dir, char *out)
 {
     if (enc_type == NONE && comp_type == 0)
     {
@@ -397,17 +403,91 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
             char tmp_dir[] = "./.packuptemp/";
             mkdir(tmp_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             char clear_backup_prev[PATH_MAX];
-            restore_backup(previous_save, enc_type, comp_type, tmp_dir, clear_backup_prev);
+            decomp_dechiff_backup(previous_save, enc_type, comp_type, tmp_dir, clear_backup_prev);
             FILESYSTEM_create_new_save(save_dir, save_file, clear_backup_prev);
+            remove_dir(tmp_dir);
  
         } else {
             FILESYSTEM_create_save(save_dir, save_file);
         }
+        char *enc_menu_0 = "0";
+        char *enc_menu_1 = "1";
+        char *enc_menu_2 = "2";
+        char *enc_menu_3 = "3";
+        char *enc_menu_4 = "4";
+        char *enc_menu_5 = "5";
+        char *enc_menu_args[] = {enc_menu_0, enc_menu_1, enc_menu_2, enc_menu_3, enc_menu_4, enc_menu_5};
+        ask_predef_with_text("Which encrypton do you want to used ?\n"
+                   "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
+        enum ENCRYPTION_TYPE new_enc_type;
+        switch (line[0]) {
+            case '0':
+                new_enc_type = NONE; break;
+            case '1':
+                new_enc_type = ROTN; break;
+            case '2':
+                new_enc_type = VIGENERE; break;
+            case '3':
+                new_enc_type = AES; break;
+            case '4':
+                new_enc_type = RSA; break;
+            case '5':
+                new_enc_type = ELGAMAL; break;
+            default:
+                new_enc_type = NONE; break;
+        }
+        char *comp_menu_0 = "0";
+        char *comp_menu_1 = "1";
+        char *comp_menu_2 = "2";
+        char *comp_menu_args[] = {comp_menu_0, comp_menu_1, comp_menu_2};
+        ask_predef_with_text("Which compression do you want to used ?\n"
+                   "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
+        int new_comp_type = atoi(line);
+        comp_chiff_file(save_file, new_enc_type, new_comp_type);
+    } else if (strcmp(line, main_menu_1) == 0) {
+        printf("You have chosen to restore a dir.\n");
+        char save_dir[PATH_MAX];
+        ask_string_with_text("Please give the directory in which the saves are:\n", save_dir);
+        char *enc_menu_0 = "0";
+        char *enc_menu_1 = "1";
+        char *enc_menu_2 = "2";
+        char *enc_menu_3 = "3";
+        char *enc_menu_4 = "4";
+        char *enc_menu_5 = "5";
+        char *enc_menu_args[] = {enc_menu_0, enc_menu_1, enc_menu_2, enc_menu_3, enc_menu_4, enc_menu_5};
+        ask_predef_with_text("Which encrypton was used ?\n"
+                   "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
+        enum ENCRYPTION_TYPE enc_type;
+        switch (line[0]) {
+            case '0':
+                enc_type = NONE; break;
+            case '1':
+                enc_type = ROTN; break;
+            case '2':
+                enc_type = VIGENERE; break;
+            case '3':
+                enc_type = AES; break;
+            case '4':
+                enc_type = RSA; break;
+            case '5':
+                enc_type = ELGAMAL; break;
+            default:
+                enc_type = NONE; break;
+        }
+        char *comp_menu_0 = "0";
+        char *comp_menu_1 = "1";
+        char *comp_menu_2 = "2";
+        char *comp_menu_args[] = {comp_menu_0, comp_menu_1, comp_menu_2};
+        ask_predef_with_text("Which compression was used ?\n"
+                   "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
+        int comp_type = atoi(line);
 
-
-    } else if (strcmp(line, main_menu_1) == 0)
-        printf("save2");
-    else
+        //TO FIX
+        //char *temp_saves = restore_clear_saves(save_dir, enc_type, comp_type);
+        //FILESYSTEM_restore_save(temp_saves);
+        //free(temp_saves);
+        //printf("Restoration done\n");
+    } else
         return EXIT_SUCCESS;
 
 /*
