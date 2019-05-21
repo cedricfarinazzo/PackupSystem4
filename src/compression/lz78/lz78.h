@@ -16,10 +16,6 @@
 
 void list_to_string(struct pylist *py, unsigned char *output);
 
-char *len_to_file(size_t len);
-
-size_t file_to_len(char *f_len);
-
 void compress_lz78(char *data_path, char *dico_path, char *tmp_path);
 
 void decompress_lz78(char *data_path, char *dico_path, char *out_path);

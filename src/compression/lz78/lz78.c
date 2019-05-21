@@ -43,8 +43,13 @@ size_t check_adddico(struct dico *table, unsigned char *accu, int len)
     int act1 = 0; //Pointeur tableau accu
     while (act < table->taux && act1 < len)
     {
+        //printf("accu[0] = %c\n", accu[0]);
         if (accu[act1] == table->letter[act] && point == table->vector[act])
         {
+            //printf("accu[%d] = %c | table->letter[%ld] = %c\n",
+            //        act1, accu[act1], act, table->letter[act]);
+            //printf("point = %ld | table->vector[%ld] = %ld\n",
+            //        point, act, table->vector[act]);
             ++act1;
             point = act;
         }
@@ -61,7 +66,6 @@ size_t check_adddico(struct dico *table, unsigned char *accu, int len)
     if (table->len == table->taux) //If dico is full
         extension_dico(table);
     table->letter[table->taux] = accu[len - 1]; //Add new letter
-    printf("Table->vector[%ld] = %ld\n", table->taux, point);
     table->vector[table->taux] = point;
     table->taux += 1;
     return table->taux - 1;
@@ -100,11 +104,16 @@ void create_dico(struct dico *table, unsigned char *input, ssize_t len,
         int isIN = -2; /* If add in the dico */
         while (actu < taille && isIN == -2)
         {
+            //printf("input[%d] = %c\n", point, input[point]);
             accu[actu++] = input[point];
             isIN = check_adddico(table, accu, actu);
-            ++point;
+            //printf("isIN = %d\n", isIN);
             if (isIN != -2)
+            {
+                //printf("addpy(%d)\n", isIN);
                 addpy(out, isIN);
+            }
+            point++;
         }
         real += actu;
         if (actu + 1 >= taille) /* Raise the size of accu */
@@ -116,7 +125,10 @@ void create_dico(struct dico *table, unsigned char *input, ssize_t len,
     {
         accu[i - real] = input[i];
     }
-    addpy(out, endcheck_dico(table, accu, real));
+    int rt = endcheck_dico(table, accu, real);
+    //printf("addpy(%d)\n", rt);
+    if (rt >= 0)
+        addpy(out, rt);
     free(accu);
 }
 
@@ -132,21 +144,22 @@ unsigned char *dico_name(unsigned char *file)
 }
 
 size_t search_in_dico(struct dico *table, size_t index,
-        unsigned char *output)
+        unsigned char **output)
 {
     struct pylist *tmp = new_py();
     ssize_t act_index = index;
     while (act_index >= 0)
     {
-        addpy(tmp, table->letter[index]);
+        //printf("table->vector[%ld] = %ld\n", act_index, table->vector[act_index]);
+        addpy(tmp, table->letter[act_index]);
         act_index = table->vector[act_index];
-        printf("table->letter[%ld] = %d\n", index, table->letter[index]);
+        //printf("table->letter[%ld] = %d\n", index, table->letter[index]);
     }
-    output = malloc(sizeof(unsigned char) * tmp->len);
+    *output = malloc(sizeof(unsigned char) * tmp->len);
     struct pyele *actu = tmp->begin;
     for (size_t i = 0; i < tmp->len; ++i)
     {
-        output[tmp->len - i- 1] = actu->key;
+        (*output)[tmp->len - i- 1] = actu->key;
         actu = actu->next;
     }
     size_t len = tmp->len;
@@ -154,7 +167,7 @@ size_t search_in_dico(struct dico *table, size_t index,
     return len;
 }
 
-size_t dico_to_data(struct dico *table, unsigned char *out,
+size_t dico_to_data(struct dico *table, unsigned char **out,
         struct pylist *data)
 {
     size_t point = 0; //Pointeur on data
@@ -164,19 +177,21 @@ size_t dico_to_data(struct dico *table, unsigned char *out,
     for (;point < data->len; ++point)
     {
         unsigned char *tmp = NULL;
-        tmp_len = search_in_dico(table, actu->key, tmp);
+        tmp_len = search_in_dico(table, actu->key, &tmp);
         for (size_t i = 0; i < tmp_len; ++i)
         {
+            //printf("[%c]", tmp[i]);
             addpy(output, tmp[i]);
         }
         free(tmp);
         actu = actu->next;
     }
-    out = malloc(sizeof(unsigned char) * output->len);
+    //printf("\n");
+    *out = malloc(sizeof(unsigned char) * output->len);
     actu = output->begin;
     for (size_t i = 0; i < output->len; ++i)
     {
-        out[i] = actu->key;
+        (*out)[i] = actu->key;
         actu = actu->next;
     }
     size_t len = output->len;
@@ -189,6 +204,7 @@ void compress_lz78(char *data_path, char *dico_path, char *tmp_path)
     size_t len_data = 0;
     unsigned char *data = NULL;
     load_data_file(data_path, &data, &len_data);
+    //printf("Len_input = %ld\n", len_data);
     struct dico *table = NULL;
     load_dico_file(&table, dico_path);
     struct pylist *data_c_l = new_py();
@@ -197,7 +213,16 @@ void compress_lz78(char *data_path, char *dico_path, char *tmp_path)
     write_dico_file(table, dico_path);
     free_dico(table);
     unsigned char *data_compress = NULL;
+    //struct pyele *test = data_c_l->begin;
+    //size_t w = 0;
+    //while (test != NULL)
+    //{
+    //    printf("datacmp[%ld] = %ld\n", w, test->key);
+    //    test = test->next;
+    //    ++w;
+    //}
     len_data = pylist_to_string(data_c_l, &data_compress);
+    //printf("Len_data_compr = %ld\n", len_data);
     freepy(data_c_l);
     write_data_file((char *)(data_compress), len_data, tmp_path);
     return;
@@ -208,15 +233,21 @@ void decompress_lz78(char *data_path, char *dico_path, char *out_path)
     unsigned char *tdata = NULL;
     size_t lendata = 0;
     load_data_file(data_path, &tdata, &lendata);
+    //printf("data_cmp = [");
+    //for (size_t o = 0; o < lendata; ++o)
+    //{
+        //printf("%d,", tdata[o]);
+    //}//printf("\n");
+    //printf("Len-data-compress = %ld\n", lendata);
     struct dico *table = NULL;
     load_dico_file(&table, dico_path);
     struct pylist *data = new_py();
     data->len = string_to_pylist(data, tdata, lendata);
     free(tdata);
     unsigned char *data_decomp = NULL;
-    size_t lendatad = dico_to_data(table, data_decomp, data);
+    size_t lendatad = dico_to_data(table, &data_decomp, data);
     write_data_file((char*)(data_decomp), lendatad, out_path);
-    free(data);
+    freepy(data);
     free_dico(table);
     return;
 }

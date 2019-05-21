@@ -25,11 +25,14 @@ void addpy(struct pylist *py, size_t element)
         py->end->prec = NULL;
         py->begin = py->end;
     }
-    py->end->next = malloc(sizeof(struct pyele));
-    py->end->next->next = NULL;
-    py->end->next->key = element;
-    py->end->next->prec = py->end;
-    py->end = py->end->next;
+    else
+    {
+        py->end->next = malloc(sizeof(struct pyele));
+        py->end->next->next = NULL;
+        py->end->next->key = element;
+        py->end->next->prec = py->end;
+        py->end = py->end->next;
+    }
     py->len += 1;
 }
 

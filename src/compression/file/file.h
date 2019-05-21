@@ -12,6 +12,7 @@
 #include "../struct.h"
 #include "../lz78/dico.h"
 #include "../lz78/lz78.h"
+#include "../struct/converter.h"
 
 void load_data_file(char *file_path, unsigned char **data_file,
         size_t *len_data);

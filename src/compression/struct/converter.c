@@ -93,7 +93,7 @@ size_t pylist_to_string(struct pylist *py, unsigned char **output)
         ++point;
         free(buf);
     }
-    return py->len;
+    return py->len * 4;
 }
 
 size_t string_to_pylist(struct pylist *py, unsigned char *input, size_t len)
@@ -105,7 +105,7 @@ size_t string_to_pylist(struct pylist *py, unsigned char *input, size_t len)
     unsigned char *buf = malloc(sizeof(unsigned char) * 4);
     while (point + 3 < len)
     {
-        printf("Len = %ld; point = %ld\n", len, point);
+        //printf("Len = %ld; point = %ld\n", len, point);
         for (int i = 0; i < 4; ++i)
         {
             unsigned char c = input[point++];
