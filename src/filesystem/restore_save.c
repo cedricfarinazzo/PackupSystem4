@@ -212,58 +212,41 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
 {
     if (tree->data)
     {
-        printf("Sourcefile: %s\nFilename: %s\n", tree->data->src, tree->data->file);
-    }
-    if (tree->son == NULL)
-    {
-        FILE *src = fopen(tree->data->src, "r");
-        FILE *dst = fopen(tree->data->file, "w");
-        RS_restore_content(src, tree->data->offset, dst);
-        fclose(src);
-        fclose(dst);
-        chmod(tree->data->file, tree->data->mode);
-        struct utimbuf buf;
-        buf.actime = time(NULL);
-        buf.modtime = tree->data->mtime;
-        utime(tree->data->file, &buf);
+        if (tree->son == NULL)
+        {
+            FILE *src = fopen(tree->data->src, "r");
+            FILE *dst = fopen(tree->data->file, "w");
+            RS_restore_content(src, tree->data->offset, dst);
+            fclose(src);
+            fclose(dst);
+            chmod(tree->data->file, tree->data->mode);
+            struct utimbuf buf;
+            buf.actime = time(NULL);
+            buf.modtime = tree->data->mtime;
+            utime(tree->data->file, &buf);
+        }
+        else
+        {
+            mkdir(tree->data->file, tree->data->mode);
+            struct restore_tree *temp = tree->son;
+            while (temp)
+            {
+                RS_restore_from_restore_tree(temp);
+                temp = temp->sibling;
+            }
+        }
     }
     else
     {
-        mkdir(tree->data->file, tree->data->mode);
-        struct restore_tree *temp = tree->son;
-        while (temp)
+        if(tree->son)
         {
-            RS_restore_from_restore_tree(temp);
-            temp = temp->sibling;
+            struct restore_tree *temp = tree->son;
+            while (temp)
+            {
+                RS_restore_from_restore_tree(temp);
+                temp = temp->sibling;
+            }
         }
-    }
-}
-
-void print_restore_tree(struct restore_tree *rt, int indent)
-{
-    char indents[indent + 1];
-    for (int i = 0; i < indent; ++i)
-    {
-        indents[i] = ' ';
-    }
-    indents[indent] = 0;
-    if (rt != NULL && rt->data != NULL)
-    {
-        printf("%sfile: %s |", indents, rt->data->file);
-        if (rt->data->offset)
-            printf("save: %s|", rt->data->src);
-        else
-            printf("save: NULL|");
-        printf("mode: %d|", rt->data->mode);
-        printf("offset: %ld|", rt->data->offset);
-        printf("mtime: %ld", rt->data->mtime);
-        printf("\n");
-    }
-    struct restore_tree *temp = rt->son;
-    while (temp)
-    {
-        print_restore_tree(temp, indent + 4);
-        temp = temp->sibling;
     }
 }
 
@@ -277,11 +260,10 @@ void FILESYSTEM_restore_save(char *savedir)
         struct meta_tree *temptree = FILESYSTEM_SAVE_restore_metatree_from_save(temp->path);
         RS_update_restore_tree_from_mt(rt, temptree, temp->path);
         FILESYSTEM_free_metatree(temptree);
-        print_restore_tree(rt->son, 0);
         temp = temp->next;
     }
     RS_free_save_list(list);
-    //RS_restore_from_restore_tree(rt);
+    RS_restore_from_restore_tree(rt);
     RS_free_restore_tree(rt);
 }
 

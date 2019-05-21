@@ -36,7 +36,7 @@ void print_tree(struct meta_tree *tree, int indent)
         printf("%spath:%s | ", indents, tree->data->path);
         printf("size:%ld o | ",  tree->data->fs.st_size);
         printf("mode: %d | ", tree->data->fs.st_mode);
-        printf("offset: %d", tree->data->file_content);
+        printf("offset: %ld", tree->data->file_content);
         printf("\n");
 
         struct meta_tree *c = tree->son;
@@ -209,6 +209,9 @@ Test(FILESYSTEM, create_saves)
     FILESYSTEM_free_metatree(tree02_r);
     printf("DEBUG: third save created.\n");
     remove_dir2();
+    printf("printinf pre-final tree\n");
+    struct meta_tree *pf_tree = FILESYSTEM_build_metatree("./testfiles/content2");
+    print_tree(pf_tree->son, 0);
     FILESYSTEM_restore_save("./testfiles/saves2");
     printf("DEBUG: restoration done.\n");
     struct meta_tree *f_tree = FILESYSTEM_build_metatree("./testfiles/content2");
@@ -216,4 +219,5 @@ Test(FILESYSTEM, create_saves)
     print_tree(f_tree->son, 0);
     FILESYSTEM_free_metatree(tree02);
     FILESYSTEM_free_metatree(f_tree);
+    FILESYSTEM_free_metatree(pf_tree);
 }

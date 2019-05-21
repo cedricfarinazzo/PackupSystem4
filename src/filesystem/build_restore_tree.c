@@ -2,6 +2,10 @@
 
 struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
 {
+    /*
+
+    */
+
     struct restore_tree *tree = calloc(1, sizeof(struct restore_tree));
     if (mt->data)
     {
@@ -39,17 +43,8 @@ struct restore_tree *_init_restore_tree(struct meta_tree *mt, char *savepath)
 struct meta_tree *_find_mt_node(struct restore_tree *rt, struct meta_tree *mt)
 {
     char *file = rt->data->file;
-    if (file == NULL)
-    {
-        printf("DEBUG: file absent.\n");
-        return NULL;
-    }
     while (mt)
     {
-        if (mt->data)
-        {
-            printf("DEBUG: meta_tree path: %s\n", mt->data->path);
-        }
         if (mt->data && strcmp(mt->data->path, file) == 0)
         {
             return mt;
@@ -61,15 +56,17 @@ struct meta_tree *_find_mt_node(struct restore_tree *rt, struct meta_tree *mt)
 
 void _update_restore_tree(struct restore_tree *rt, struct meta_tree *mt, char *savepath)
 {
-    printf("entered update_restore_tree\n");
     if (rt->son)
     {
         struct restore_tree *temp = rt->son;
         while (temp)
         {
-            if (temp->data->offset)
+            if (temp->data->offset != 0)
+            {
+                temp = temp->sibling;
                 continue;
-            struct meta_tree *tempmt = _find_mt_node(temp, mt);
+            }
+            struct meta_tree *tempmt = _find_mt_node(temp, mt->son);
             if (tempmt)
             {
                 if (tempmt->data->file_content)
