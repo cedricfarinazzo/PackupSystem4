@@ -83,31 +83,164 @@ void print_ascii(unsigned char *a)
         printf("%d ", a[i]);
 }
 
+struct keys
+{
+    //fill with whatever you need for every compression system or encryption system
+    //when initializing, please only fill what you need
+    //and don't forget to free
+}keys;
+
+char *restore_file(char *src, char *dst, int enc, int comp, struct keys *k)
+{
+    if (dst == NULL)
+    {
+        dst = malloc(4096);
+        strcpy(dst, src);
+        char *start = dst + strlen(dst);
+        strcpy(dst, "_restored");
+    }
+
+    char tempfile[4096];
+    //set tempfile to whatever you wantand decrypt into it
+    switch (enc)
+    {
+        case 1:
+            //rotn
+            break;
+        case 2:
+            //vigenere
+            break;
+        case 3:
+            //aes
+            break;
+        case 4:
+            //rsa
+            break;
+        case 5:
+            //elgamal
+            break;
+        default:
+            break;
+    }
+
+    //from tempfile to dst
+    switch (comp)
+    {
+        case 1:
+            //huffman
+            break;
+        case 2:
+            //LZ
+            break;
+        default:
+            break;
+    }
+}
+
+struct keys *keys_init(int enc, int comp)
+{
+    struct keys *key = malloc(sizeof(struct keys));
+    switch (enc)
+    {
+        case 0:
+            break;
+        case 1:
+            printf("Please give the number for rotn encryption:\n");
+            //Get whatever is needed for rotn
+            break;
+        case 2:
+            printf("Please give the key for vigenere encryption:\n");
+            //Get the key for vigenere
+            break;
+        case 3:
+            printf("Please give the password for aes encryption:\n");
+            //get whatever for aes
+            break;
+        case 4:
+            printf("Please give the link to the key for rsa encryption:\n");
+            //get whatever for rsa
+            break;
+        case 5:
+            printf("Please give whatever for elgamal encryption:\n");
+            //get whatever for elgamal encryption
+            break;
+        default:
+            break;
+    }
+
+    switch (comp)
+    {
+        case 0:
+            break;
+        case 1:
+            break;
+        case 2:
+            printf("Please give the dictionnary path for LZ compression:\n");
+            char line[4096];
+            getline(&line, 4096, stdin);
+            //save it in keys struct
+            break;
+        default:
+            break;
+    }
+    return key;
+}
+
 char *restore_clear_saves(char *save_dir, int enc, int comp)
 {
-    enc = enc;
-    comp = comp;
-    //TODO
+    struct keys *k = keys_init(enc, comp);
     DIR *directory = opendir(save_dir);
     struct dirent *next;
-    char tempdir[4096];
+    char *tempdir = malloc(4096);
     strcpy(tempdir, save_dir);
     char *start = tempdir + strlen(save_dir);
     strcpy(start, "/tempsaves");
     mkdir(tempdir, 0666);
     char tempname[4096];
-    strcpy(tempname, tempdir);
-    start = tempname + strlen(tempdir);
+    strcpy(tempname, save_dir);
+    start = tempname + strlen(save_dir);
+    char tempsave[4096];
+    strcpy(tempsave, tempdir);
+    char *savestart = tempsave + strlen(tempdir);
     while ((next = readdir(directory)))
     {
+        if (strcmp(".", next->d_name) == 0 || strcmp("..", next->d_name) == 0)
+        {
+            continue;
+        }
+        strcpy(start, next->d_name);
+        strcpy(savestart, next->d_name);
+        switch (next->d_type)
+        {
+            case DT_REG:
+                restore_file(tempname, tempsave, enc, comp, k);
+                break;
+            default:
+                break;
+        }
     }
+    closedir(directory);
+    free(k);
     return tempdir; //tempdir is a local variable. do some cancer here pls
 }
 
 void remove_dir(char *dir)
 {
-    dir = dir;
-    //TODO
+    char tempfile[4096];
+    strcpy(tempfile, dir);
+    char *start = tempfile + strlen(dir);
+    DIR *direc = opendir(dir);
+    struct dirent *next;
+    while ((next = readdir(direc)))
+    {
+        if (strcmp(".", next->d_name) == 0 || strcmp("..", next->d_name) == 0)
+        {
+            continue;
+        }
+        strcpy(start, next->d_name);
+        remove(tempfile);
+    }
+    closedir(direc);
 }
 
 int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
@@ -115,32 +248,45 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
     printf("Hello, welcome to PackupSystem4.\n");
     printf("Do you want to save a directory or restore it ?\n"
             "(0 => save, 1 => restore)");
-    if (/*save a dir*/0)
+    char line[4096];
+    getline(&line, 4096, stdin);
+    int save = atoi(line);
+    if (!save)
     {
         printf("You have chosen to save a directory.\n"
             "Do you already have a save or is it the first one ?\n"
             "(0 => no prior save, 1 => a save already exists)\n");
+        getline(&line, 4096, stdin);
+        int p_save = atoi(line);
         printf("Please give the name of the directory you want to save:\n");
-        char *dirpath;
+        getline(&line, 4096, stdin);
+        char dirpath[4096];
+        strcpy(dirpath, line);
         printf("Please give the name of the file in which you want to save it. Please note that it will\n"
             "be lost if it already exists:\n");
-        char *savepath;
+        char savepath[4096];
+        getline(&line, 4096, stdin);
+        strcpy(savepath, line);
         char tempfile[4096];
         strcpy(tempfile, savepath);
         char *start = tempfile + strlen(savepath);
         strcpy(start, ".rdtgs");
-        if (/*a save already exists*/0)
+        if (p_save)
         {
             printf("Please give the name of the previous save:\n");
-            char *previous_save;
+            char previous_save[4096];
+            getline(&line, 4096, stdin);
+            strcpy(previous_save, line);
             printf("Which encrypton was used ?\n"
                    "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-            int enc;
+            getline(&line, 4096, stdin);
+            int enc = atoi(line);
             printf("Which compression was used ?\n"
                    "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
-            int comp;
-            //decompresser et dechiffrer l'ancienne save
-            char *prev;
+            getline(&line, 4096, stdin);
+            int comp = atoi(line);
+            struct keys *k = keys_init(int enc, int comp);
+            char *prev = restore_file(previous_save, NULL, enc, comp);
             FILESYSTEM_create_new_save(dirpath, tempfile, prev);
         }
         else
@@ -148,8 +294,10 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
             FILESYSTEM_create_save(dirpath, tempfile);
         }
         printf("Please say which compression you want to use: (0 => no compression, 1 => Huffman, 2 => LZ)\n");
-        int comp;
+        getline(&line, 4096, stdin);
+        int comp = atoi(line);
         char secondtempfile[4096];
+        //name as you wish the second temp file
         switch (comp)
         {
             case 0:
@@ -166,7 +314,8 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         remove(tempfile);
         printf("Please say which encryption you want to use:\n"
             "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-        int enc;
+        getline(&line, 4096, stdin);
+        int enc = atoi(line);
         switch (enc)
         {
             case 0:
@@ -192,19 +341,24 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         remove(secondtempfile);
         printf("Save created\n");
     }
-    if (/*restore a dir*/0)
+    else if (save)
     {
         printf("You have chosen to restore a dir.\n");
         printf("Please give the directory in which the saves are:\n");
-        char *save_dir;
+        getline(&line, 4096, stdin);
+        char save_dir[4096];
+        strcpy(save_dir, line);
         printf("Please give the way it was encrypted:\n"
                "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-        int enc;
+        getline(&line, 4096, stdin);
+        int enc = atoi(line);
         printf("Please give the way it was compressed:\n"
                "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
-        int comp;
+        getline(&line, 4096, stdin);
+        int comp = atoi(line);
         char *temp_saves = restore_clear_saves(save_dir, enc, comp);
         FILESYSTEM_restore_save(temp_saves);
+        free(temp_saves);
         printf("Restoration done\n");
     }
     return EXIT_SUCCESS;
