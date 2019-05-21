@@ -16,8 +16,11 @@
 
 struct restore_data
 {
-    char *file;
+    char file[2048];
+    char src[2048];
     off_t offset;
+    mode_t mode;
+    time_t mtime;
 };
 
 struct restore_tree
@@ -27,6 +30,8 @@ struct restore_tree
     struct restore_tree *sibling;
 };
 
-struct restore_tree *FILESYSTEM_build_restore_tree(DIR *save_dir);
+void RS_update_restore_tree_from_mt(struct restore_tree *rt, struct meta_tree *mt, char *savepath);
+
+void RS_free_restore_tree(struct restore_tree *rt);
 
 #endif //_SRC_FILESYSTEM_BUILD_RESTORE_TREE_H
