@@ -13,6 +13,11 @@ class BackupAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'enc_type', 'comp_type', 'date_created')
 admin.site.register(Backup, BackupAdmin)
 
+class ArchiveContentAdmin(admin.ModelAdmin):
+    model = ArchiveContent
+    list_display = ('id', 'backupfile', 'status_type', 'content')
+admin.site.register(ArchiveContent, ArchiveContentAdmin)
+
 class StorageUserAdmin(admin.ModelAdmin):
     model = StorageUser
     list_display = ('id', 'user', 'usage')

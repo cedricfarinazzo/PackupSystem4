@@ -9,6 +9,9 @@
 
 .backup-view {
     margin: auto;
+    padding: 12px;
+    width: 90%;
+    min-height: 
     border: 1px outset black;
     border-radius: 5px;
     box-shadow: 2px 2px 6px black;

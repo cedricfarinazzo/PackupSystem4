@@ -10,7 +10,9 @@ import uuid
 def make_filepath(instance, filename):
     return "uploads/" + ("%s%s.%s" % (filename, uuid.uuid4(), filename.split('.')[-1]))
 
+
 # Create your models here.
+
 
 class StorageUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -54,7 +56,6 @@ class BackupFile(models.Model):
             size /= 1000000000000
             return ('%.2f'%(size)) + 'To'
 
-
 # Auto-delete files from filesystem when they are unneeded
 @receiver(models.signals.post_delete, sender=BackupFile)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -69,9 +70,27 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
                 storage.usage -= instance.backupfile.size
                 storage.save()
             except ObjectDoesNotExist:
-                pass
-            
+                pass            
             os.remove(instance.backupfile.path)
+
+
+class ArchiveContent(models.Model):
+    backupfile = models.ForeignKey(BackupFile, on_delete=models.CASCADE)
+    SUCCESS = 'succes'
+    ERROR = 'error'
+    WAITING = 'waiting'
+    STATUS_TYPE = (
+        (SUCCESS, 'succes'),
+        (ERROR, 'error'),
+        (WAITING, 'waiting'),
+    )
+    status_type = models.CharField(
+            max_length=20,
+            choices=STATUS_TYPE,
+            default=WAITING
+        )
+    content = models.TextField()
+
 
 class Backup(models.Model):
     NONE = 'None'
@@ -112,5 +131,13 @@ class Backup(models.Model):
     @property
     def get_files(self):
         return BackupFile.objects.filter(backup=self).all()
+    
+    def get_archives(self):
+        return BackupFile.objects.filter(backup=self, file_type=BackupFile.ARCHIVE_PART).all()
 
+    def get_archive_content(self):
+        archives = self.get_archives()
+        if archives is None or archives == []:
+            return []
+        return ArchiveContent.objects.filter(backupfile=archives[0]).first()
 

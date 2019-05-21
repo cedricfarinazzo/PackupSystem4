@@ -14,6 +14,7 @@ urlpatterns = [
     path(r'backup/', views.backup, name='backup'),
     path(r'backup/add/', views.backup_add, name='backup_add'),
     path(r'backup/view/<int:id>/', views.backup_view, name='backup_view'),
+    path(r'backup/view/content/<int:id>/', views.backup_view_content, name='backup_view_content'),
     path(r'backup/download/<int:id>/', views.backup_download, name='backup_download'),
     path(r'logout/', views.logout, name='logout'),
     path(r'about/', views.about, name='about'),

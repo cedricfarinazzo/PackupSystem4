@@ -19,20 +19,21 @@ from .forms import *
 
 usage_max = 5000000
 
+
 def index(request):
-    
     context = {}
     return render(request, 'ps4/index.html', context)
 
-def report(request):
 
+def report(request):
     context = {}
     return render(request, 'ps4/report.html', context)
 
-def download(request):
 
+def download(request):
     context = {}
     return render(request, 'ps4/download.html', context)
+
 
 def login(request):
     if request.user.is_authenticated:
@@ -52,12 +53,13 @@ def login(request):
             context['error'] = 'An error occured. Please try again'
     return render(request, 'ps4/login.html', context)
 
+
 def register(request):
     if request.user.is_authenticated:
         return redirect('/')
-    
+
     context = {}
-    
+
     if request.method == "POST":
         try:
             lastname = request.POST['name']
@@ -66,7 +68,7 @@ def register(request):
             username = request.POST['username']
             password = request.POST['password']
             passcomf = request.POST['passcomfirm']
-            
+
             if password != passcomf:
                 context['error'] = 'Passwords didn\'t match'
             elif lastname == '' or firstname == ''  \
@@ -83,12 +85,12 @@ def register(request):
             context['error'] = 'An error occured. Please try again'
     return render(request, 'ps4/register.html', context)
 
+
 def account(request):
     if not request.user.is_authenticated:
         return redirect('/')
     user = request.user
     context = {}
-    
     if request.method == "POST":
         if 'submit-account' in request.POST:
             try:
@@ -139,20 +141,22 @@ def account(request):
                 context['error'] = 'An error occured. Please try again'
     return render(request, 'ps4/account.html', context)
 
+
 def logout(request):
     if request.user.is_authenticated:
         auth_logout(request)
     return redirect('/')
 
-def about(request):
 
+def about(request):
     context = {}
     return render(request, 'ps4/about.html', context)
 
-def terms(request):
 
+def terms(request):
     context = {}
     return render(request, 'ps4/terms.html', context)
+
 
 def normalize_size(size):
     size = float(size)
@@ -170,6 +174,7 @@ def normalize_size(size):
     else:
         size /= 1000000000000
         return ('%.2f'%(size)) + 'T'
+
 
 def backup(request):
     if not request.user.is_authenticated:
@@ -196,6 +201,7 @@ def backup(request):
     context["backups"] = backups
     return render(request, 'ps4/backup.html', context)
 
+
 def backup_view(request, id):
     if not request.user.is_authenticated:
         return redirect('/')
@@ -220,8 +226,9 @@ def backup_view(request, id):
     usage_percentage = 100. * usage_bytes / usage_max
     context['usage_bytes'] = normalize_size(usage_bytes)
     context['usage_percentage'] = int(usage_percentage)
-    print(context)
+    context['backup_ctn'] = backup.get_archive_content()
     return render(request, 'ps4/backup_view.html', context)
+
 
 def backup_download(request, id):
     if not request.user.is_authenticated:
@@ -240,7 +247,8 @@ def backup_download(request, id):
     response['X-Sendfile'] = file_path
     response['Content-Length'] = os.stat(file_path).st_size
     response['Content-Disposition'] = 'attachment; filename=%s' % (backupf.filename)
-    return response 
+    return response
+
 
 def backup_add(request):
     if not request.user.is_authenticated:
@@ -281,22 +289,6 @@ def backup_add(request):
                     except:
                         pass
                 backup.save()
-                if backup.enc_type in [Backup.RSA, Backup.EL]:
-                    pub = BackupFile()
-                    pub.user = request.user
-                    pub.backupfile = request.FILES['backup_public_key_file']
-                    pub.filename = request.FILES['backup_public_key_file'].name
-                    pub.backup = backup
-                    pub.file_type = BackupFile.PUBLIC_KEY
-                    pub.save()
-                    pri = BackupFile()
-                    pri.user = request.user
-                    pri.backupfile = request.FILES['backup_private_key_file']
-                    pri.filename = request.FILES['backup_private_key_file'].name
-                    pri.backup = backup
-                    pri.file_type = BackupFile.PRIVATE_KEY
-                    pri.save()
-
                 for e in files:
                     bf = BackupFile()
                     bf.user = request.user
@@ -304,6 +296,27 @@ def backup_add(request):
                     bf.filename = e.name
                     bf.backup = backup
                     bf.save()
+                if backup.enc_type in [Backup.RSA, Backup.EL]:
+                    try:
+                        pub = BackupFile()
+                        pub.user = request.user
+                        pub.backupfile = request.FILES['backup_public_key_file']
+                        pub.filename = request.FILES['backup_public_key_file'].name
+                        pub.backup = backup
+                        pub.file_type = BackupFile.PUBLIC_KEY
+                        pub.save()
+                    except:
+                        pass
+                    try:
+                        pri = BackupFile()
+                        pri.user = request.user
+                        pri.backupfile = request.FILES['backup_private_key_file']
+                        pri.filename = request.FILES['backup_private_key_file'].name
+                        pri.backup = backup
+                        pri.file_type = BackupFile.PRIVATE_KEY
+                        pri.save()
+                    except:
+                        pass
                 context['success'] = "Backup uploaded with success"
             else:
                 context['error'] = "Not enough cloud space!"
@@ -319,3 +332,38 @@ def backup_add(request):
     context['usage_bytes'] = normalize_size(usage_bytes)
     context['usage_percentage'] = int(usage_percentage)
     return render(request, 'ps4/backup_add.html', context)
+
+
+def backup_view_content(request, id):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    backup = None
+    error = False
+    html = ""
+    try:
+        backup = Backup.objects.filter(user=request.user, id=id).all()[0]
+        if backup == None or backup == []:
+            raise Exception()
+    except:
+        html += "[<span class=\"red-text\">ERROR</span>]: No backup found"
+        error = True
+    if not error:
+        archive_content = backup.get_archive_content()
+        if archive_content is None:
+            if backup.enc_type in [Backup.AES, Backup.ROTN, Backup.VIG]:
+                if backup.pass_backup == "":
+                    html += "[<span class=\"red-text\">ERROR</span>]: Can't read archive because you didn't provide your archive password."
+                    error = True
+            elif backup.enc_type in [Backup.RSA, Backup.EL]:
+                if len(BackupFile.objects.filter(backup=backup, file_type=BackupFile.PUBLIC_KEY).all()) == 0 or \
+                        len(BackupFile.objects.filter(backup=backup, file_type=BackupFile.PRIVATE_KEY).all()) == 0:
+                    html += "[<span class=\"red-text\">ERROR</span>]: Can't read archive because you didn't provide your archive keys."
+                    error = True
+            archive_content = ArchiveContent()
+            archive_content.backupfile = backup.get_archives()[0]
+            archive_content.status_type = ArchiveContent.WAITING if not error else ArchiveContent.ERROR
+            archive_content.content = html if error else "The content of the archive is not yet available. Thank you try again later."
+            archive_content.save()
+        else:
+            html = archive_content.content
+    return HttpResponse(html);
