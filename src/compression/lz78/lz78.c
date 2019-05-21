@@ -185,9 +185,9 @@ void compress_lz78(char *data_path, char *dico_path, char *tmp_path)
 {
     size_t len_data = 0;
     unsigned char *data = NULL;
-    load_data_file(data_path, data, len_data);
+    load_data_file(data_path, &data, &len_data);
     struct dico *table = NULL;
-    load_dico_file(table, dico_path);
+    load_dico_file(&table, dico_path);
     struct pylist *data_c_l = new_py();
     create_dico(table, data, len_data, data_c_l);
     free(data);
@@ -205,7 +205,7 @@ void decompress_lz78(char *data_path, char *dico_path, char *out_path)
 {
     unsigned char *tdata = NULL;
     size_t lendata = 0;
-    load_data_file(data_path, tdata, lendata);
+    load_data_file(data_path, &tdata, &lendata);
     struct dico *table = NULL;
     load_dico_file(table, dico_path);
     struct pylist *data = new_py();

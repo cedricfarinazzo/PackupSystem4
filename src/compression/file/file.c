@@ -10,32 +10,32 @@
 #include "../lz78/dico.h"
 #include "../lz78/lz78.h"
 
-void load_data_file(char *file_path, unsigned char *data_file, size_t len_data)
+
+void load_data_file(char *file_path, unsigned char **data_file, size_t *len_data)
 {
     struct stat st;
-    stat(file_path, &st);
-    len_data = st.st_size;
-    int DATA_FILE = open(file_path, O_RDONLY, 0666);
+    if (stat(file_path, &st) == 0)
+        *len_data = st.st_size;
+    else
+        errx(EXIT_FAILURE, "File data not found");
+    int DATA_FILE = open(file_path, O_RDONLY);
     if (DATA_FILE == -1)
         errx(EXIT_FAILURE, "Fail to open data file");
-    data_file = malloc(sizeof(unsigned char) * len_data);
-    int r = read(DATA_FILE, data_file, len_data);
+    printf("Len = %ld\n", *len_data);
+    *data_file = malloc(sizeof(unsigned char) * (*len_data));
+    int r = read(DATA_FILE, *data_file, *len_data);
     if (r == -1)
         errx(EXIT_FAILURE, "Fail to read data file");
     close(DATA_FILE);
     return;
 }
 
-void load_dico_file(struct dico *table, char *path_dico)
+void load_dico_file(struct dico **table, char *path_dico)
 {
     /* Check if file exist */
-    int len_path = strlen(path_dico);
-    char *path_dico_e = malloc(sizeof(char) * (len_path + 5));
-    path_dico_e = strncpy(path_dico_e, path_dico, len_path);
-    path_dico_e = strncat(path_dico_e, ".dic", 4);
-    if (access(path_dico_e, W_OK) == -1)
+    if (access(path_dico, W_OK) == -1)
     {
-        table = new_dico(0, 0);
+        *table = new_dico(1, 0);
     }
     else
     {
@@ -47,7 +47,7 @@ void load_dico_file(struct dico *table, char *path_dico)
          * Each size_t is coded on 4B in file dico
          */
 
-        int DICO = open(path_dico_e, O_RDONLY, 0666);
+        int DICO = open(path_dico, O_RDONLY);
         if (DICO == -1)
             errx(EXIT_FAILURE, "Fail to open dico file");
         struct stat st;
@@ -71,25 +71,25 @@ void load_dico_file(struct dico *table, char *path_dico)
         {
             len *= 2;
         }
-        table = new_dico(len, taux);
+        *table = new_dico(len, taux);
 
         //table->letter
-        for (size_t i = 0; i < table->taux; ++i)
+        for (size_t i = 0; i < (*table)->taux; ++i)
         {
-            table->letter[i] = tmp_dico[i + 4];
+            (*table)->letter[i] = tmp_dico[i + 4];
         }
 
         //table->vector
-        for (size_t i = 0; i < table->taux; ++i)
+        for (size_t i = 0; i < (*table)->taux; ++i)
         {
             /*
              * Each size_t vector are store on 4B
              */
             for (ssize_t j = 0; j < 4; ++j)
             {
-                buffer[j] = tmp_dico[(table->taux + 5) + i * 4 + j];
+                buffer[j] = tmp_dico[((*table)->taux + 5) + i * 4 + j];
             }
-            table->vector[i] = file_to_len(buffer);
+            (*table)->vector[i] = file_to_len(buffer);
         }
         free(buffer);
     }

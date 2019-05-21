@@ -13,10 +13,10 @@
 #include "../lz78/dico.h"
 #include "../lz78/lz78.h"
 
-void load_data_file(char *file_path, unsigned char *data_file,
-        size_t len_data);
+void load_data_file(char *file_path, unsigned char **data_file,
+        size_t *len_data);
 
-void load_dico_file(struct dico *table, char *path_dico);
+void load_dico_file(struct dico **table, char *path_dico);
 
 void write_data_file(char *data, ssize_t len_data, char *path_file);
 

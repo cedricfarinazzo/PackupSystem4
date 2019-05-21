@@ -205,13 +205,13 @@ void codage_table(struct bintree *huffman, struct liste *table)
     liste_free(prefixe);
 }
 
-struct liste *encode_data(unsigned char dataIN[], unsigned char* table, int len)
+struct liste *encode_data(unsigned char dataIN[], unsigned char* table, int len,
+        int datalen)
 {
     if (dataIN == NULL)
     {
         errx(4, "The data is empty");
     }
-    int datalen = strlen((char *)dataIN);
     int isOK = 1;
     int j = 0;
     unsigned char charactere = 'a';
@@ -500,7 +500,7 @@ struct huff_out *compression(unsigned char *dataIN, int len_IN)
 
     //Debut encodage donnees
     struct liste *encoding_data;
-    encoding_data = encode_data(dataIN, static_table, len_table);
+    encoding_data = encode_data(dataIN, static_table, len_table, len_IN);
     //Fin encodage donnees
 
     //Debut encodage arbre
@@ -516,20 +516,8 @@ struct huff_out *compression(unsigned char *dataIN, int len_IN)
     output_data(encoding_data, char_data);
 
     //Rendu soutenance
-    printf("Output encoding data = %s | \n", char_data->data);
-    print_chare(char_data->data, char_data->len);
-    printf("\n");
-    printf("Output encoding tree = %s | ", char_tree->data);
-    print_chare(char_tree->data, char_tree->len);
-
-    int ratio = char_data->len + char_tree->len;
-    ratio *= 100;
-    ratio = ratio / strlen((char *)dataIN);
-    printf("Ratio = %d%%\n", ratio);
-
     //Mise en forme de la chaine output
     //Huffman tree
-    printf("Taille ouput = %d\n", 13 + char_data->len + char_tree->len);
     unsigned char *output = malloc(sizeof(unsigned char *) *
             (13 + char_data->len + char_tree->len));
     output[0] = 202;
@@ -553,13 +541,10 @@ struct huff_out *compression(unsigned char *dataIN, int len_IN)
     }
     actuel_out += LEN_DATA;
     strcpyh(&(output[actuel_out]), char_data->data, char_data->len);
-    printf("\n%d %d\n%d", output[actuel_out + 1], char_data->data[1], actuel_out);
     actuel_out += char_data->len;
 
     struct huff_out *OUTPUTE = malloc(sizeof(struct huff_out));
     OUTPUTE->dataOUT = output;
-    printf("\nText output = ");
-    print_chare(OUTPUTE->dataOUT, actuel_out);
     OUTPUTE->len = actuel_out;
     //Deallocation de toutes les struct
     bin_free(huffman);
@@ -860,8 +845,9 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     data_cp->len += (int)data[actual++];
 
     if (actual + data_cp->len > len_data){
-        printf("Len_data = %d, actual = %d\n", len_data, (actual + data_cp->len));
-        errx(4, "Attention out of range");}
+        //printf("Len_data = %d, actual = %d\n", len_data, (actual + data_cp->len));
+        //errx(4, "Attention out of range");}
+        --data_cp->len;}
 
     data_cp->data = malloc(sizeof(unsigned char *) * data_cp->len);
     for (int i = 0; i < (data_cp->len); i++){
