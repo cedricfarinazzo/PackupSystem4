@@ -1,22 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include "../encryption/rotn.h"
-#include "../encryption/vigenere.h"
-
-#include "../encryption/rsa/rsa.h"
-#include "../encryption/rsa/genkey.h"
-#include "../encryption/rsa/tools.h"
-#include "../encryption/rsa/rsa_file.h"
-
-#include "../encryption/aes/aes.h"
-#include "../encryption/aes/aes_file.h"
-#include "../encryption/aes/aes_matrix.h"
-#include "../encryption/aes/aes_addroundkey.h"
-#include "../encryption/aes/aes_shiftrows.h"
-#include "../encryption/aes/aes_subbytes.h"
-#include "../encryption/aes/aes_mixcolumns.h"
-#include "../encryption/aes/hashpass.h"
+#include "../encryption/encryption.h"
 
 #include "../compression/huffman/huffman.h"
 #include "../compression/struct.h"
@@ -79,6 +64,11 @@ char *old_path;
 char *save_path;
 char *key_path;
 char *key_private_path;
+
+char *path_tmp;
+
+FILE *in;
+FILE *out;
 
 int interface(int argc,char *argv[])
 {
@@ -188,28 +178,43 @@ void on_save_valid_clicked()
        compr_state = gtk_toggle_button_get_active(compr_toggle);
        crypt_state = gtk_toggle_button_get_active(crypt_toggle);
 
+
        if(new_save)
        {
-       if(compr_state)
-       {
-   	  gtk_widget_hide(ask_file_save);
-          gtk_widget_show(Compr);
-       }
-       else{
-          if(crypt_state)
+
+          if(compr_state)
           {
-             gtk_widget_hide(ask_file_save);
-             gtk_widget_show(Encryption);
+             path_tmp = tmpnam(NULL);
+	     FILESYSTEM_create_save(path, path_tmp);
+   	     gtk_widget_hide(ask_file_save);
+             gtk_widget_show(Compr);
           }
-       }
-   }
-    else
-    {
-       gtk_widget_hide(ask_file_save);
-       gtk_widget_show(ask_file_load);
-    } 
+          else
+          {
+             if(crypt_state)
+             {
+		//Save with temp path: No Compression, Do Encryption
+		path_tmp = tmpnam(NULL);
+                FILESYSTEM_create_save(path, path_tmp);
+		in = fopen(path_tmp, "r");
+		out = fopen(save_path, "w+");
+                gtk_widget_hide(ask_file_save);
+                gtk_widget_show(Encryption);
+             }
+	     else
+	     {
+		 //Save without Compression and Encryption
+	         FILESYSTEM_create_save(path,save_path);
+	     }
+          }
+      }
+      else
+      {
+         gtk_widget_hide(ask_file_save);
+         gtk_widget_show(ask_file_load);
+      } 
 
-
+    
     printf("File to put the save : PATH: %s\n", save_path);
 }
 
@@ -221,6 +226,9 @@ void on_save_old_clicked()
     compr_state = gtk_toggle_button_get_active(compr_toggle);
     crypt_state = gtk_toggle_button_get_active(crypt_toggle);
 
+    // Caling Save fonction, using an olt save.
+    FILESYSTEM_create_new_save(path,save_path,old_path);
+
     if(compr_state)
     {
         gtk_widget_hide(ask_file_load);
@@ -231,8 +239,17 @@ void on_save_old_clicked()
     {
        if(crypt_state)
        {
+	   //Save(use old_save) with temp path: No Compression, Do Encryption
+           path_tmp = tmpnam(NULL);
+           FILESYSTEM_create_new_save(path, path_tmp, old_path);
+           in = fopen(path_tmp, "r");
            gtk_widget_hide(ask_file_load);
            gtk_widget_show(Encryption);
+       }
+       else
+       {
+	  //Save with old_save, without Compression and Encryption     
+          FILESYSTEM_create_new_save(path,save_path,old_path);
        }
     }
 
@@ -262,6 +279,12 @@ void on_restore_button_clicked()
        {
            gtk_widget_hide(ask_file_restore);
            gtk_widget_show(Decompr);
+
+       }
+       else
+       {
+	    //Restore without Decompression nor Decryption
+            FILESYSTEM_restore_save(path);
        }
     }
     
@@ -297,12 +320,14 @@ void on_valid_rotn_clicked()
 	
      if(crypt_state)
      {
-	if(compr_state)
-        {
-	   printf("TO DO: Encryption Rotn with the key %d\n", key);
-	   gtk_widget_hide(Rotn_window);
-           gtk_widget_show(Compr);
-        }
+	printf("TO DO: Encryption Rotn with the key %d\n", key);
+        //CALL ENCRYPTION ROTN
+
+	PACKUP_encryption_stream(ROTN,in, out, key);
+	fclose(in);
+	fclose(out);
+
+	//END
      }
      else
      {
@@ -324,7 +349,14 @@ void on_valid_vigenere_clicked()
 
     if(crypt_state)
     {
-     printf("TO DO: Encryption Vigenere \"%s\"\n", entry_text);
+        //CALL ENCRYPTION VIGENERE
+
+        PACKUP_encryption_stream(VIGENERE,in, out, entry_text);
+        printf("TO DO: Encryption Vigenere \"%s\"\n", entry_text);
+	fclose(in);
+	fclose(out);
+
+	//END
     }
     else
     {
@@ -347,7 +379,14 @@ void on_valid_aes_clicked()
     entry_text = gtk_entry_get_text(aes_entry);
     if(crypt_state)
     {
-       printf("TO DO: Encryption AES \"%s\"\n", entry_text);
+        //CALL ECRYPTION AES
+
+        PACKUP_encryption_stream(AES,in, out, entry_text);
+        printf("TO DO: Encryption AES \"%s\"\n", entry_text);
+	fclose(in);
+	fclose(out);
+
+	// DO END
     }
     else
     {
@@ -411,8 +450,8 @@ void on_create_private_key_clicked()
 
     printf("Create private key in PATH : %s\n", key_private_path);
 
-    gtk_widget_hide(ask_path_create_key);
-    gtk_widget_show(ask_path_create_private);
+    gtk_widget_hide(ask_path_create_private);
+    gtk_widget_show(generate_key);
 }
 
 
@@ -461,10 +500,22 @@ void on_valid_key_entry_clicked()
        if (do_rsa)
        {
           printf("generate public key from the long %lu for RSA Encryption in the path : %s\n", key,key_path);
+	  //ENCRYPTION RSA CREATE KEY
+	  PACKUP_encryption_stream(RSA, in, out, key_path, key_private_path, key);
+	  fclose(in);
+          fclose(out);
+
+	  //END
        }
        else
        {
           printf("generate public key from the long %lu for ELGAMAL Encryption in the path: %s\n", key, key_path);
+          //ENCRYPTION ELGAMAL CREATE KEY
+          PACKUP_encryption_stream(ELGAMAL, in, out, key_path, key_private_path, key);
+	  fclose(in);
+	  fclose(out);
+
+          //END
        }
      
 }
@@ -479,10 +530,26 @@ void on_use_key_clicked()
       if(do_rsa)
       {
          printf("Encoding using public key for RSA Encryption in the path : %s\n", key_path);
+
+	 //ENCRYPTION RSA USING EXISTING KEY
+	 
+	 PACKUP_encryption_stream(RSA,in,out,key_path);
+         fclose(in);
+	 fclose(out);
+
+	 //END
       }
       else
       {
          printf("Encoding using public key for ELGAMAL Encryption in the path : %s\n", key_path);
+
+	 //ENCRYPTION ELGAMAL USING EXISTING KEY
+
+         PACKUP_encryption_stream(ELGAMAL,in,out,key_path);
+         fclose(in);
+	 fclose(out);
+
+	 //END
       }
    }
    else
