@@ -38,7 +38,7 @@ size_t check_adddico(struct dico *table, unsigned char *accu, int len)
      * Else
      * Add the new letter in the dico and return True
      */
-    size_t point = -1; //Index lettre precedente
+    ssize_t point = -1; //Index lettre precedente
     size_t act = 0; //Pointeur tableau dico
     int act1 = 0; //Pointeur tableau accu
     while (act < table->taux && act1 < len)
@@ -61,6 +61,7 @@ size_t check_adddico(struct dico *table, unsigned char *accu, int len)
     if (table->len == table->taux) //If dico is full
         extension_dico(table);
     table->letter[table->taux] = accu[len - 1]; //Add new letter
+    printf("Table->vector[%ld] = %ld\n", table->taux, point);
     table->vector[table->taux] = point;
     table->taux += 1;
     return table->taux - 1;
@@ -71,7 +72,7 @@ int endcheck_dico(struct dico *table, unsigned char *accu, int len)
     /* This function return the index of accu string even
      * if it already exists
      */
-    size_t point = -1;
+    ssize_t point = -1;
     size_t act = 0;
     int act1 = 0;
     while (act < table->taux && act1 < len)
@@ -116,6 +117,7 @@ void create_dico(struct dico *table, unsigned char *input, ssize_t len,
         accu[i - real] = input[i];
     }
     addpy(out, endcheck_dico(table, accu, real));
+    free(accu);
 }
 
 
@@ -133,11 +135,12 @@ size_t search_in_dico(struct dico *table, size_t index,
         unsigned char *output)
 {
     struct pylist *tmp = new_py();
-    size_t act_index = index;
-    while (act_index > 0)
+    ssize_t act_index = index;
+    while (act_index >= 0)
     {
         addpy(tmp, table->letter[index]);
         act_index = table->vector[act_index];
+        printf("table->letter[%ld] = %d\n", index, table->letter[index]);
     }
     output = malloc(sizeof(unsigned char) * tmp->len);
     struct pyele *actu = tmp->begin;
@@ -194,10 +197,9 @@ void compress_lz78(char *data_path, char *dico_path, char *tmp_path)
     write_dico_file(table, dico_path);
     free_dico(table);
     unsigned char *data_compress = NULL;
-    len_data = pylist_to_string(data_c_l, data_compress);
+    len_data = pylist_to_string(data_c_l, &data_compress);
     freepy(data_c_l);
     write_data_file((char *)(data_compress), len_data, tmp_path);
-    free(data_compress);
     return;
 }
 
@@ -207,7 +209,7 @@ void decompress_lz78(char *data_path, char *dico_path, char *out_path)
     size_t lendata = 0;
     load_data_file(data_path, &tdata, &lendata);
     struct dico *table = NULL;
-    load_dico_file(table, dico_path);
+    load_dico_file(&table, dico_path);
     struct pylist *data = new_py();
     data->len = string_to_pylist(data, tdata, lendata);
     free(tdata);

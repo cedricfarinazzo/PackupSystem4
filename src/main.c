@@ -14,6 +14,7 @@
 
 #include "encryption/aes/aes.h"
 
+#include "compression/wrap.h"
 #include "compression/huffman/huffman.h"
 
 #include "filesystem/build_metatree.h"
@@ -85,9 +86,9 @@ int main(int argc, char *argv[])
             unsigned char *text = (unsigned char *)(argv[2]);
             int len = strlen(argv[2]);
             struct huff_out *compressed = compression(text, len);
-            
+
             struct huff_out *final = decompression(compressed->dataOUT,
-                compressed->len);
+                    compressed->len);
             int len_a = strlen((char *)final->dataOUT);
             if (len_a != len)
                 printf("Longeur differente : %d -> %d\n", len, len_a);
@@ -120,7 +121,7 @@ int main(int argc, char *argv[])
             printf("\n\nLoading tree to tree_test_main.txt\n");
             printf("RESTORED TREE: \n");
             print_tree(restored->son, 0);
-            
+
             FILESYSTEM_free_metatree(restored);
             FILESYSTEM_free_metatree(tree);
         }
@@ -201,7 +202,7 @@ int main(int argc, char *argv[])
             struct RSA_publickey *pub = RSA_gen_public_key(p, q);
             struct RSA_privatekey *pri = RSA_gen_private_key(p, q, pub);
 
-            
+
             printf("public: n = ");
             mpz_out_str(stdout,10, *(pub->n));
             printf("   e = ");
@@ -229,12 +230,42 @@ int main(int argc, char *argv[])
             free(encrypt);
 
             free(decode);
-            
+
             RSA_free_public_key(pub);
             RSA_free_private_key(pri);
             mpz_clear(p);
             mpz_clear(q);
 
+        }
+        if (strcmp("compress", argv[1]) == 0 && strcmp("huffman", argv[2]) == 0)
+        {
+            char *input_path = argv[3];
+            char *output_path = argv[4];
+            test_simple_huffman_compress(input_path, output_path);
+        }
+        if (strcmp("decompress", argv[1]) == 0 &&
+                strcmp("huffman", argv[2]) == 0)
+        {
+            char *input_path = argv[3];
+            char *output_path = argv[4];
+            test_simple_huffman_decompress(input_path, output_path);
+        }
+    }
+    if (argc == 6)
+    {
+        if (strcmp("lz78", argv[2]) == 0 && strcmp("compress", argv[1]) == 0)
+        {
+            char *input_path = argv[3];
+            char *dico_path = argv[5];
+            char *output_path = argv[4];
+            compress_lz78(input_path, dico_path, output_path);
+        }
+        if (strcmp("lz78", argv[2]) == 0 && strcmp("decompress", argv[1]) == 0)
+        {
+            char *input_path = argv[3];
+            char *dico_path = argv[5];
+            char *output_path = argv[4];
+            decompress_lz78(input_path, dico_path, output_path);
         }
     }
 

@@ -14,11 +14,13 @@
 
 size_t file_to_len(char *f_len);
 
+ssize_t file_to_lens(char *f_len);
+
 char *len_to_file(size_t len);
 
 void list_to_string(struct pylist *py, unsigned char *output);
 
-size_t pylist_to_string(struct pylist *py, unsigned char *output);
+size_t pylist_to_string(struct pylist *py, unsigned char **output);
 
 size_t string_to_pylist(struct pylist *py, unsigned char *input, size_t len);
 

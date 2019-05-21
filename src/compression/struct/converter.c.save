@@ -9,13 +9,13 @@
 #include "../struct.h"
 #include "../lz78/dico.h"
 
-size_t file_to_len(char *f_len)
+ssize_t file_to_len(char *f_len)
 {
     /*
      * The orders of input numbers is inversed
      * Converter from base 256 to base 10
      */
-    size_t len = 0;
+    ssize_t len = 0;
     char accu = -1;
     for (int i = 0; i < 4; ++i)
     {
@@ -24,18 +24,6 @@ size_t file_to_len(char *f_len)
             len += (accu + 256) * (pow(255,i));
         else
             len += accu;
-    }
-    return len;
-}
-
-ssize_t file_to_lens(char *f_len)
-{
-    size_t len = 0;
-    char accu = -1;
-    for (int i = 0; i < 4; ++i)
-    {
-        accu = f_len[i];
-        len += accu;
     }
     return len;
 }

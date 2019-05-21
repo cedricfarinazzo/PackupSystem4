@@ -21,7 +21,6 @@ void load_data_file(char *file_path, unsigned char **data_file, size_t *len_data
     int DATA_FILE = open(file_path, O_RDONLY);
     if (DATA_FILE == -1)
         errx(EXIT_FAILURE, "Fail to open data file");
-    printf("Len = %ld\n", *len_data);
     *data_file = malloc(sizeof(unsigned char) * (*len_data));
     int r = read(DATA_FILE, *data_file, *len_data);
     if (r == -1)
@@ -65,8 +64,8 @@ void load_dico_file(struct dico **table, char *path_dico)
         {
             buffer[i] = tmp_dico[i];
         }
-        ssize_t taux = file_to_len(buffer);
-        ssize_t len = 1;
+        size_t taux = file_to_len(buffer);
+        size_t len = 1;
         while (len < taux)
         {
             len *= 2;
@@ -87,9 +86,10 @@ void load_dico_file(struct dico **table, char *path_dico)
              */
             for (ssize_t j = 0; j < 4; ++j)
             {
-                buffer[j] = tmp_dico[((*table)->taux + 5) + i * 4 + j];
+                buffer[j] = tmp_dico[((*table)->taux + 4) + i * 4 + j];
             }
-            (*table)->vector[i] = file_to_len(buffer);
+            ssize_t vect = file_to_lens(buffer);
+            (*table)->vector[i] = vect;
         }
         free(buffer);
     }
@@ -117,7 +117,10 @@ void write_dico_file(struct dico *table, char *path_dico)
     int r = 0;
 
     //Write len dico (0 -> 3 [4 B])
-    r = write(DICO, len_to_file(table->taux), 4);
+    char *nom = len_to_file(table->taux);
+    printf("nom = [%d,%d,%d,%d]\n", nom[0], nom[1], nom[2], nom[3]);
+    r = write(DICO, nom, 4);
+    free(nom);
     if (r == -1)
         errx(EXIT_FAILURE, "Fail to write len dico in file");
 
@@ -129,6 +132,7 @@ void write_dico_file(struct dico *table, char *path_dico)
     //Write vector of dico (4B per size_t number => (4 * taux)B)
     for (size_t i = 0; i < table->taux; ++i)
     {
+        printf("table->vector[%ld] = %ld\n", i, table->vector[i]);
         char *buf = len_to_file(table->vector[i]);
         r = write(DICO, buf, 4);
         if (r == -1)
@@ -136,4 +140,5 @@ void write_dico_file(struct dico *table, char *path_dico)
         free(buf);
     }
     close(DICO);
+    printf("table->taux = %ld\n", table->taux);
 }

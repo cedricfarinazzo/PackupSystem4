@@ -1,5 +1,7 @@
 #ifndef _SRC_COMPRESSION_STRUCT_H_
 #define _SRC_COMPRESSION_STRUCT_H_
+#include <unistd.h>
+#include <stdlib.h>
 
 struct element {
     unsigned char key;
@@ -79,7 +81,7 @@ struct pylist {
 } pylist;
 
 struct dico {
-    size_t *vector;
+    ssize_t *vector;
     unsigned char *letter;
     size_t len;
     size_t taux;

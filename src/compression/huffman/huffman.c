@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <err.h>
+#include <unistd.h>
 #include "../tree/bintree.h"
 #include "../liste/liste.h"
 #include "huffman.h"
