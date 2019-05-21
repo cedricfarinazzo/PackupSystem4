@@ -178,7 +178,6 @@ void FILESYSTEM_create_new_save(char *path, char *savepath, char *oldsave)
     struct meta_tree *cur = FILESYSTEM_build_metatree(path);
     struct meta_tree *prev = FILESYSTEM_SAVE_restore_metatree_from_save(oldsave);
     CS_cmp_and_save(cur->son, prev->son, save);
-    printf("Save %s created.\n", savepath);
     fclose(save);
     FILESYSTEM_free_metatree(cur);
     FILESYSTEM_free_metatree(prev);
