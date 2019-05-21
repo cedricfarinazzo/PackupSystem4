@@ -1,4 +1,4 @@
-import os
+import os, sys, subprocess
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
@@ -226,7 +226,7 @@ def backup_view(request, id):
     usage_percentage = 100. * usage_bytes / usage_max
     context['usage_bytes'] = normalize_size(usage_bytes)
     context['usage_percentage'] = int(usage_percentage)
-    context['backup_ctn'] = backup.get_archive_content()
+    #context['backup_ctn'] = backup.get_archive_content()
     return render(request, 'ps4/backup_view.html', context)
 
 
@@ -257,7 +257,6 @@ def backup_add(request):
     storage = None
     if request.method == 'POST':
         form = BackupForm(request.POST, request.FILES)
-        print(form)
         if form.is_valid():
             storage, created = StorageUser.objects.get_or_create(user=request.user)
             if created:
@@ -275,6 +274,10 @@ def backup_add(request):
                 usage += request.FILES['backup_private_key_file'].size
             except:
                 pass
+            try:
+                usage += request.FILES['backup_dico_file'].size
+            except:
+                pass
             if storage.usage + usage < usage_max:
                 storage.usage += usage
                 storage.save()
@@ -285,7 +288,7 @@ def backup_add(request):
                 backup.pass_backup = ""
                 if backup.enc_type in [Backup.ROTN, Backup.VIG, Backup.AES]:
                     try:
-                        backup.pass_backup = form.backup_pass
+                        backup.pass_backup = request.POST['backup_pass']
                     except:
                         pass
                 backup.save()
@@ -315,6 +318,17 @@ def backup_add(request):
                         pri.backup = backup
                         pri.file_type = BackupFile.PRIVATE_KEY
                         pri.save()
+                    except:
+                        pass
+                if backup.comp_type == Backup.LZ78:
+                    try:
+                        dic = BackupFile()
+                        dic.user = request.user
+                        dic.backupfile = request.FILES['backup_dico_file']
+                        dic.filename = request.FILES['backup_dico_file'].name
+                        dic.backup = backup
+                        dic.file_type = BackupFile.LZ_DICO
+                        dic.save()
                     except:
                         pass
                 context['success'] = "Backup uploaded with success"
@@ -362,7 +376,46 @@ def backup_view_content(request, id):
             archive_content = ArchiveContent()
             archive_content.backupfile = backup.get_archives()[0]
             archive_content.status_type = ArchiveContent.WAITING if not error else ArchiveContent.ERROR
-            archive_content.content = html if error else "The content of the archive is not yet available. Thank you try again later."
+            if error:
+                archive_content.content = html
+            else:
+                args = [settings.PACKUP_BIN]
+                args.append(os.path.join(settings.MEDIA_ROOT, archive_content.backupfile.backupfile.url))
+                if backup.comp_type == Backup.HUFF:
+                    argslist.append("huffman")
+                elif backup.comp_type == Backup.LZ78:
+                    dico = backup.get_lz_dico()
+                    if dico is not None:
+                        args += ["lz78", os.path.join(settings.MEDIA_ROOT, dico.backupfile.url)]
+                if backup.enc_type == Backup.ROTN:
+                    args += ["rotn", backup.pass_backup]
+                elif backup.enc_type == Backup.VIG:
+                    args += ["vigenere", backup.pass_backup]
+                elif backup.enc_type == Backup.AES:
+                    args += ["aes", backup.pass_backup]
+                if backup.enc_type == Backup.RSA:
+                    pub = backup.get_pub_key()
+                    priv = backup.get_priv_key()
+                    if pub is not None and priv is not None:
+                        args += ["rsa", os.path.join(settings.MEDIA_ROOT, pub.backupfile.url), os.path.join(settings.MEDIA_ROOT, priv.backupfile.url)]
+                if backup.enc_type == Backup.EL:
+                    pub = backup.get_pub_key()
+                    priv = backup.get_priv_key()
+                    if pub is not None and priv is not None:
+                        args += ["elgamal", os.path.join(settings.MEDIA_ROOT, pub.backupfile.url), os.path.join(settings.MEDIA_ROOT, priv.backupfile.url)]
+                try:
+                    p = subprocess.Popen(args, stdout=subprocess.PIPE, shell=False)
+                    (output, err) = p.communicate()
+                    p_status = p.wait()
+                except:
+                    p_status = -1
+                if p_status == 0:
+                    archive_content.content = "<br/>".join(output.decode("utf-8").split("\n")) 
+                    print("\n", archive_content.content, "\n")
+                    archive_content.status_type = ArchiveContent.SUCCESS
+                else:
+                    archive_content.content = "[<span class=\"red-text\">ERROR</span>]: An error occured. Please try again later"
+                html += archive_content.content
             archive_content.save()
         else:
             html = archive_content.content

@@ -15,6 +15,13 @@ $(document).ready(function(){
             $('#backup_pass_container').fadeOut("slow", "swing");
         }
     });
+    $('#id_comp_type').on('change', function() {
+        if (this.value == 'Lz78') {
+            $('#backup_dico_container').fadeIn("fast", "swing");
+        } else {
+            $('#backup_dico_container').fadeOut("slow", "swing");
+        }
+    });
 
     //Archive content
     if ($('#backup_id_container').length > 0) {
@@ -30,6 +37,6 @@ $(document).ready(function(){
                     $('#backup_content_text_container').html(data);
             });
         };
-        setTimeout(load_archive_content, 2500);
+        setTimeout(load_archive_content, 3000);
     }
 });

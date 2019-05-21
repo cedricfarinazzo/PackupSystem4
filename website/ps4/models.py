@@ -23,13 +23,15 @@ class BackupFile(models.Model):
     ARCHIVE_PART = 'Archive part'
     PUBLIC_KEY = 'Public key'
     PRIVATE_KEY = 'Private key'
+    LZ_DICO = 'Lz78 Dictionnary'
     BACKUP_FILE_TYPE = (
         (ARCHIVE_PART, 'Archive part'),
         (PUBLIC_KEY, 'Public key'),
         (PRIVATE_KEY, 'Private ley'),
+        (LZ_DICO, 'Lz78 Dictionnary'),
     )
     file_type = models.CharField(
-        max_length=25,
+        max_length=42,
         choices=BACKUP_FILE_TYPE,
         default=ARCHIVE_PART,
     )
@@ -140,4 +142,14 @@ class Backup(models.Model):
         if archives is None or archives == []:
             return []
         return ArchiveContent.objects.filter(backupfile=archives[0]).first()
+
+    def get_lz_dico(self):
+        return BackupFile.objects.filter(backup=self, file_type=BackupFile.LZ_DICO).first()
+
+    def get_pub_key(self):
+        return BackupFile.objects.filter(backup=self, file_type=BackupFile.PUBLIC_KEY).first()
+    
+    def get_priv_key(self):
+        return BackupFile.objects.filter(backup=self, file_type=BackupFile.PRIVATE_KEY).first()
+
 

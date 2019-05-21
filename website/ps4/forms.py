@@ -14,4 +14,5 @@ class BackupForm(forms.Form):
     backup_pass = forms.CharField(required=False)
     backup_public_key_file = forms.FileField(required=False)
     backup_private_key_file = forms.FileField(required=False)
+    backup_dico_file = forms.FileField(required=False)
 

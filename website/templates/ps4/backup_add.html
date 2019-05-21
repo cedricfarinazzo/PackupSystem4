@@ -80,15 +80,13 @@
                     <label for="id_comp_type">Compression algorithm:</label>
                 </div>
             </div>
-            <div class="row" id="backup_pass_container" style="display: none">
-                <div class="input-field col s6">
+            <div class="container center">
+                <div class="input-field col" id="backup_pass_container" style="display: none">
                     <input id="backup_pass" type="password" name="backup_pass" class="validate">
                     <label for="Backup_pass">Backup password</label>
                 </div>
-            </div>
-            <div id="backup_key_container" style="display: none">
-                <div class="row">
-                    <div class="file-field input-field col s6">
+                <div id="backup_key_container" style="display: none">
+                    <div class="file-field input-field">
                         <div class="btn">
                             <span>Public key file: </span>
                             <input type="file" name="backup_public_key_file" multiple>
@@ -97,15 +95,24 @@
                             <input class="file-path validate" type="text" placeholder="Upload one backup file">
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="file-field input-field col s6">
+                    <div class="file-field input-field">
                         <div class="btn">
                             <span>Private key file: </span>
                             <input type="file" name="backup_private_key_file" multiple>
                         </div>
                         <div class="file-path-wrapper">
                             <input class="file-path validate" type="text" placeholder="Upload one backup file">
+                        </div>
+                    </div>
+                </div>
+                <div id="backup_dico_container" style="display: none">
+                    <div class="file-field input-field">
+                        <div class="btn">
+                            <span>Lz78 Dictionnary file: </span>
+                            <input type="file" name="backup_dico_file">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text" placeholder="Upload a LZ78 dictionnary file">
                         </div>
                     </div>
                 </div>
