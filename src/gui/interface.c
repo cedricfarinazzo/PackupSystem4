@@ -46,6 +46,9 @@ GtkWidget *Decompr;
 GtkWidget *Rotn_window;
 GtkWidget *Vigenere_window;
 GtkWidget *AES_window;
+GtkWidget *ask_path_key;
+GtkWidget *ask_path_key_create;
+GtkWidget *generate_key;
 
 GtkToggleButton *compr_toggle;
 GtkToggleButton *crypt_toggle;
@@ -53,17 +56,24 @@ GtkToggleButton *compr_load_toggle;
 GtkToggleButton *crypt_load_toggle;
 GtkToggleButton *decompr_toggle;
 GtkToggleButton *decrypt_toggle;
+GtkToggleButton *create_private;
 
 GtkEntry *rotn_entry;
 GtkEntry *vigenere_entry;
 GtkEntry *aes_entry;
+GtkEntry *key_entry;
 
 gboolean crypt_state;
 gboolean compr_state;
 gboolean decrypt_state;
 gboolean decompr_state;
+gboolean is_private;
+
+int create_key = 0;
+int do_rsa;
 
 char *path;
+char *key_path;
 
 int interface(int argc,char *argv[])
 {
@@ -87,6 +97,9 @@ int interface(int argc,char *argv[])
     Rotn_window = GTK_WIDGET(gtk_builder_get_object(builder, "Rotn_window"));
     Vigenere_window = GTK_WIDGET(gtk_builder_get_object(builder, "Vigenere_window"));
     AES_window = GTK_WIDGET(gtk_builder_get_object(builder, "AES_window"));
+    ask_path_key = GTK_WIDGET(gtk_builder_get_object(builder, "ask_path_key"));
+    ask_path_key_create = GTK_WIDGET(gtk_builder_get_object(builder, "ask_path_key_create"));
+    generate_key = GTK_WIDGET(gtk_builder_get_object(builder, "generate_key"));
 
     crypt_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"encrypt"));
     compr_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"compr"));
@@ -94,10 +107,12 @@ int interface(int argc,char *argv[])
     compr_load_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"compr_load"));
     decrypt_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"decrypt"));
     decompr_toggle= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"decompr"));
+    create_private= GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"create_private"));
 
     rotn_entry=GTK_ENTRY(gtk_builder_get_object(builder, "rotn_entry"));
     vigenere_entry=GTK_ENTRY(gtk_builder_get_object(builder, "vigenere_entry"));
     aes_entry=GTK_ENTRY(gtk_builder_get_object(builder, "aes_entry"));
+    key_entry=GTK_ENTRY(gtk_builder_get_object(builder, "key_entry"));
 
     gtk_builder_connect_signals(builder,NULL);
 
@@ -135,6 +150,8 @@ void on_create_clicked()
     printf("You clicked on Create\n");
     gtk_widget_show(ask_file_create);
     gtk_widget_hide(make_backup);
+
+    create_key = 1;
 }
 
 void on_load_clicked()
@@ -330,22 +347,30 @@ void on_valid_aes_clicked()
 
 void on_RSA_clicked()
 {
-    printf("TO DO: Encryption RSA\n");
-    if(compr_state)
-     {
-        gtk_widget_hide(Encryption);
-        gtk_widget_show(Compr);
-     }
+    do_rsa = 1;
+    gtk_widget_hide(Encryption);
+    if(create_key)
+    {
+        gtk_widget_show(ask_path_key_create);
+    }
+    else
+    {
+        gtk_widget_show(ask_path_key);
+    }
 }
 
 void on_ELGAMAL_clicked()
 {
-    printf("TO DO: Encryption ELGAMAL\n");
-    if(compr_state)
-     {
-        gtk_widget_hide(Encryption);
-        gtk_widget_show(Compr);
-     }
+    do_rsa = 0;
+    gtk_widget_hide(Encryption);
+    if(create_key)
+    {
+        gtk_widget_show(ask_path_key_create);
+    }
+    else
+    {
+        gtk_widget_show(ask_path_key);
+    }
 }
 
 void on_Rotn_decrypt_clicked()
@@ -368,24 +393,128 @@ void on_AES_decrypt_clicked()
 
 void on_RSA_decrypt_clicked()
 {
-    printf("TO DO: Decryption RSA\n");
-    if(decompr_state)
-     {
-        gtk_widget_hide(Decryption);
-        gtk_widget_show(Decompr);
-     }
-
+    do_rsa = 1;
+    gtk_widget_hide(Decryption);
+    gtk_widget_show(ask_path_key);
 }
 
 void on_ELGAMAL_decrypt_clicked()
 {
-    printf("TO DO: Decryption ELGAMAL\n");
-    if(decompr_state)
-     {
-        gtk_widget_hide(Decryption);
-        gtk_widget_show(Decompr);
-     }
+    do_rsa = 0;
+    gtk_widget_hide(Decryption);
+    gtk_widget_show(ask_path_key);
+}
 
+void on_valid_create_key_clicked()
+{
+   GtkFileChooser *chooser = GTK_FILE_CHOOSER(ask_path_key_create);
+   key_path = gtk_file_chooser_get_filename(chooser);
+
+   is_private = gtk_toggle_button_get_active(create_private);
+
+   gtk_widget_hide(ask_path_key_create);
+   gtk_widget_show(generate_key);
+}
+
+void on_valid_key_entry_clicked()
+{
+    const char* entry_text;
+
+    entry_text = gtk_entry_get_text(key_entry);
+    unsigned long key;
+
+    key = strtoul(entry_text, NULL, 10);
+    
+    if (is_private){
+       if (do_rsa)
+       { 
+           printf("generate private key from the long %lu for RSA Encryption in the path : %s\n", key, key_path);
+	   if(compr_state)
+	   {
+	      gtk_widget_hide(generate_key);
+	      gtk_widget_show(Compr);
+	   }
+       }
+       else
+       {
+          printf("generate private key from the long %lu for ELGAMAL Encryption in the path : %s\n", key, key_path);
+	  if(compr_state)
+           {
+              gtk_widget_hide(generate_key);
+              gtk_widget_show(Compr);
+           }
+       }
+    }
+    else
+    {
+       if (do_rsa)
+       {
+          printf("generate public key from the long %lu for RSA Encryption in the path : %s\n", key,key_path);
+	  if(compr_state)
+           {
+              gtk_widget_hide(generate_key);
+              gtk_widget_show(Compr);
+           }
+       }
+       else
+       {
+          printf("generate public key from the long %lu for ELGAMAL Encryption in the path: %s\n", key, key_path);
+          if(compr_state)
+           {
+              gtk_widget_hide(generate_key);
+              gtk_widget_show(Compr);
+           }
+       }
+    } 
+}
+
+void on_use_key_clicked()
+{
+   GtkFileChooser *chooser = GTK_FILE_CHOOSER(ask_path_key);
+   key_path = gtk_file_chooser_get_filename(chooser);
+
+   if(crypt_state)
+   {
+      if(do_rsa)
+      {
+         printf("Encoding using public key for RSA Encryption in the path : %s\n", key_path);
+	 if(compr_state)
+           {
+              gtk_widget_hide(ask_path_key);
+              gtk_widget_show(Compr);
+           }
+      }
+      else
+      {
+         printf("Encoding using public key for ELGAMAL Encryption in the path : %s\n", key_path);
+	 if(compr_state)
+           {
+              gtk_widget_hide(ask_path_key);
+              gtk_widget_show(Compr);
+           }
+      }
+   }
+   else
+   {
+      if(do_rsa)
+      {
+         printf("Decoding using public key for RSA Encryption in the path : %s\n", key_path);
+	 if(decompr_state)
+           {
+              gtk_widget_hide(ask_path_key);
+              gtk_widget_show(Decompr);
+           }
+      }
+      else
+      {
+         printf("Decoding using public key for RSA Encryption in the path : %s\n", key_path);
+	 if(decompr_state)
+           {
+              gtk_widget_hide(ask_path_key);
+              gtk_widget_show(Decompr);
+           }
+      }
+   }
 }
 
 void on_Huffman_clicked()
