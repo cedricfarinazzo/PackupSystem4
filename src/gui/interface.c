@@ -4,7 +4,7 @@
 
 #include "../encryption/encryption.h"
 
-#include "../compression/huffman/huffman.h"
+#include "../compression/wrap.h"
 // #include "../compression/lz78/lz78.h"
 
 #include "../filesystem/restore_save.h"
@@ -128,10 +128,6 @@ int interface(int argc,char *argv[])
 
 void on_Close_clicked()
 {	
-     fclose(in);
-     fclose(out);
-     remove(path_tmp);
-     remove(path_tmp_2);
      gtk_main_quit();
 }
 
@@ -216,7 +212,8 @@ void on_save_valid_clicked()
 		 //Do Save
 	         FILESYSTEM_create_save(path,save_path);
 
-		 //END
+		 gtk_widget_hide(ask_file_save);
+                 gtk_widget_show(main_window);
 	     }
           }
       }
@@ -270,7 +267,8 @@ void on_save_old_clicked()
 	  //Do Save(with old)   
           FILESYSTEM_create_new_save(path,save_path,old_path);
 
-	  //END
+	  gtk_widget_hide(ask_file_load);
+          gtk_widget_show(main_window);
        }
     }
 
@@ -306,7 +304,8 @@ void on_restore_button_clicked()
        {
 	    //Do Restore
             FILESYSTEM_restore_save(path);
-	    //END
+	    gtk_widget_hide(ask_file_restore);
+            gtk_widget_show(main_window);
        }
     }
     
@@ -347,7 +346,8 @@ void on_valid_rotn_clicked()
 
 	PACKUP_encryption_stream(ROTN,in, out, key);
 
-	//END
+	gtk_widget_hide(Rotn_window);
+        gtk_widget_show(main_window);
      }
      else
      {
@@ -365,7 +365,8 @@ void on_valid_rotn_clicked()
 	   out = fopen(path_tmp,"w+");
 	   PACKUP_decryption_stream(ROTN, in, out, key);
            FILESYSTEM_restore_save(path_tmp);
-	   //END
+	   gtk_widget_hide(Rotn_window);
+           gtk_widget_show(main_window);
 	}
 
      }
@@ -384,7 +385,8 @@ void on_valid_vigenere_clicked()
         PACKUP_encryption_stream(VIGENERE,in, out, entry_text);
         printf("TO DO: Encryption Vigenere \"%s\"\n", entry_text);
 
-	//END
+	gtk_widget_hide(Vigenere_window);
+          gtk_widget_show(main_window);
     }
     else
     {
@@ -405,7 +407,8 @@ void on_valid_vigenere_clicked()
            PACKUP_decryption_stream(VIGENERE, in, out, entry_text);
            FILESYSTEM_restore_save(path_tmp);
            remove(path_tmp);
-	   //END
+	   gtk_widget_hide(Vigenere_window);
+          gtk_widget_show(main_window);
 
 	}
 
@@ -424,7 +427,8 @@ void on_valid_aes_clicked()
         PACKUP_encryption_stream(AES,in, out, entry_text);
         printf("TO DO: Encryption AES \"%s\"\n", entry_text);
 
-	// DO END
+	gtk_widget_hide(AES_window);
+        gtk_widget_show(main_window);
     }
     else
     {
@@ -443,7 +447,8 @@ void on_valid_aes_clicked()
            PACKUP_decryption_stream(AES, in, out, entry_text);
            FILESYSTEM_restore_save(path_tmp);
            remove(path_tmp);
-	   //END
+	   gtk_widget_hide(AES_window);
+          gtk_widget_show(main_window);
 
        }
 
@@ -553,7 +558,8 @@ void on_valid_key_entry_clicked()
 	  //ENCRYPTION RSA CREATE KEY
 	  PACKUP_encryption_stream(RSA, in, out, key_path, key_private_path, key);
 
-	  //END
+	  gtk_widget_hide(generate_key);
+          gtk_widget_show(main_window);
        }
        else
        {
@@ -561,7 +567,9 @@ void on_valid_key_entry_clicked()
           //ENCRYPTION ELGAMAL CREATE KEY
           PACKUP_encryption_stream(ELGAMAL, in, out, key_path, key_private_path, key);
 
-          //END
+          gtk_widget_hide(generate_key);
+          gtk_widget_show(main_window);
+
        }
      
 }
@@ -581,7 +589,9 @@ void on_use_key_clicked()
 	 
 	 PACKUP_encryption_stream(RSA,in,out,key_path);
 
-	 //END
+	 gtk_widget_hide(ask_path_key);
+         gtk_widget_show(main_window);
+
       }
       else
       {
@@ -591,7 +601,9 @@ void on_use_key_clicked()
 
          PACKUP_encryption_stream(ELGAMAL,in,out,key_path);
 
-	 //END
+	 gtk_widget_hide(ask_path_key);
+         gtk_widget_show(main_window);
+
       }
    }
    else
@@ -613,7 +625,9 @@ void on_use_key_clicked()
             PACKUP_decryption_stream(RSA, in, out, key_path);
             FILESYSTEM_restore_save(path_tmp);
             remove(path_tmp);
-	    // END
+	    gtk_widget_hide(ask_path_key);
+            gtk_widget_show(main_window);
+
  
 	 }
       }
@@ -634,7 +648,9 @@ void on_use_key_clicked()
              PACKUP_decryption_stream(ELGAMAL, in, out, key_path);
              FILESYSTEM_restore_save(path_tmp);
              remove(path_tmp);
-	     //END
+
+	     gtk_widget_hide(ask_path_key);
+	     gtk_widget_show(main_window);
 
 	 }
       }
