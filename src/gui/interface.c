@@ -361,8 +361,8 @@ void on_valid_rotn_clicked()
 	{
            //CALL DECRYPTION ROTN + RESTORE
            path_tmp = tmpnam(NULL);
-           in = fopen(path);
-	   out = fopen(tmpnam);
+           in = fopen(path,"r");
+	   out = fopen(path_tmp,"w+");
 	   PACKUP_decryption_stream(ROTN, in, out, key);
            FILESYSTEM_restore_save(path_tmp);
 	   //END
@@ -400,9 +400,9 @@ void on_valid_vigenere_clicked()
 	{
            //CALL DECRYPTION VIGENERE + RESTORE
 	   path_tmp = tmpnam(NULL);
-           in = fopen(path);
-           out = fopen(tmpnam);
-           PACKUP_decryption_stream(VIGENERE, in, out, key);
+           in = fopen(path,"r");
+           out = fopen(path_tmp,"w+");
+           PACKUP_decryption_stream(VIGENERE, in, out, entry_text);
            FILESYSTEM_restore_save(path_tmp);
            remove(path_tmp);
 	   //END
@@ -438,9 +438,9 @@ void on_valid_aes_clicked()
        {
            //CALL DECRYPTION AES + RESTORE
            path_tmp = tmpnam(NULL);
-           in = fopen(path)
-           out = fopen(tmpnam);
-           PACKUP_decryption_stream(AES, in, out, key);
+           in = fopen(path,"r");
+           out = fopen(path_tmp,"w+");
+           PACKUP_decryption_stream(AES, in, out, entry_text);
            FILESYSTEM_restore_save(path_tmp);
            remove(path_tmp);
 	   //END
@@ -608,8 +608,8 @@ void on_use_key_clicked()
 	 {
             // DECRYPTION RSA + RESTORE
 	    path_tmp = tmpnam(NULL);
-            in = fopen(path);
-            out = fopen(tmpnam);
+            in = fopen(path,"r");
+            out = fopen(path_tmp, "w+");
             PACKUP_decryption_stream(RSA, in, out, key_path);
             FILESYSTEM_restore_save(path_tmp);
             remove(path_tmp);
@@ -629,9 +629,9 @@ void on_use_key_clicked()
 	 {
 	     //DECRYPT ELGAMAL+RESTORE
 	     path_tmp = tmpnam(NULL);
-             in = fopen(path);
-             out = fopen(tmpnam);
-             PACKUP_decryption_stream(ELGAMAL, in, out, key);
+             in = fopen(path,"r");
+             out = fopen(path_tmp,"w+");
+             PACKUP_decryption_stream(ELGAMAL, in, out, key_path);
              FILESYSTEM_restore_save(path_tmp);
              remove(path_tmp);
 	     //END
