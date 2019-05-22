@@ -187,12 +187,12 @@ void on_save_valid_clicked()
 		if(compr_state)
 		{
 			// Do Save -> Go to Compression 
-			path_tmp = tmpnam(NULL);
+/*			path_tmp = tmpnam(NULL);
 			path_tmp_2 = tmpnam(NULL);
 			FILESYSTEM_create_save(path, path_tmp);
 			path_in = path_tmp;
 			path_out = path_tmp_2;
-			gtk_widget_hide(ask_file_save);
+*/			gtk_widget_hide(ask_file_save);
 			gtk_widget_show(Compr);
 		}
 		else
@@ -200,17 +200,17 @@ void on_save_valid_clicked()
 			if(crypt_state)
 			{
 				//Do Save -> Got to Encryption
-				path_tmp = tmpnam(NULL);
+/*				path_tmp = tmpnam(NULL);
 				FILESYSTEM_create_save(path, path_tmp);
 				in = fopen(path_tmp, "r");
 				out = fopen(save_path, "w+");
-				gtk_widget_hide(ask_file_save);
+*/				gtk_widget_hide(ask_file_save);
 				gtk_widget_show(Encryption);
 			}
 			else
 			{
 				//Do Save
-				FILESYSTEM_create_save(path,save_path);
+//				FILESYSTEM_create_save(path,save_path);
 
 				gtk_widget_hide(ask_file_save);
 				gtk_widget_show(main_window);
@@ -236,17 +236,17 @@ void on_save_old_clicked()
 	crypt_state = gtk_toggle_button_get_active(crypt_toggle);
 
 	// Caling Save fonction, using an olt save.
-	FILESYSTEM_create_new_save(path,save_path,old_path);
+//	FILESYSTEM_create_new_save(path,save_path,old_path);
 
 	if(compr_state)
 	{
 		//Do Save(with old) -> Do Compression
-		path_tmp = tmpnam(NULL);
+/*		path_tmp = tmpnam(NULL);
 		path_tmp_2 = tmpnam(NULL);
 		FILESYSTEM_create_new_save(path, path_tmp, old_path);
 		path_in = path_tmp;
 		path_out = path_tmp_2; 
-		gtk_widget_hide(ask_file_load);
+*/		gtk_widget_hide(ask_file_load);
 		gtk_widget_show(Compr);
 
 	}
@@ -255,17 +255,17 @@ void on_save_old_clicked()
 		if(crypt_state)
 		{
 			//Do Save(with old) -> Do Encryption
-			path_tmp = tmpnam(NULL);
+/*			path_tmp = tmpnam(NULL);
 			FILESYSTEM_create_new_save(path, path_tmp, old_path);
 			in = fopen(path_tmp, "r");
 			out = fopen(save_path, "w+");
-			gtk_widget_hide(ask_file_load);
+*/			gtk_widget_hide(ask_file_load);
 			gtk_widget_show(Encryption);
 		}
 		else
 		{
 			//Do Save(with old)   
-			FILESYSTEM_create_new_save(path,save_path,old_path);
+//			FILESYSTEM_create_new_save(path,save_path,old_path);
 
 			gtk_widget_hide(ask_file_load);
 			gtk_widget_show(main_window);
@@ -303,7 +303,7 @@ void on_restore_button_clicked()
 		else
 		{
 			//Do Restore
-			FILESYSTEM_restore_save(path);
+//			FILESYSTEM_restore_save(path);
 			gtk_widget_hide(ask_file_restore);
 			gtk_widget_show(main_window);
 		}
@@ -344,7 +344,7 @@ void on_valid_rotn_clicked()
 		printf("TO DO: Encryption Rotn with the key %d\n", key);
 		//CALL ENCRYPTION ROTN
 
-		PACKUP_encryption_stream(ROTN,in, out, key);
+//		PACKUP_encryption_stream(ROTN,in, out, key);
 
 		gtk_widget_hide(Rotn_window);
 		gtk_widget_show(main_window);
@@ -360,12 +360,12 @@ void on_valid_rotn_clicked()
 		else
 		{
 			//CALL DECRYPTION ROTN + RESTORE
-			path_tmp = tmpnam(NULL);
+/*			path_tmp = tmpnam(NULL);
 			in = fopen(path,"r");
 			out = fopen(path_tmp,"w+");
 			PACKUP_decryption_stream(ROTN, in, out, key);
 			FILESYSTEM_restore_save(path_tmp);
-			gtk_widget_hide(Rotn_window);
+*/			gtk_widget_hide(Rotn_window);
 			gtk_widget_show(main_window);
 		}
 
@@ -382,7 +382,7 @@ void on_valid_vigenere_clicked()
 	{
 		//CALL ENCRYPTION VIGENERE
 
-		PACKUP_encryption_stream(VIGENERE,in, out, entry_text);
+//		PACKUP_encryption_stream(VIGENERE,in, out, entry_text);
 		printf("TO DO: Encryption Vigenere \"%s\"\n", entry_text);
 
 		gtk_widget_hide(Vigenere_window);
@@ -401,13 +401,13 @@ void on_valid_vigenere_clicked()
 		else
 		{
 			//CALL DECRYPTION VIGENERE + RESTORE
-			path_tmp = tmpnam(NULL);
+/*			path_tmp = tmpnam(NULL);
 			in = fopen(path,"r");
 			out = fopen(path_tmp,"w+");
 			PACKUP_decryption_stream(VIGENERE, in, out, entry_text);
 			FILESYSTEM_restore_save(path_tmp);
 			remove(path_tmp);
-			gtk_widget_hide(Vigenere_window);
+*/			gtk_widget_hide(Vigenere_window);
 			gtk_widget_show(main_window);
 
 		}
@@ -424,7 +424,7 @@ void on_valid_aes_clicked()
 	{
 		//CALL ECRYPTION AES
 
-		PACKUP_encryption_stream(AES,in, out, entry_text);
+//		PACKUP_encryption_stream(AES,in, out, entry_text);
 		printf("TO DO: Encryption AES \"%s\"\n", entry_text);
 
 		gtk_widget_hide(AES_window);
@@ -441,13 +441,13 @@ void on_valid_aes_clicked()
 		else
 		{
 			//CALL DECRYPTION AES + RESTORE
-			path_tmp = tmpnam(NULL);
+/*			path_tmp = tmpnam(NULL);
 			in = fopen(path,"r");
 			out = fopen(path_tmp,"w+");
 			PACKUP_decryption_stream(AES, in, out, entry_text);
 			FILESYSTEM_restore_save(path_tmp);
 			remove(path_tmp);
-			gtk_widget_hide(AES_window);
+*/			gtk_widget_hide(AES_window);
 			gtk_widget_show(main_window);
 
 		}
@@ -556,7 +556,7 @@ void on_valid_key_entry_clicked()
 	{
 		printf("generate public key from the long %lu for RSA Encryption in the path : %s\n", key,key_path);
 		//ENCRYPTION RSA CREATE KEY
-		PACKUP_encryption_stream(RSA, in, out, key_path, key_private_path, key);
+//		PACKUP_encryption_stream(RSA, in, out, key_path, key_private_path, key);
 
 		gtk_widget_hide(generate_key);
 		gtk_widget_show(main_window);
@@ -565,7 +565,7 @@ void on_valid_key_entry_clicked()
 	{
 		printf("generate public key from the long %lu for ELGAMAL Encryption in the path: %s\n", key, key_path);
 		//ENCRYPTION ELGAMAL CREATE KEY
-		PACKUP_encryption_stream(ELGAMAL, in, out, key_path, key_private_path, key);
+//		PACKUP_encryption_stream(ELGAMAL, in, out, key_path, key_private_path, key);
 
 		gtk_widget_hide(generate_key);
 		gtk_widget_show(main_window);
@@ -587,7 +587,7 @@ void on_use_key_clicked()
 
 			//ENCRYPTION RSA USING EXISTING KEY
 
-			PACKUP_encryption_stream(RSA,in,out,key_path);
+//			PACKUP_encryption_stream(RSA,in,out,key_path);
 
 			gtk_widget_hide(ask_path_key);
 			gtk_widget_show(main_window);
@@ -599,7 +599,7 @@ void on_use_key_clicked()
 
 			//ENCRYPTION ELGAMAL USING EXISTING KEY
 
-			PACKUP_encryption_stream(ELGAMAL,in,out,key_path);
+//			PACKUP_encryption_stream(ELGAMAL,in,out,key_path);
 
 			gtk_widget_hide(ask_path_key);
 			gtk_widget_show(main_window);
@@ -619,13 +619,13 @@ void on_use_key_clicked()
 			else
 			{
 				// DECRYPTION RSA + RESTORE
-				path_tmp = tmpnam(NULL);
+/*				path_tmp = tmpnam(NULL);
 				in = fopen(path,"r");
 				out = fopen(path_tmp, "w+");
 				PACKUP_decryption_stream(RSA, in, out, key_path);
 				FILESYSTEM_restore_save(path_tmp);
 				remove(path_tmp);
-				gtk_widget_hide(ask_path_key);
+*/				gtk_widget_hide(ask_path_key);
 				gtk_widget_show(main_window);
 
 
@@ -642,13 +642,13 @@ void on_use_key_clicked()
 			else
 			{
 				//DECRYPT ELGAMAL+RESTORE
-				path_tmp = tmpnam(NULL);
+/*				path_tmp = tmpnam(NULL);
 				in = fopen(path,"r");
 				out = fopen(path_tmp,"w+");
 				PACKUP_decryption_stream(ELGAMAL, in, out, key_path);
 				FILESYSTEM_restore_save(path_tmp);
 				remove(path_tmp);
-
+*/
 				gtk_widget_hide(ask_path_key);
 				gtk_widget_show(main_window);
 
@@ -660,7 +660,7 @@ void on_use_key_clicked()
 void on_Huffman_clicked()
 {
 	printf("TO DO: Compression Huffman\n");
-	test_simple_huffman_compress(path_in,path_out);
+//	test_simple_huffman_compress(path_in,path_out);
 	in = fopen(path_out, "r");
 	out = fopen(save_path, "w+");
 
