@@ -66,6 +66,7 @@ char *key_path;
 char *key_private_path;
 
 char *path_tmp;
+char *path_tmp_restore;
 
 FILE *in;
 FILE *out;
@@ -184,8 +185,10 @@ void on_save_valid_clicked()
 
           if(compr_state)
           {
+             //Save with temp path: Do Compression
              path_tmp = tmpnam(NULL);
 	     FILESYSTEM_create_save(path, path_tmp);
+	     //create fd for comprr
    	     gtk_widget_hide(ask_file_save);
              gtk_widget_show(Compr);
           }
@@ -205,6 +208,8 @@ void on_save_valid_clicked()
 	     {
 		 //Save without Compression and Encryption
 	         FILESYSTEM_create_save(path,save_path);
+
+		 //END
 	     }
           }
       }
@@ -243,6 +248,7 @@ void on_save_old_clicked()
            path_tmp = tmpnam(NULL);
            FILESYSTEM_create_new_save(path, path_tmp, old_path);
            in = fopen(path_tmp, "r");
+	   out = fopen(save_path, "w+");
            gtk_widget_hide(ask_file_load);
            gtk_widget_show(Encryption);
        }
@@ -250,6 +256,8 @@ void on_save_old_clicked()
        {
 	  //Save with old_save, without Compression and Encryption     
           FILESYSTEM_create_new_save(path,save_path,old_path);
+
+	  //END
        }
     }
 
@@ -285,6 +293,7 @@ void on_restore_button_clicked()
        {
 	    //Restore without Decompression nor Decryption
             FILESYSTEM_restore_save(path);
+	    //END
        }
     }
     
@@ -326,6 +335,7 @@ void on_valid_rotn_clicked()
 	PACKUP_encryption_stream(ROTN,in, out, key);
 	fclose(in);
 	fclose(out);
+	remove(path_tmp);
 
 	//END
      }
@@ -337,6 +347,17 @@ void on_valid_rotn_clicked()
            gtk_widget_hide(Rotn_window);
            gtk_widget_show(Decompr);
         }
+	else
+	{
+           //CALL DECRYPTION ROTN + RESTORE
+           path_tmp = tmpnam(NULL);
+           in = fopen(path);
+	   out = fopen(tmpnam);
+	   PACKUP_decryption_stream(ROTN, in, out, key);
+           FILESYSTEM_restore_save(path_tmp);
+	   remove(path_tmp);
+	   //END
+	}
 
      }
 }
@@ -355,6 +376,7 @@ void on_valid_vigenere_clicked()
         printf("TO DO: Encryption Vigenere \"%s\"\n", entry_text);
 	fclose(in);
 	fclose(out);
+	remove(path_tmp);
 
 	//END
     }
@@ -368,6 +390,18 @@ void on_valid_vigenere_clicked()
           gtk_widget_show(Compr);
 
        }
+	else
+	{
+           //CALL DECRYPTION VIGENERE + RESTORE
+	   path_tmp = tmpnam(NULL);
+           in = fopen(path);
+           out = fopen(tmpnam);
+           PACKUP_decryption_stream(VIGENERE, in, out, key);
+           FILESYSTEM_restore_save(path_tmp);
+           remove(path_tmp);
+	   //END
+
+	}
 
     }
 }
@@ -385,6 +419,7 @@ void on_valid_aes_clicked()
         printf("TO DO: Encryption AES \"%s\"\n", entry_text);
 	fclose(in);
 	fclose(out);
+	remove(path_tmp);
 
 	// DO END
     }
@@ -396,6 +431,18 @@ void on_valid_aes_clicked()
            gtk_widget_hide(AES_window);
            gtk_widget_show(Decompr);
         }
+       else
+       {
+           //CALL DECRYPTION AES + RESTORE
+           path_tmp = tmpnam(NULL);
+           in = fopen(path);
+           out = fopen(tmpnam);
+           PACKUP_decryption_stream(AES, in, out, key);
+           FILESYSTEM_restore_save(path_tmp);
+           remove(path_tmp);
+	   //END
+
+       }
 
     }
 }
@@ -504,6 +551,7 @@ void on_valid_key_entry_clicked()
 	  PACKUP_encryption_stream(RSA, in, out, key_path, key_private_path, key);
 	  fclose(in);
           fclose(out);
+	  remove(path_tmp);
 
 	  //END
        }
@@ -536,6 +584,7 @@ void on_use_key_clicked()
 	 PACKUP_encryption_stream(RSA,in,out,key_path);
          fclose(in);
 	 fclose(out);
+	 remove(path_tmp);
 
 	 //END
       }
@@ -548,6 +597,7 @@ void on_use_key_clicked()
          PACKUP_encryption_stream(ELGAMAL,in,out,key_path);
          fclose(in);
 	 fclose(out);
+	 remove(path_tmp);
 
 	 //END
       }
@@ -562,15 +612,39 @@ void on_use_key_clicked()
               gtk_widget_hide(ask_path_key);
               gtk_widget_show(Decompr);
            }
+	 else
+	 {
+            // DECRYPTION RSA + RESTORE
+	    path_tmp = tmpnam(NULL);
+            in = fopen(path);
+            out = fopen(tmpnam);
+            PACKUP_decryption_stream(RSA, in, out, key_path);
+            FILESYSTEM_restore_save(path_tmp);
+            remove(path_tmp);
+	    // END
+ 
+	 }
       }
       else
       {
-         printf("Decoding using private key for RSA Encryption in the path : %s\n", key_path);
+         printf("Decoding using private key for ELGAMAL Encryption in the path : %s\n", key_path);
 	 if(decompr_state)
            {
               gtk_widget_hide(ask_path_key);
               gtk_widget_show(Decompr);
            }
+	 else
+	 {
+	     //DECRYPT ELGAMAL+RESTORE
+	     path_tmp = tmpnam(NULL);
+             in = fopen(path);
+             out = fopen(tmpnam);
+             PACKUP_decryption_stream(ELGAMAL, in, out, key);
+             FILESYSTEM_restore_save(path_tmp);
+             remove(path_tmp);
+	     //END
+
+	 }
       }
    }
 }
