@@ -35,6 +35,7 @@ void load_dico_file(struct dico **table, char *path_dico)
     /* Check if file exist */
     if (access(path_dico, W_OK) == -1)
     {
+        printf("No dico file found\n");
         *table = new_dico(1, 0);
     }
     else
@@ -71,15 +72,12 @@ void load_dico_file(struct dico **table, char *path_dico)
         {
             len *= 2;
         }
-        //printf("table->taux = %ld\n", taux);
         *table = new_dico(len, taux);
-
         //table->letter
         for (size_t i = 0; i < (*table)->taux; ++i)
         {
             (*table)->letter[i] = tmp_dico[i + 4];
         }
-
         //table->vector
         for (size_t i = 0; i < (*table)->taux; ++i)
         {
@@ -91,8 +89,6 @@ void load_dico_file(struct dico **table, char *path_dico)
                 buffer[j] = tmp_dico[((*table)->taux + 4) + i * 4 + j];
             }
             ssize_t vect = file_to_lens(buffer);
-            //printf("table->vector[%ld] = %ld | table->letter[%ld] = %d\n",
-            //        i, vect, i, (*table)->letter[i]);
             (*table)->vector[i] = vect;
         }
         free(tmp_dico);
@@ -105,11 +101,6 @@ void write_data_file(char *data, ssize_t len_data, char *path_file)
     int DATA_FILE = open(path_file, O_WRONLY | O_TRUNC | O_CREAT, 0666);
     if (DATA_FILE == -1)
         errx(EXIT_FAILURE, "Fail to create temp data file");
-    //printf("len_data = %ld\n", len_data);
-    for (ssize_t i = 0; i < len_data; ++i)
-    {
-        //printf("%c\n",data[i]);
-    }//printf("\n");
     int r = write(DATA_FILE, data, (size_t)len_data);
     if (r == -1)
         errx(EXIT_FAILURE, "Fail to write temp data file");
@@ -136,12 +127,9 @@ void write_dico_file(struct dico *table, char *path_dico)
     r = write(DICO, (char *)(table->letter), table->taux);
     if (r == -1)
         errx(EXIT_FAILURE, "Fail to write letters in file");
-    //printf("dico->taux = %ld\n", table->taux);
     //Write vector of dico (4B per size_t number => (4 * taux)B)
     for (size_t i = 0; i < table->taux; ++i)
     {
-        //printf("dico->vector[%ld] = %ld | dico->letter[%ld] = %d\n", i, table->vector[i],
-      //          i, table->letter[i]);
         char *buf = len_to_file(table->vector[i]);
         r = write(DICO, buf, 4);
         if (r == -1)

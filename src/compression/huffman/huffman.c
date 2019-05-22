@@ -630,7 +630,6 @@ int rebuild_tree(unsigned char *data, int actual, unsigned char key,
     {
         if (huff_act->key != 0 && huff_act->key != 1)
         {
-            printf("prof = %d, act_prof = %d\n", prof, act_prof);
             errx(EXIT_FAILURE, "Tentative d'insertion sur une feuille");
         }
         if (data[actual] == 0)
@@ -656,8 +655,6 @@ int rebuild_tree(unsigned char *data, int actual, unsigned char key,
     if ((data[actual] == 0 && huff_act->left != NULL) || (data[actual] == 1
                 && huff_act->right != NULL))
     {
-        printf("huff_act->right->key = %d huff_act->left->key = %d\n", 
-                huff_act->right->key, huff_act->right->key);
         errx(4, "Houston on a un probleme!");
 
     }
@@ -829,7 +826,6 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     huffman_cp->len += (int)data[actual++];
     huffman_cp->data = malloc(sizeof(unsigned char *) * huffman_cp->len);
     strcpyh(huffman_cp->data, &(data[actual]), (huffman_cp->len));
-    printf("tree len = %d\n", huffman_cp->len);
     actual += huffman_cp->len;
 
     struct encod_data *data_cp = malloc(sizeof(struct encod_data));
@@ -846,8 +842,6 @@ struct huff_out *decompression(unsigned char *data, int len_data)
     data_cp->len += (int)data[actual++];
 
     if (actual + data_cp->len > len_data){
-        //printf("Len_data = %d, actual = %d\n", len_data, (actual + data_cp->len));
-        //errx(4, "Attention out of range");}
         --data_cp->len;}
 
     data_cp->data = malloc(sizeof(unsigned char *) * data_cp->len);

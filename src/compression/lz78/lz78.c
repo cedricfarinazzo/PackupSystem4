@@ -11,6 +11,7 @@
 #include "../file/file.h"
 #include "../liste/pylist.h"
 #include "dico.h"
+#include "../wrap.h"
 
 /* For compress by dico:
  * Input :
@@ -135,11 +136,13 @@ unsigned char *dico_name(unsigned char *file)
     return name;
 }
 
-size_t search_in_dico(struct dico *table, size_t index,
+size_t search_in_dico(struct dico *table, ssize_t index,
         unsigned char **output)
 {
     struct pylist *tmp = new_py();
     ssize_t act_index = index;
+    if ((size_t)act_index >= table->taux)
+        act_index = -1;
     while (act_index >= 0)
     {
         addpy(tmp, table->letter[act_index]);
@@ -195,6 +198,7 @@ void compress_lz78(char *data_path, char *dico_path, char *tmp_path)
     struct dico *table = NULL;
     load_dico_file(&table, dico_path);
     struct pylist *data_c_l = new_py();
+    printf("Building dictionnary...\n");
     create_dico(table, data, len_data, data_c_l);
     free(data);
     write_dico_file(table, dico_path);
@@ -202,7 +206,9 @@ void compress_lz78(char *data_path, char *dico_path, char *tmp_path)
     unsigned char *data_compress = NULL;
     len_data = pylist_to_string(data_c_l, &data_compress);
     freepy(data_c_l);
-    write_data_file((char *)(data_compress), len_data, tmp_path);
+    free(data_compress);
+    test_simple_huffman_compress(data_path, tmp_path);
+    //write_data_file((char *)(data_compress), len_data, tmp_path);
     return;
 }
 
@@ -212,6 +218,7 @@ void decompress_lz78(char *data_path, char *dico_path, char *out_path)
     size_t lendata = 0;
     load_data_file(data_path, &tdata, &lendata);
     struct dico *table = NULL;
+    printf("Load dictionnary in progress...\n");
     load_dico_file(&table, dico_path);
     struct pylist *data = new_py();
     data->len = string_to_pylist(data, tdata, lendata);
@@ -219,6 +226,7 @@ void decompress_lz78(char *data_path, char *dico_path, char *out_path)
     unsigned char *data_decomp = NULL;
     size_t lendatad = dico_to_data(table, &data_decomp, data);
     write_data_file((char*)(data_decomp), lendatad, out_path);
+    test_simple_huffman_decompress(data_path, out_path);
     freepy(data);
     free_dico(table);
     return;

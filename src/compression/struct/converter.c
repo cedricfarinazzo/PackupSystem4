@@ -21,9 +21,9 @@ size_t file_to_len(char *f_len)
     {
         accu = f_len[i];
         if (accu < 0)
-            len += (accu + 256) * (pow(255,i));
+            len += (accu + 256) * ((int)pow(256,i));
         else
-            len += accu;
+            len += accu * (int)pow(256,i);
     }
     return len;
 }
@@ -35,7 +35,7 @@ ssize_t file_to_lens(char *f_len)
     for (int i = 0; i < 4; ++i)
     {
         accu = f_len[i];
-        len += accu;
+        len += accu * (int)pow(256,i);
     }
     return len;
 }
@@ -111,7 +111,7 @@ size_t string_to_pylist(struct pylist *py, unsigned char *input, size_t len)
             unsigned char c = input[point++];
             buf[i] = c;
         }
-        addpy(py, file_to_len((char *)buf));
+        addpy(py, file_to_lens((char *)buf));
     }
     free(buf);
     return py->len;

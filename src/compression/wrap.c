@@ -24,8 +24,6 @@ void test_simple_huffman_compress(char *input_path, char *output_path)
     write_data_file((char *)data_compress->dataOUT,
             (ssize_t)data_compress->len, output_path);
     printf("Done !\n");
-    printf("Weight input : %ld -> Weight output : %d\n", len_data_input,
-            data_compress->len);
     printf("Ratio = %d%%\n",(data_compress->len * 100)/((int)len_data_input));
     free(data_compress);
     free(data_input);
@@ -43,10 +41,7 @@ void test_simple_huffman_decompress(char *input_path, char *output_path)
     printf("Saving output file...\n");
     write_data_file((char *)data_decompress->dataOUT,
             (ssize_t)data_decompress->len, output_path);
-    printf("Done !\n\n\n");
-    printf("Weight input : %ld -> Weight output : %d\n",
-            len_data_input, data_decompress->len);
-    printf("Ratio = %d%%\n",(data_decompress->len * 100)/((int)len_data_input));
+    printf("Done !\n");
     free(data_decompress);
     free(data_input);
 }

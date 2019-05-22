@@ -69,7 +69,7 @@ struct huff_out {
 } huff_out;
 
 struct pyele {
-    size_t key;
+    ssize_t key;
     struct pyele *prec;
     struct pyele *next;
 } pyele;
