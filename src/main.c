@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <string.h>
 #include <time.h>
+#include <termios.h>
+#include <unistd.h>
 
 #include "gui/interface.h"
 
@@ -29,30 +31,32 @@
 #define TYPE "dev"
 
 
+void print_ps4logo(void)
+{
 #define OFFSET_LOGO "      "
-char *ps4logo = OFFSET_LOGO"[0;31;40m:[0;1;30;43m;;;;;;;;;;;;;;;[0;31;40m8[0;32;40m:[0;34;40m                           [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS:.[0;1;33;43m.[0;5;1;31;43mX[0;5;33;43m  [0;1;33;43m.[0;5;1;31;43mX[0;5;33;43m  [0;1;33;43m.[0;5;1;31;43mX[0;5;33;43m .[0;1;33;43m.[0;1;30;41m8[0;32;40m      [0;34;40m                     [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS[0;1;31;43m8[0;5;37;43mXX8[0;5;37;41m8[0;5;37;43m88[0;1;33;47m8[0;5;37;41m8[0;5;37;43m88[0;1;33;47m8[0;5;37;41m8[0;5;37;43m88[0;1;33;43mt[0;5;33;40mt[0;5;31;40mS[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;34;40m:[0;31;40m.[0;32;40m   [0;34;40m [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m% [0;5;1;33;41m8[0;1;33;47m8[0;1;37;47m [0;1;33;47mS[0;1;37;47m [0;1;33;47mS[0;1;37;47m [0;1;33;47mX[0;1;37;47m [0;1;33;47mS[0;1;37;47m [0;1;33;47mX[0;1;37;47m  %[0;1;33;47m@%[0;1;30;47m [0;1;33;47mX[0;1;37;47m.[0;1;33;47mX[0;1;37;47m [0;1;33;47mX[0;1;37;47m.[0;1;33;47mX[0;1;37;47m [0;1;33;47mX[0;1;37;47m.[0;1;33;47mX[0;1;37;47m [0;1;33;47mX[0;1;37;47m.[0;1;33;47mX[0;1;37;47m [0;1;33;47mX[0;1;37;47m.[0;1;30;41m8[0;32;40m.    [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS[0;1;33;43m:[0;5;37;43mX8[0;1;33;47mS[0;1;37;47m t[0;5;37;47m8[0;5;1;33;47m8[0;5;37;47m8[0;1;37;47mt[0;5;37;47m8[0;5;1;33;47m8[0;5;37;47m8[0;1;37;47mS[0;5;1;37;43m8[0;5;37;47m8[0;1;37;47m%8888888888888888888[0;1;33;47mS[0;1;30;47m;[0;5;33;40mt[0;32;40m    [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m; [0;5;1;33;41m8[0;1;33;47m8[0;1;37;47m %[0;5;1;33;47m8[0;5;37;47m88@%@8XS8Sttt[0;5;1;33;47m8[0;5;37;47m%tt[0;5;1;33;47m8[0;5;37;47m%tt[0;5;1;33;47m8[0;5;37;47m%tt[0;5;1;33;47m8[0;5;37;47m%tt;;t[0;1;37;47m%[0;31;40m.[0;32;40m   [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;1;33;43m%[0;5;37;43mX@[0;1;37;47m ;%[0;5;37;47m8@%t[0;5;1;33;47m8[0;5;37;47m8%ttS@[0;5;1;33;47m8[0;5;37;47mS%S@S%%t[0;1;33;47mS[0;5;37;47mt%ttX8tt[0;5;1;33;47m8[0;5;37;47mStt[0;1;33;47mS[0;31;40m. [0;32;40m  [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m:[0;5;33;41m [0;5;37;47m:@S[0;5;1;33;47m@[0;5;37;47m8%[0;5;1;37;43m8[0;5;37;47m8[0;5;37;43m8[0;1;37;47mt[0;5;1;37;43m8[0;5;1;33;47m88[0;5;37;43m8[0;1;37;47m:[0;5;1;33;47m8[0;5;37;47m8[0;5;1;37;43m8[0;1;37;47m8[0;5;37;43mX8[0;5;37;47m8[0;5;37;43m@[0;5;37;47m%[0;5;37;43m8[0;1;37;47mX[0;5;1;37;43m8[0;1;37;47m8[0;5;37;43mX[0;1;33;47mS[0;5;37;43m8[0;5;37;47m8[0;5;37;43m8[0;5;37;47m@[0;5;1;37;43m8[0;1;37;47m8[0;5;37;43mX[0;1;37;47mS[0;1;30;43m;[0;5;31;40mS[0;1;30;43m:[0;34;40m [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS;[0;5;37;47m@t%S%[0;5;37;43m@@X8@8888@X[0;5;1;31;43mX[0;5;37;43m8X88@8X@XXX888X8X@X88@@[0;1;33;47m8[0;1;30;41m8[0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS;[0;5;37;47m8Stt[0;5;1;37;43m8[0;5;37;43m88[0;5;1;31;43m@[0;5;37;43m88[0;5;1;31;43m@[0;5;37;43m888[0;5;1;31;43m@[0;5;37;43m888[0;1;37;47m [0;5;37;43m8[0;1;37;47m [0;5;37;43m8888888888888888888[0;5;33;43m:[0;34;40m;[0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS[0;1;33;43m:[0;5;37;47mXt%S[0;5;37;43m@88888[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m8[0;5;1;33;47m8[0;5;37;43m88[0;5;37;47m888[0;1;37;47m    [0;5;1;31;43mX[0;5;37;43m88[0;5;1;31;43m8[0;5;37;43m88[0;5;1;31;43m@[0;5;37;43m88[0;5;1;31;43m@[0;5;37;43m88[0;5;1;31;43m8[0;5;37;43m8888[0;35;41m@[0;34;40m [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m;[0;5;37;43mS[0;5;37;47m8St[0;5;37;43m888888[0;5;1;31;43m8[0;5;37;43m888888[0;5;37;47m8[0;1;37;47m [0;5;1;31;43mX[0;5;37;43m88[0;1;37;47m  [0;5;37;47m8[0;5;1;31;43m@[0;5;1;37;43m8[0;5;37;43m888[0;5;1;37;43m8[0;5;37;43m88[0;5;1;37;43m8[0;5;37;43m88[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m8[0;5;37;43m8[0;5;33;41m;[0;34;40m%[0;32;40m:[0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m%[0;5;1;31;43m8[0;5;37;47m@t[0;5;1;33;47m8[0;5;37;43m88[0;5;1;31;43m@[0;5;1;37;43m8[0;5;1;31;43m8[0;5;37;47m8[0;5;37;43m8888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43m8[0;5;37;47m%[0;1;37;47m.[0;5;37;43m8888[0;1;37;47m;[0;5;37;43m88888[0;5;1;31;43m8[0;1;37;47m [0;5;1;31;43mX[0;5;1;37;43m8[0;5;1;33;41m8[0;5;37;43m88[0;5;1;31;43m8[0;5;37;47m8[0;5;37;43m88[0;5;31;40m8[0;32;40m.[0;34;40m [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS.[0;5;37;47m8@[0;5;37;43m888888[0;5;1;31;43mX[0;5;1;37;43m8[0;5;1;31;43m8[0;5;1;33;47m8[0;5;37;43m88[0;5;1;31;43mX[0;5;37;47m8[0;1;37;47m;[0;5;37;47m8[0;5;37;43m88[0;1;33;47mX[0;1;37;47m . [0;5;37;43m8[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m8[0;5;1;37;43m8[0;5;1;31;43mX[0;5;1;33;47m8[0;5;37;43m88888[0;5;1;31;43m@[0;5;37;43m8[0;31;43m8[0;34;40mt[0;31;40m [0;34;40m [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS[0;1;33;43m.[0;5;37;47m@8[0;5;37;43mS88888888[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m888[0;1;37;47mS [0;1;35;47m%S[0;35;47mXX[0;1;37;47m [0;5;37;43m8888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43mX[0;5;37;43m888888[0;5;1;37;43m8[0;1;31;47m8[0;31;40m8.[0;34;40m  [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m;[0;5;37;43mS[0;5;37;47m8[0;5;1;31;43mS[0;5;37;43m88[0;5;1;31;43m8[0;5;1;33;47m8[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m888[0;1;33;47mS[0;5;1;31;43m8[0;5;1;37;43m8[0;1;33;47mX[0;1;35;47mS[0;1;37;47m.: [0;1;30;47m888[0;35;47m@@[0;5;37;43m88888888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43m8[0;5;1;37;43m8[0;5;1;31;43m8[0;5;31;40m8[0;32;40m.[0;34;40m.[0;31;40m  [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m%[0;5;1;31;43m8[0;1;33;47mS[0;5;37;43m8888888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43m@[0;5;1;37;43m8[0;5;37;43m88[0;1;37;47m  ::[0;1;30;47mX[0;5;35;40mS [0;1;30;47mX@%[0;35;47mX[0;5;37;43m888[0;5;1;31;43m8[0;5;1;37;43m8[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43mS[0;5;37;43m888[0;37;43m8[0;31;40mS[0;34;40m [0;31;40m   [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS.[0;1;33;47m8[0;5;37;43m88888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43mX[0;5;37;43m8888[0;5;1;31;43m8[0;5;37;47m8[0;1;37;47m  :[0;1;30;47m%[0;5;35;40m:[0;5;37;40mS[0;1;30;47mSSX@[0;5;37;43m8888888888[0;5;1;31;43m8[0;30;41m@[0;34;40mt[0;31;40m    [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;1;33;43mS[0;1;33;47m8[0;5;37;43m88[0;5;1;31;43m8[0;5;1;37;43m8[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43mS[0;5;37;43m8888[0;5;1;31;43m8[0;5;37;47m8[0;5;37;43mX[0;5;1;31;43m@[0;1;37;47m;::: [0;1;30;47mSSS8[0;5;37;43m88[0;5;1;31;43m8[0;5;1;33;47m8[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43m@[0;5;37;43m8888[0;1;30;45m8[0;31;40m%[0;34;40m [0;31;40m    [0m\n"
-OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m:[0;1;33;47m8[0;5;37;43m8888888888[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m@[0;5;37;43m888[0;1;33;47mS[0;1;37;47m  [0;1;30;47m;@8[0;1;33;47m@[0;5;37;43m888888@888[0;5;1;31;43m8[0;1;33;47m8[0;31;40m8      [0m\n"
-OFFSET_LOGO"[0;5;30;40m@[0;5;37;43m888888[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m8[0;5;1;37;43m8[0;5;1;31;43m8[0;5;37;43m88888888@888888888[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m8[0;5;1;33;47m8[0;5;37;43m8[0;35;41m;[0;34;40m [0;31;40m      [0m\n"
-OFFSET_LOGO"[0;31;40m.[0;1;30;43mX[0;33;41m@[0;31;43m8[0;5;35;41m@[0;1;30;43m8[0;5;35;41mX[0;5;33;40m.[0;5;33;41m@[0;5;33;40m:[0;1;31;43m8[0;5;35;40m.[0;1;31;43m8[0;5;35;40m:[0;5;33;41m%[0;1;30;43m8[0;5;33;41mX[0;5;33;40m:[0;5;33;41mX[0;1;30;43m8[0;1;31;43m8[0;1;30;43m8[0;31;43m8[0;1;30;43m8[0;31;43m8[0;1;30;43m8[0;5;31;41m8[0;1;30;43m8[0;5;31;41mX[0;5;33;40m;[0;5;33;41mS[0;5;37;40m%[0;5;33;41m8[0;5;33;40m;[0;1;31;43m8[0;5;33;40m%[0;1;30;41m%[0;34;40m.[0;31;40m       [0m\n"
-;
+    printf("\n%s", OFFSET_LOGO"[0;31;40m:[0;1;30;43m;;;;;;;;;;;;;;;[0;31;40m8[0;32;40m:[0;34;40m                           [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS:.[0;1;33;43m.[0;5;1;31;43mX[0;5;33;43m  [0;1;33;43m.[0;5;1;31;43mX[0;5;33;43m  [0;1;33;43m.[0;5;1;31;43mX[0;5;33;43m .[0;1;33;43m.[0;1;30;41m8[0;32;40m      [0;34;40m                     [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS[0;1;31;43m8[0;5;37;43mXX8[0;5;37;41m8[0;5;37;43m88[0;1;33;47m8[0;5;37;41m8[0;5;37;43m88[0;1;33;47m8[0;5;37;41m8[0;5;37;43m88[0;1;33;43mt[0;5;33;40mt[0;5;31;40mS[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;5;30;40m8[0;5;33;40m8[0;34;40m:[0;31;40m.[0;32;40m   [0;34;40m [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m% [0;5;1;33;41m8[0;1;33;47m8[0;1;37;47m [0;1;33;47mS[0;1;37;47m [0;1;33;47mS[0;1;37;47m [0;1;33;47mX[0;1;37;47m [0;1;33;47mS[0;1;37;47m [0;1;33;47mX[0;1;37;47m  %[0;1;33;47m@%[0;1;30;47m [0;1;33;47mX[0;1;37;47m.[0;1;33;47mX[0;1;37;47m [0;1;33;47mX[0;1;37;47m.[0;1;33;47mX[0;1;37;47m [0;1;33;47mX[0;1;37;47m.[0;1;33;47mX[0;1;37;47m [0;1;33;47mX[0;1;37;47m.[0;1;33;47mX[0;1;37;47m [0;1;33;47mX[0;1;37;47m.[0;1;30;41m8[0;32;40m.    [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS[0;1;33;43m:[0;5;37;43mX8[0;1;33;47mS[0;1;37;47m t[0;5;37;47m8[0;5;1;33;47m8[0;5;37;47m8[0;1;37;47mt[0;5;37;47m8[0;5;1;33;47m8[0;5;37;47m8[0;1;37;47mS[0;5;1;37;43m8[0;5;37;47m8[0;1;37;47m%8888888888888888888[0;1;33;47mS[0;1;30;47m;[0;5;33;40mt[0;32;40m    [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m; [0;5;1;33;41m8[0;1;33;47m8[0;1;37;47m %[0;5;1;33;47m8[0;5;37;47m88@%@8XS8Sttt[0;5;1;33;47m8[0;5;37;47m%tt[0;5;1;33;47m8[0;5;37;47m%tt[0;5;1;33;47m8[0;5;37;47m%tt[0;5;1;33;47m8[0;5;37;47m%tt;;t[0;1;37;47m%[0;31;40m.[0;32;40m   [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;1;33;43m%[0;5;37;43mX@[0;1;37;47m ;%[0;5;37;47m8@%t[0;5;1;33;47m8[0;5;37;47m8%ttS@[0;5;1;33;47m8[0;5;37;47mS%S@S%%t[0;1;33;47mS[0;5;37;47mt%ttX8tt[0;5;1;33;47m8[0;5;37;47mStt[0;1;33;47mS[0;31;40m. [0;32;40m  [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m:[0;5;33;41m [0;5;37;47m:@S[0;5;1;33;47m@[0;5;37;47m8%[0;5;1;37;43m8[0;5;37;47m8[0;5;37;43m8[0;1;37;47mt[0;5;1;37;43m8[0;5;1;33;47m88[0;5;37;43m8[0;1;37;47m:[0;5;1;33;47m8[0;5;37;47m8[0;5;1;37;43m8[0;1;37;47m8[0;5;37;43mX8[0;5;37;47m8[0;5;37;43m@[0;5;37;47m%[0;5;37;43m8[0;1;37;47mX[0;5;1;37;43m8[0;1;37;47m8[0;5;37;43mX[0;1;33;47mS[0;5;37;43m8[0;5;37;47m8[0;5;37;43m8[0;5;37;47m@[0;5;1;37;43m8[0;1;37;47m8[0;5;37;43mX[0;1;37;47mS[0;1;30;43m;[0;5;31;40mS[0;1;30;43m:[0;34;40m [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS;[0;5;37;47m@t%S%[0;5;37;43m@@X8@8888@X[0;5;1;31;43mX[0;5;37;43m8X88@8X@XXX888X8X@X88@@[0;1;33;47m8[0;1;30;41m8[0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS;[0;5;37;47m8Stt[0;5;1;37;43m8[0;5;37;43m88[0;5;1;31;43m@[0;5;37;43m88[0;5;1;31;43m@[0;5;37;43m888[0;5;1;31;43m@[0;5;37;43m888[0;1;37;47m [0;5;37;43m8[0;1;37;47m [0;5;37;43m8888888888888888888[0;5;33;43m:[0;34;40m;[0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS[0;1;33;43m:[0;5;37;47mXt%S[0;5;37;43m@88888[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m8[0;5;1;33;47m8[0;5;37;43m88[0;5;37;47m888[0;1;37;47m    [0;5;1;31;43mX[0;5;37;43m88[0;5;1;31;43m8[0;5;37;43m88[0;5;1;31;43m@[0;5;37;43m88[0;5;1;31;43m@[0;5;37;43m88[0;5;1;31;43m8[0;5;37;43m8888[0;35;41m@[0;34;40m [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m;[0;5;37;43mS[0;5;37;47m8St[0;5;37;43m888888[0;5;1;31;43m8[0;5;37;43m888888[0;5;37;47m8[0;1;37;47m [0;5;1;31;43mX[0;5;37;43m88[0;1;37;47m  [0;5;37;47m8[0;5;1;31;43m@[0;5;1;37;43m8[0;5;37;43m888[0;5;1;37;43m8[0;5;37;43m88[0;5;1;37;43m8[0;5;37;43m88[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m8[0;5;37;43m8[0;5;33;41m;[0;34;40m%[0;32;40m:[0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m%[0;5;1;31;43m8[0;5;37;47m@t[0;5;1;33;47m8[0;5;37;43m88[0;5;1;31;43m@[0;5;1;37;43m8[0;5;1;31;43m8[0;5;37;47m8[0;5;37;43m8888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43m8[0;5;37;47m%[0;1;37;47m.[0;5;37;43m8888[0;1;37;47m;[0;5;37;43m88888[0;5;1;31;43m8[0;1;37;47m [0;5;1;31;43mX[0;5;1;37;43m8[0;5;1;33;41m8[0;5;37;43m88[0;5;1;31;43m8[0;5;37;47m8[0;5;37;43m88[0;5;31;40m8[0;32;40m.[0;34;40m [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS.[0;5;37;47m8@[0;5;37;43m888888[0;5;1;31;43mX[0;5;1;37;43m8[0;5;1;31;43m8[0;5;1;33;47m8[0;5;37;43m88[0;5;1;31;43mX[0;5;37;47m8[0;1;37;47m;[0;5;37;47m8[0;5;37;43m88[0;1;33;47mX[0;1;37;47m . [0;5;37;43m8[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m8[0;5;1;37;43m8[0;5;1;31;43mX[0;5;1;33;47m8[0;5;37;43m88888[0;5;1;31;43m@[0;5;37;43m8[0;31;43m8[0;34;40mt[0;31;40m [0;34;40m [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS[0;1;33;43m.[0;5;37;47m@8[0;5;37;43mS88888888[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m888[0;1;37;47mS [0;1;35;47m%S[0;35;47mXX[0;1;37;47m [0;5;37;43m8888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43mX[0;5;37;43m888888[0;5;1;37;43m8[0;1;31;47m8[0;31;40m8.[0;34;40m  [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m;[0;5;37;43mS[0;5;37;47m8[0;5;1;31;43mS[0;5;37;43m88[0;5;1;31;43m8[0;5;1;33;47m8[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m888[0;1;33;47mS[0;5;1;31;43m8[0;5;1;37;43m8[0;1;33;47mX[0;1;35;47mS[0;1;37;47m.: [0;1;30;47m888[0;35;47m@@[0;5;37;43m88888888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43m8[0;5;1;37;43m8[0;5;1;31;43m8[0;5;31;40m8[0;32;40m.[0;34;40m.[0;31;40m  [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m%[0;5;1;31;43m8[0;1;33;47mS[0;5;37;43m8888888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43m@[0;5;1;37;43m8[0;5;37;43m88[0;1;37;47m  ::[0;1;30;47mX[0;5;35;40mS [0;1;30;47mX@%[0;35;47mX[0;5;37;43m888[0;5;1;31;43m8[0;5;1;37;43m8[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43mS[0;5;37;43m888[0;37;43m8[0;31;40mS[0;34;40m [0;31;40m   [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43mS.[0;1;33;47m8[0;5;37;43m88888[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43mX[0;5;37;43m8888[0;5;1;31;43m8[0;5;37;47m8[0;1;37;47m  :[0;1;30;47m%[0;5;35;40m:[0;5;37;40mS[0;1;30;47mSSX@[0;5;37;43m8888888888[0;5;1;31;43m8[0;30;41m@[0;34;40mt[0;31;40m    [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;1;33;43mS[0;1;33;47m8[0;5;37;43m88[0;5;1;31;43m8[0;5;1;37;43m8[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43mS[0;5;37;43m8888[0;5;1;31;43m8[0;5;37;47m8[0;5;37;43mX[0;5;1;31;43m@[0;1;37;47m;::: [0;1;30;47mSSS8[0;5;37;43m88[0;5;1;31;43m8[0;5;1;33;47m8[0;5;1;31;43m8[0;5;37;47m8[0;5;1;31;43m@[0;5;37;43m8888[0;1;30;45m8[0;31;40m%[0;34;40m [0;31;40m    [0m\n");
+    printf("%s", OFFSET_LOGO"[0;1;30;41m8[0;5;33;43m:[0;1;33;47m8[0;5;37;43m8888888888[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m@[0;5;37;43m888[0;1;33;47mS[0;1;37;47m  [0;1;30;47m;@8[0;1;33;47m@[0;5;37;43m888888@888[0;5;1;31;43m8[0;1;33;47m8[0;31;40m8      [0m\n");
+    printf("%s", OFFSET_LOGO"[0;5;30;40m@[0;5;37;43m888888[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m8[0;5;1;37;43m8[0;5;1;31;43m8[0;5;37;43m88888888@888888888[0;5;1;31;43m8[0;5;1;37;43m8[0;5;37;43m8[0;5;1;31;43m8[0;5;1;33;47m8[0;5;37;43m8[0;35;41m;[0;34;40m [0;31;40m      [0m\n");
+    printf("%s", OFFSET_LOGO"[0;31;40m.[0;1;30;43mX[0;33;41m@[0;31;43m8[0;5;35;41m@[0;1;30;43m8[0;5;35;41mX[0;5;33;40m.[0;5;33;41m@[0;5;33;40m:[0;1;31;43m8[0;5;35;40m.[0;1;31;43m8[0;5;35;40m:[0;5;33;41m%[0;1;30;43m8[0;5;33;41mX[0;5;33;40m:[0;5;33;41mX[0;1;30;43m8[0;1;31;43m8[0;1;30;43m8[0;31;43m8[0;1;30;43m8[0;31;43m8[0;1;30;43m8[0;5;31;41m8[0;1;30;43m8[0;5;31;41mX[0;5;33;40m;[0;5;33;41mS[0;5;37;40m%[0;5;33;41m8[0;5;33;40m;[0;1;31;43m8[0;5;33;40m%[0;1;30;41m%[0;34;40m.[0;31;40m       [0m\n\n");
+}
 
 char line[4096];
 
@@ -88,107 +92,107 @@ void print_ascii(unsigned char *a)
 
 
 /*
-struct keys
-{
-    //fill with whatever you need for every compression system or encryption system
-    //when initializing, please only fill what you need
-    //and don't forget to free
+   struct keys
+   {
+//fill with whatever you need for every compression system or encryption system
+//when initializing, please only fill what you need
+//and don't forget to free
 }keys;
 
 char *restore_file(char *src, char *dst, int enc, int comp, struct keys *k)
 {
-    if (dst == NULL)
-    {
-        dst = malloc(4096);
-        strcpy(dst, src);
-        char *start = dst + strlen(dst);
-        strcpy(dst, "_restored");
-    }
+if (dst == NULL)
+{
+dst = malloc(4096);
+strcpy(dst, src);
+char *start = dst + strlen(dst);
+strcpy(dst, "_restored");
+}
 
-    char tempfile[4096];
-    //set tempfile to whatever you wantand decrypt into it
-    switch (enc)
-    {
-        case 1:
-            //rotn
-            break;
-        case 2:
-            //vigenere
-            break;
-        case 3:
-            //aes
-            break;
-        case 4:
-            //rsa
-            break;
-        case 5:
-            //elgamal
-            break;
-        default:
-            break;
-    }
+char tempfile[4096];
+//set tempfile to whatever you wantand decrypt into it
+switch (enc)
+{
+case 1:
+//rotn
+break;
+case 2:
+//vigenere
+break;
+case 3:
+//aes
+break;
+case 4:
+//rsa
+break;
+case 5:
+//elgamal
+break;
+default:
+break;
+}
 
-    //from tempfile to dst
-    switch (comp)
-    {
-        case 1:
-            //huffman
-            break;
-        case 2:
-            //LZ
-            break;
-        default:
-            break;
-    }
+//from tempfile to dst
+switch (comp)
+{
+case 1:
+//huffman
+break;
+case 2:
+//LZ
+break;
+default:
+break;
+}
 }
 
 struct keys *keys_init(int enc, int comp)
 {
-    struct keys *key = malloc(sizeof(struct keys));
-    switch (enc)
-    {
-        case 0:
-            break;
-        case 1:
-            printf("Please give the number for rotn encryption:\n");
-            //Get whatever is needed for rotn
-            break;
-        case 2:
-            printf("Please give the key for vigenere encryption:\n");
-            //Get the key for vigenere
-            break;
-        case 3:
-            printf("Please give the password for aes encryption:\n");
-            //get whatever for aes
-            break;
-        case 4:
-            printf("Please give the link to the key for rsa encryption:\n");
-            //get whatever for rsa
-            break;
-        case 5:
-            printf("Please give whatever for elgamal encryption:\n");
-            //get whatever for elgamal encryption
-            break;
-        default:
-            break;
-    }
+struct keys *key = malloc(sizeof(struct keys));
+switch (enc)
+{
+case 0:
+break;
+case 1:
+printf("Please give the number for rotn encryption:\n");
+//Get whatever is needed for rotn
+break;
+case 2:
+printf("Please give the key for vigenere encryption:\n");
+//Get the key for vigenere
+break;
+case 3:
+printf("Please give the password for aes encryption:\n");
+//get whatever for aes
+break;
+case 4:
+printf("Please give the link to the key for rsa encryption:\n");
+//get whatever for rsa
+break;
+case 5:
+printf("Please give whatever for elgamal encryption:\n");
+//get whatever for elgamal encryption
+break;
+default:
+break;
+}
 
-    switch (comp)
-    {
-        case 0:
-            break;
-        case 1:
-            break;
-        case 2:
-            printf("Please give the dictionnary path for LZ compression:\n");
-            char line[4096];
-            getline(&line, 4096, stdin);
-            //save it in keys struct
-            break;
-        default:
-            break;
-    }
-    return key;
+switch (comp)
+{
+    case 0:
+        break;
+    case 1:
+        break;
+    case 2:
+        printf("Please give the dictionnary path for LZ compression:\n");
+        char line[4096];
+        getline(&line, 4096, stdin);
+        //save it in keys struct
+        break;
+    default:
+        break;
+}
+return key;
 }
 
 char *restore_clear_saves(char *save_dir, int enc, int comp)
@@ -246,7 +250,7 @@ int remove_dir(const char *path)
             char *buf;
             size_t len;
             if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
-             continue;
+                continue;
             len = path_len + strlen(p->d_name) + 2; 
             buf = malloc(sizeof(char) * len);
             if (buf)
@@ -269,9 +273,37 @@ int remove_dir(const char *path)
     if (!r)
         r = rmdir(path);
 
-   return r;    
+    return r;    
 }
 
+
+#define PASS_SIZE 256
+char passbuff[PASS_SIZE];
+void getPassword(char password[])
+{
+    static struct termios oldt, newt;
+    int i = 0;
+    int c;
+
+    /*saving the old settings of STDIN_FILENO and copy settings for resetting*/
+    tcgetattr( STDIN_FILENO, &oldt);
+    newt = oldt;
+
+    /*setting the approriate bit in the termios struct*/
+    newt.c_lflag &= ~(ECHO);          
+
+    /*setting the new bits*/
+    tcsetattr( STDIN_FILENO, TCSANOW, &newt);
+
+    /*reading the password from the console*/
+    while ((c = getchar())!= '\n' && c != EOF && i < PASS_SIZE){
+        password[i++] = c;
+    }
+    password[i] = '\0';
+
+    /*resetting our old STDIN_FILENO*/ 
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
+}
 
 void ask_string_with_text(char *text, char *out)
 {
@@ -321,17 +353,26 @@ void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp
         sprintf(out, "%s/%s", tmp_dir, backup);
         return;
     }
+
+    unsigned long rot_pass;
+    char backup_pass[32768];
     char private_key_file[PATH_MAX];
     char lz_dico_file[PATH_MAX];
     if (enc_type == RSA || enc_type == ELGAMAL)
-    {
         ask_string_with_text("Please give the path of the private file key:\n", private_key_file);
+    if (enc_type == ROTN || enc_type == VIGENERE || enc_type == AES)
+    {
+        printf("Please give your backup password: \n");
+        getPassword(passbuff);
+        printf("\n\n");
+        if (enc_type = ROTN)
+            rot_pass = atol(passbuff);
     }
 
     if (comp_type == 2)
-    {
         ask_string_with_text("Please give the path of the lz78 dictionary file:\n", lz_dico_file);
-    }
+
+
     //TO DO
     sprintf(out, "%s/%s", tmp_dir, backup);
 }
@@ -339,7 +380,7 @@ void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp
 int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 {
     printf("Hello, welcome to PackupSystem4 command line interface!\n\n");
-    
+
     char *main_menu_0 = "0";
     char *main_menu_1 = "1";
     char *main_menu_q = "q";
@@ -351,7 +392,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         char *save_menu_1 = "1";
         char *save_menu_args[] = {save_menu_0, save_menu_1}; 
         ask_predef_with_text("Do you already have a save or is it the first one ?\n"
-            "[0]: no prior save\n[1]: a save already exists\n", save_menu_args, 2, line);
+                             "[0]: no prior save\n[1]: a save already exists\n", save_menu_args, 2, line);
         int have_save;
         if (strcmp(line, save_menu_0) == 0)
             have_save = 0;
@@ -359,14 +400,14 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
             have_save = 1;
         char save_dir[PATH_MAX];
         ask_string_with_text("Please give the path of the directory you want to save:\n", save_dir);
-        
+
         char save_file[PATH_MAX];
         ask_string_with_text("Please give the path of the file in which you want to save it.\nPlease note that it will"
-            "be lost if it already exists:\n", save_file);
+                             "be lost if it already exists:\n", save_file);
         if (have_save) {
             char previous_save[PATH_MAX];
             ask_string_with_text("Please give the name of the previous save:\n", previous_save);
-            
+
             char *enc_menu_0 = "0";
             char *enc_menu_1 = "1";
             char *enc_menu_2 = "2";
@@ -375,7 +416,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
             char *enc_menu_5 = "5";
             char *enc_menu_args[] = {enc_menu_0, enc_menu_1, enc_menu_2, enc_menu_3, enc_menu_4, enc_menu_5};
             ask_predef_with_text("Which encrypton was used ?\n"
-                   "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
+                                 "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
             enum ENCRYPTION_TYPE enc_type;
             switch (line[0]) {
                 case '0':
@@ -398,7 +439,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
             char *comp_menu_2 = "2";
             char *comp_menu_args[] = {comp_menu_0, comp_menu_1, comp_menu_2};
             ask_predef_with_text("Which compression was used ?\n"
-                   "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
+                                 "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
             int comp_type = atoi(line);
             char tmp_dir[] = "./.packuptemp/";
             mkdir(tmp_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -406,7 +447,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
             decomp_dechiff_backup(previous_save, enc_type, comp_type, tmp_dir, clear_backup_prev);
             FILESYSTEM_create_new_save(save_dir, save_file, clear_backup_prev);
             remove_dir(tmp_dir);
- 
+
         } else {
             FILESYSTEM_create_save(save_dir, save_file);
         }
@@ -418,7 +459,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         char *enc_menu_5 = "5";
         char *enc_menu_args[] = {enc_menu_0, enc_menu_1, enc_menu_2, enc_menu_3, enc_menu_4, enc_menu_5};
         ask_predef_with_text("Which encrypton do you want to used ?\n"
-                   "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
+                             "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
         enum ENCRYPTION_TYPE new_enc_type;
         switch (line[0]) {
             case '0':
@@ -441,7 +482,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         char *comp_menu_2 = "2";
         char *comp_menu_args[] = {comp_menu_0, comp_menu_1, comp_menu_2};
         ask_predef_with_text("Which compression do you want to used ?\n"
-                   "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
+                             "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
         int new_comp_type = atoi(line);
         comp_chiff_file(save_file, new_enc_type, new_comp_type);
     } else if (strcmp(line, main_menu_1) == 0) {
@@ -456,7 +497,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         char *enc_menu_5 = "5";
         char *enc_menu_args[] = {enc_menu_0, enc_menu_1, enc_menu_2, enc_menu_3, enc_menu_4, enc_menu_5};
         ask_predef_with_text("Which encrypton was used ?\n"
-                   "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
+                             "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
         enum ENCRYPTION_TYPE enc_type;
         switch (line[0]) {
             case '0':
@@ -479,7 +520,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         char *comp_menu_2 = "2";
         char *comp_menu_args[] = {comp_menu_0, comp_menu_1, comp_menu_2};
         ask_predef_with_text("Which compression was used ?\n"
-                   "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
+                             "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
         int comp_type = atoi(line);
 
         //TO FIX
@@ -490,125 +531,125 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
     } else
         return EXIT_SUCCESS;
 
-/*
-    if (!save)
+    /*
+       if (!save)
+       {
+       printf("You have chosen to save a directory.\n"
+       "Do you already have a save or is it the first one ?\n"
+       "(0 => no prior save, 1 => a save already exists)\n");
+       getline(&line, 4096, stdin);
+       int p_save = atoi(line);
+       printf("please give the name of the directory you want to save:\n");
+       getline(&line, 4096, stdin);
+       char dirpath[4096];
+       strcpy(dirpath, line);
+       printf("Please give the name of the file in which you want to save it. Please note that it will\n"
+       "be lost if it already exists:\n");
+       char savepath[4096];
+       getline(&line, 4096, stdin);
+       strcpy(savepath, line);
+       char tempfile[4096];
+       strcpy(tempfile, savepath);
+       char *start = tempfile + strlen(savepath);
+       strcpy(start, ".rdtgs");
+       if (p_save)
+       {
+       printf("Please give the name of the previous save:\n");
+       char previous_save[4096];
+       getline(&line, 4096, stdin);
+       strcpy(previous_save, line);
+       printf("Which encrypton was used ?\n"
+       "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
+       getline(&line, 4096, stdin);
+       int enc = atoi(line);
+       printf("Which compression was used ?\n"
+       "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
+       getline(&line, 4096, stdin);
+       int comp = atoi(line);
+       struct keys *k = keys_init(enc, comp);
+       char *prev = restore_file(previous_save, NULL, enc, comp, k);
+       FILESYSTEM_create_new_save(dirpath, tempfile, prev);
+       }
+       else
+       {
+       FILESYSTEM_create_save(dirpath, tempfile);
+       }
+       printf("Please say which compression you want to use: (0 => no compression, 1 => Huffman, 2 => LZ)\n");
+       getline(&line, 4096, stdin);
+       int comp = atoi(line);
+       char secondtempfile[4096];
+    //name as you wish the second temp file
+    switch (comp)
     {
-        printf("You have chosen to save a directory.\n"
-            "Do you already have a save or is it the first one ?\n"
-            "(0 => no prior save, 1 => a save already exists)\n");
-        getline(&line, 4096, stdin);
-        int p_save = atoi(line);
-        printf("please give the name of the directory you want to save:\n");
-        getline(&line, 4096, stdin);
-        char dirpath[4096];
-        strcpy(dirpath, line);
-        printf("Please give the name of the file in which you want to save it. Please note that it will\n"
-            "be lost if it already exists:\n");
-        char savepath[4096];
-        getline(&line, 4096, stdin);
-        strcpy(savepath, line);
-        char tempfile[4096];
-        strcpy(tempfile, savepath);
-        char *start = tempfile + strlen(savepath);
-        strcpy(start, ".rdtgs");
-        if (p_save)
-        {
-            printf("Please give the name of the previous save:\n");
-            char previous_save[4096];
-            getline(&line, 4096, stdin);
-            strcpy(previous_save, line);
-            printf("Which encrypton was used ?\n"
-                   "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-            getline(&line, 4096, stdin);
-            int enc = atoi(line);
-            printf("Which compression was used ?\n"
-                   "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
-            getline(&line, 4096, stdin);
-            int comp = atoi(line);
-            struct keys *k = keys_init(enc, comp);
-            char *prev = restore_file(previous_save, NULL, enc, comp, k);
-            FILESYSTEM_create_new_save(dirpath, tempfile, prev);
-        }
-        else
-        {
-            FILESYSTEM_create_save(dirpath, tempfile);
-        }
-        printf("Please say which compression you want to use: (0 => no compression, 1 => Huffman, 2 => LZ)\n");
-        getline(&line, 4096, stdin);
-        int comp = atoi(line);
-        char secondtempfile[4096];
-        //name as you wish the second temp file
-        switch (comp)
-        {
-            case 0:
-                break;
-            case 1:
-                //compression huffman
-                break;
-            case 2:
-                //compression LZ
-                break;
-            default:
-                break;
-        }
-        remove(tempfile);
-        printf("Please say which encryption you want to use:\n"
-            "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-        getline(&line, 4096, stdin);
-        int enc = atoi(line);
-        switch (enc)
-        {
-            case 0:
-                break;
-            case 1:
-                //encryption rotn
-                break;
-            case 2:
-                //encryption vigenere
-                break;
-            case 3:
-                //encryption aes
-                break;
-            case 4:
-                //encryption rsa
-                break;
-            case 5:
-                //encryption elgamal
-                break;
-            default:
-                break;
-        }
-        remove(secondtempfile);
-        printf("Save created\n");
+    case 0:
+    break;
+    case 1:
+    //compression huffman
+    break;
+    case 2:
+    //compression LZ
+    break;
+    default:
+    break;
     }
-    else if (save)
+    remove(tempfile);
+    printf("Please say which encryption you want to use:\n"
+    "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
+    getline(&line, 4096, stdin);
+    int enc = atoi(line);
+    switch (enc)
     {
-        printf("You have chosen to restore a dir.\n");
-        printf("Please give the directory in which the saves are:\n");
-        getline(&line, 4096, stdin);
-        char save_dir[4096];
-        strcpy(save_dir, line);
-        printf("Please give the way it was encrypted:\n"
-               "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-        getline(&line, 4096, stdin);
-        int enc = atoi(line);
-        printf("Please give the way it was compressed:\n"
-               "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
-        getline(&line, 4096, stdin);
-        int comp = atoi(line);
-        char *temp_saves = restore_clear_saves(save_dir, enc, comp);
-        FILESYSTEM_restore_save(temp_saves);
-        free(temp_saves);
-        printf("Restoration done\n");
-    }
-    */
-    return EXIT_SUCCESS;
+    case 0:
+    break;
+    case 1:
+    //encryption rotn
+    break;
+    case 2:
+    //encryption vigenere
+    break;
+    case 3:
+    //encryption aes
+    break;
+    case 4:
+    //encryption rsa
+    break;
+    case 5:
+    //encryption elgamal
+    break;
+    default:
+    break;
+}
+remove(secondtempfile);
+printf("Save created\n");
+}
+else if (save)
+{
+    printf("You have chosen to restore a dir.\n");
+    printf("Please give the directory in which the saves are:\n");
+    getline(&line, 4096, stdin);
+    char save_dir[4096];
+    strcpy(save_dir, line);
+    printf("Please give the way it was encrypted:\n"
+           "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
+    getline(&line, 4096, stdin);
+    int enc = atoi(line);
+    printf("Please give the way it was compressed:\n"
+           "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
+    getline(&line, 4096, stdin);
+    int comp = atoi(line);
+    char *temp_saves = restore_clear_saves(save_dir, enc, comp);
+    FILESYSTEM_restore_save(temp_saves);
+    free(temp_saves);
+    printf("Restoration done\n");
+}
+*/
+return EXIT_SUCCESS;
 }
 
 
 int main(int argc, char *argv[])
 {
-    printf("\n%s\n", ps4logo);
+    print_ps4logo();
     srand(time(NULL));
 
     if (argc == 1)
@@ -622,217 +663,217 @@ int main(int argc, char *argv[])
         if (strcmp("cli", argv[1]) == 0)
             return main_cli(argc, argv);
     }
-    
+
     return EXIT_SUCCESS;
 }
 
-    /*        if (strcmp("backup", argv[1]) == 0)
-        {
+/*        if (strcmp("backup", argv[1]) == 0)
+          {
 
-            struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
-            print_tree(tree->son, 0);
-            FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
-            FILESYSTEM_free_metatree(tree);
-        }
+          struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
+          print_tree(tree->son, 0);
+          FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
+          FILESYSTEM_free_metatree(tree);
+          }
 
-        if (strcmp("restore", argv[1]) == 0)
-        {
-            FILESYSTEM_restore_original_save("./testfiles/saves/save.rdtgs");
+          if (strcmp("restore", argv[1]) == 0)
+          {
+          FILESYSTEM_restore_original_save("./testfiles/saves/save.rdtgs");
 
-            struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
-            print_tree(tree->son, 0);
-            FILESYSTEM_free_metatree(tree);
-        }
+          struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
+          print_tree(tree->son, 0);
+          FILESYSTEM_free_metatree(tree);
+          }
+
+          }
+
+          if (argc == 3)
+          {
+          if (strcmp("huffman", argv[1]) == 0)
+          {
+          int len_a = strlen(argv[2]);
+          unsigned char *text = (unsigned char *)(argv[2]);
+          printf("Text input = %s\n", text);
+          printf("Compressing...\n");
+          struct huff_out *compressed = compression(text, len_a);
+          printf("\nText ouput = %s | ", compressed->dataOUT);
+          print_chare(compressed->dataOUT, compressed->len);
+          printf("Ratio : %d%%\n", ((compressed->len * 100) / len_a));
+          free_out(compressed);
+          }
+
+          if (strcmp("dehuffman", argv[1]) == 0)
+          {
+          unsigned char *text = (unsigned char *)(argv[2]);
+          int len = strlen(argv[2]);
+          struct huff_out *compressed = compression(text, len);
+
+          struct huff_out *final = decompression(compressed->dataOUT,
+          compressed->len);
+          int len_a = strlen((char *)final->dataOUT);
+          if (len_a != len)
+          printf("Longeur differente : %d -> %d\n", len, len_a);
+          printf("Text input : %s\n", text);
+          printf("Text output : ");
+          print_chare(final->dataOUT, final->len);
+          for (int i = 0; i < final->len; ++i)
+          printf("%d", final->dataOUT[i]);
+          printf("\n");
+          free(compressed->dataOUT);
+          free(compressed);
+          free(final->dataOUT);
+          free(final);
+          }
+
+          if (strcmp("filehuffman", argv[1]) == 0)
+          {
+          char *path_output = compression_function(argv[2]);
+          long int ratio =(findSize(path_output)*100)/findSize(argv[2]);
+          printf("Input_size = %ld\n", findSize(argv[2]));
+          printf("Output_size = %ld\n", findSize(path_output));
+          printf("Ratio = %ld %%\n", ratio);
+          printf("Location compress file : %s\n", path_output);
+          free(path_output);
+          }
+
+          if (strcmp("filedehuffman", argv[1]) == 0)
+          {
+char *path_output = decompression_function(argv[2]);
+printf("Location decompress file : %s\n", path_output);
+free(path_output);
+}
+
+if (strcmp("filesystem", argv[1]) == 0)
+{
+    char *path = argv[2];
+
+    struct meta_tree *tree = FILESYSTEM_build_metatree(path);
+    printf("Scanning directory %s ...\n\n", path);
+    printf("TREE:\n");
+    print_tree(tree->son, 0);
+
+    FILESYSTEM_save_metatree(tree, "test_tree_main.txt");
+    printf("\n\nSaving tree from tree_test_main.txt\n");
+
+
+    struct meta_tree *restored = FILESYSTEM_restore_metatree("test_tree_main.txt");
+    printf("\n\nLoading tree to tree_test_main.txt\n");
+    printf("RESTORED TREE: \n");
+    print_tree(restored->son, 0);
+
+    FILESYSTEM_free_metatree(restored);
+    FILESYSTEM_free_metatree(tree);
+}
+}
+
+if (argc == 4)
+{
+    if (strcmp("rotn", argv[1]) == 0)
+    {
+        char *text = argv[2];
+        long key = atol(argv[3]);
+
+        printf("text: %s   | key: %ld\n", text, key);
+
+        ROTN_encrypt(text, key);
+        printf("encrypted text: %s  |   ", text);
+        print_ascii((unsigned char*)text); printf("\n");
+
+        ROTN_decrypt(text, key);
+        printf("decrypted text: %s\n", text);
+    }
+
+    if (strcmp("vigenere", argv[1]) == 0)
+    {
+        char *text = argv[2];
+        char *key = argv[3];
+
+        printf("text: %s   | key: %s\n", text, key);
+
+        VIGENERE_encrypt(text, key);
+        printf("encrypted text: %s  |   ", text);
+        print_ascii((unsigned char*)text); printf("\n");
+
+        VIGENERE_decrypt(text, key);
+        printf("decrypted text: %s\n", text);
+    }
+
+    if (strcmp("aes", argv[1]) == 0)
+    {
+        unsigned char *text = (unsigned char*)argv[2];
+        char *pass = argv[3];
+
+        unsigned char *key = AES_keyFromPass(pass, strlen(pass));
+        printf("password (%ld): %s\n", strlen(pass), pass);
+        printf("text(%ld): %s   | key: %s\n\n", strlen((char*)text), text, key);
+
+        unsigned char *output = NULL;
+        unsigned char *decrypt = NULL;
+
+        struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
+
+        size_t outlen = AES_encrypt(ctx, text, strlen((char*)text), &output);
+        printf("\nencrypted text (%ld): %s  |   ", outlen, output);
+        print_ascii(output); printf("\n");
+
+        size_t delen = AES_decrypt(ctx, output, outlen, &decrypt);
+        printf("\n\ndecrypted text (%ld): %s  |   ", delen, decrypt);
+        print_ascii(decrypt); printf("\n");
+
+        free(output);
+        free(decrypt);
+        AES_ctx_free(ctx);
+        free(key);
+    }
+}
+
+if (argc == 5)
+{
+    if (strcmp("aes-file-enc", argv[1]) == 0)
+    {
+        int e = AES_encrypt_file(argv[2], argv[3], argv[4]);
+        if (e < 0)
+            errx(e, "aes file enc: error ");
+    }
+
+    if (strcmp("aes-file-dec", argv[1]) == 0)
+    {
+        int e = AES_decrypt_file(argv[2], argv[3], argv[4]);
+        if (e < 0)
+            errx(e, "aes file dec: error ");
+    }
+
+    if (strcmp("gen-rsa-key", argv[1]) == 0)
+    {
+        struct RSA_pubKey *pubk;
+        struct RSA_privKey *privk;
+        unsigned long keysize = (unsigned long)atol(argv[2]);
+        RSA_generateKey(keysize, &privk, &pubk);
+
+        RSA_pubk_to_file(pubk, argv[3]);
+        RSA_privk_to_file(privk, argv[4]);
+
+        RSA_free_public_key(pubk);
+        RSA_free_private_key(privk);
 
     }
 
-    if (argc == 3)
+    if (strcmp("rsa-file-enc", argv[1]) == 0)
     {
-        if (strcmp("huffman", argv[1]) == 0)
-        {
-            int len_a = strlen(argv[2]);
-            unsigned char *text = (unsigned char *)(argv[2]);
-            printf("Text input = %s\n", text);
-            printf("Compressing...\n");
-            struct huff_out *compressed = compression(text, len_a);
-            printf("\nText ouput = %s | ", compressed->dataOUT);
-            print_chare(compressed->dataOUT, compressed->len);
-            printf("Ratio : %d%%\n", ((compressed->len * 100) / len_a));
-            free_out(compressed);
-        }
-
-        if (strcmp("dehuffman", argv[1]) == 0)
-        {
-            unsigned char *text = (unsigned char *)(argv[2]);
-            int len = strlen(argv[2]);
-            struct huff_out *compressed = compression(text, len);
-
-            struct huff_out *final = decompression(compressed->dataOUT,
-                                                   compressed->len);
-            int len_a = strlen((char *)final->dataOUT);
-            if (len_a != len)
-                printf("Longeur differente : %d -> %d\n", len, len_a);
-            printf("Text input : %s\n", text);
-            printf("Text output : ");
-            print_chare(final->dataOUT, final->len);
-            for (int i = 0; i < final->len; ++i)
-                printf("%d", final->dataOUT[i]);
-            printf("\n");
-            free(compressed->dataOUT);
-            free(compressed);
-            free(final->dataOUT);
-            free(final);
-        }
-
-        if (strcmp("filehuffman", argv[1]) == 0)
-        {
-            char *path_output = compression_function(argv[2]);
-            long int ratio =(findSize(path_output)*100)/findSize(argv[2]);
-            printf("Input_size = %ld\n", findSize(argv[2]));
-            printf("Output_size = %ld\n", findSize(path_output));
-            printf("Ratio = %ld %%\n", ratio);
-            printf("Location compress file : %s\n", path_output);
-            free(path_output);
-        }
-
-        if (strcmp("filedehuffman", argv[1]) == 0)
-        {
-            char *path_output = decompression_function(argv[2]);
-            printf("Location decompress file : %s\n", path_output);
-            free(path_output);
-        }
-
-        if (strcmp("filesystem", argv[1]) == 0)
-        {
-            char *path = argv[2];
-
-            struct meta_tree *tree = FILESYSTEM_build_metatree(path);
-            printf("Scanning directory %s ...\n\n", path);
-            printf("TREE:\n");
-            print_tree(tree->son, 0);
-
-            FILESYSTEM_save_metatree(tree, "test_tree_main.txt");
-            printf("\n\nSaving tree from tree_test_main.txt\n");
-
-
-            struct meta_tree *restored = FILESYSTEM_restore_metatree("test_tree_main.txt");
-            printf("\n\nLoading tree to tree_test_main.txt\n");
-            printf("RESTORED TREE: \n");
-            print_tree(restored->son, 0);
-
-            FILESYSTEM_free_metatree(restored);
-            FILESYSTEM_free_metatree(tree);
-        }
+        struct RSA_pubKey *pub = RSA_pubKey_from_file(argv[4]);
+        int e = RSA_encode_file(argv[2], argv[3], pub);
+        RSA_free_public_key(pub);
+        if (e < 0)
+            errx(e, "rsa file enc: error ");
     }
 
-    if (argc == 4)
+    if (strcmp("rsa-file-dec", argv[1]) == 0)
     {
-        if (strcmp("rotn", argv[1]) == 0)
-        {
-            char *text = argv[2];
-            long key = atol(argv[3]);
-
-            printf("text: %s   | key: %ld\n", text, key);
-
-            ROTN_encrypt(text, key);
-            printf("encrypted text: %s  |   ", text);
-            print_ascii((unsigned char*)text); printf("\n");
-
-            ROTN_decrypt(text, key);
-            printf("decrypted text: %s\n", text);
-        }
-
-        if (strcmp("vigenere", argv[1]) == 0)
-        {
-            char *text = argv[2];
-            char *key = argv[3];
-
-            printf("text: %s   | key: %s\n", text, key);
-
-            VIGENERE_encrypt(text, key);
-            printf("encrypted text: %s  |   ", text);
-            print_ascii((unsigned char*)text); printf("\n");
-
-            VIGENERE_decrypt(text, key);
-            printf("decrypted text: %s\n", text);
-        }
-
-        if (strcmp("aes", argv[1]) == 0)
-        {
-            unsigned char *text = (unsigned char*)argv[2];
-            char *pass = argv[3];
-
-            unsigned char *key = AES_keyFromPass(pass, strlen(pass));
-            printf("password (%ld): %s\n", strlen(pass), pass);
-            printf("text(%ld): %s   | key: %s\n\n", strlen((char*)text), text, key);
-
-            unsigned char *output = NULL;
-            unsigned char *decrypt = NULL;
-
-            struct AES_ctx *ctx = AES_init(key, strlen((char*)key));
-
-            size_t outlen = AES_encrypt(ctx, text, strlen((char*)text), &output);
-            printf("\nencrypted text (%ld): %s  |   ", outlen, output);
-            print_ascii(output); printf("\n");
-
-            size_t delen = AES_decrypt(ctx, output, outlen, &decrypt);
-            printf("\n\ndecrypted text (%ld): %s  |   ", delen, decrypt);
-            print_ascii(decrypt); printf("\n");
-
-            free(output);
-            free(decrypt);
-            AES_ctx_free(ctx);
-            free(key);
-        }
+        struct RSA_privKey *priv = RSA_privKey_from_file(argv[4]);
+        int e = RSA_decode_file(argv[2], argv[3], priv);
+        RSA_free_private_key(priv);
+        if (e < 0)
+            errx(e, "aes file dec: error ");
     }
 
-    if (argc == 5)
-    {
-        if (strcmp("aes-file-enc", argv[1]) == 0)
-        {
-            int e = AES_encrypt_file(argv[2], argv[3], argv[4]);
-            if (e < 0)
-                errx(e, "aes file enc: error ");
-        }
-
-        if (strcmp("aes-file-dec", argv[1]) == 0)
-        {
-            int e = AES_decrypt_file(argv[2], argv[3], argv[4]);
-            if (e < 0)
-                errx(e, "aes file dec: error ");
-        }
-        
-        if (strcmp("gen-rsa-key", argv[1]) == 0)
-        {
-            struct RSA_pubKey *pubk;
-            struct RSA_privKey *privk;
-            unsigned long keysize = (unsigned long)atol(argv[2]);
-            RSA_generateKey(keysize, &privk, &pubk);
-        
-            RSA_pubk_to_file(pubk, argv[3]);
-            RSA_privk_to_file(privk, argv[4]);
-
-            RSA_free_public_key(pubk);
-            RSA_free_private_key(privk);
-            
-        }
-
-        if (strcmp("rsa-file-enc", argv[1]) == 0)
-        {
-            struct RSA_pubKey *pub = RSA_pubKey_from_file(argv[4]);
-            int e = RSA_encode_file(argv[2], argv[3], pub);
-            RSA_free_public_key(pub);
-            if (e < 0)
-                errx(e, "rsa file enc: error ");
-        }
-
-        if (strcmp("rsa-file-dec", argv[1]) == 0)
-        {
-            struct RSA_privKey *priv = RSA_privKey_from_file(argv[4]);
-            int e = RSA_decode_file(argv[2], argv[3], priv);
-            RSA_free_private_key(priv);
-            if (e < 0)
-                errx(e, "aes file dec: error ");
-        }
-        
-    }*/
+}*/
