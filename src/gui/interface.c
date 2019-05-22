@@ -1,16 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gtk/gtk.h>
+
 #include "../encryption/encryption.h"
 
 #include "../compression/huffman/huffman.h"
-#include "../compression/struct.h"
-#include "../compression/file.h"
+// #include "../compression/lz78/lz78.h"
 
-#include "../filesystem/build_metatree.h"
-#include "../filesystem/save_metatree.h"
-#include "../filesystem/build_restore_tree.h"
-#include "../filesystem/save_file_content.h"
 #include "../filesystem/restore_save.h"
 #include "../filesystem/create_save.h"
 
@@ -58,6 +54,9 @@ gboolean decompr_state;
 
 int new_save = 0;
 int do_rsa;
+int restore_rotn=0;
+int restore_vigenere=0;
+int restore_aes = 0;
 
 char *path;
 char *old_path;
@@ -66,7 +65,9 @@ char *key_path;
 char *key_private_path;
 
 char *path_tmp;
-char *path_tmp_restore;
+char *path_tmp_2;
+char *path_in;
+char *path_out;
 
 FILE *in;
 FILE *out;
@@ -127,6 +128,10 @@ int interface(int argc,char *argv[])
 
 void on_Close_clicked()
 {	
+     fclose(in);
+     fclose(out);
+     remove(path_tmp);
+     remove(path_tmp_2);
      gtk_main_quit();
 }
 
@@ -185,10 +190,12 @@ void on_save_valid_clicked()
 
           if(compr_state)
           {
-             //Save with temp path: Do Compression
+             // Do Save -> Go to Compression 
              path_tmp = tmpnam(NULL);
+	     path_tmp_2 = tmpnam(NULL);
 	     FILESYSTEM_create_save(path, path_tmp);
-	     //create fd for comprr
+	     path_in = path_tmp;
+	     path_out = path_tmp_2;
    	     gtk_widget_hide(ask_file_save);
              gtk_widget_show(Compr);
           }
@@ -196,7 +203,7 @@ void on_save_valid_clicked()
           {
              if(crypt_state)
              {
-		//Save with temp path: No Compression, Do Encryption
+		//Do Save -> Got to Encryption
 		path_tmp = tmpnam(NULL);
                 FILESYSTEM_create_save(path, path_tmp);
 		in = fopen(path_tmp, "r");
@@ -206,7 +213,7 @@ void on_save_valid_clicked()
              }
 	     else
 	     {
-		 //Save without Compression and Encryption
+		 //Do Save
 	         FILESYSTEM_create_save(path,save_path);
 
 		 //END
@@ -236,6 +243,12 @@ void on_save_old_clicked()
 
     if(compr_state)
     {
+	//Do Save(with old) -> Do Compression
+        path_tmp = tmpnam(NULL);
+        path_tmp_2 = tmpnam(NULL);
+        FILESYSTEM_create_new_save(path, path_tmp, old_path);
+        path_in = path_tmp;
+	path_out = path_tmp_2; 
         gtk_widget_hide(ask_file_load);
         gtk_widget_show(Compr);
 
@@ -244,7 +257,7 @@ void on_save_old_clicked()
     {
        if(crypt_state)
        {
-	   //Save(use old_save) with temp path: No Compression, Do Encryption
+	   //Do Save(with old) -> Do Encryption
            path_tmp = tmpnam(NULL);
            FILESYSTEM_create_new_save(path, path_tmp, old_path);
            in = fopen(path_tmp, "r");
@@ -254,7 +267,7 @@ void on_save_old_clicked()
        }
        else
        {
-	  //Save with old_save, without Compression and Encryption     
+	  //Do Save(with old)   
           FILESYSTEM_create_new_save(path,save_path,old_path);
 
 	  //END
@@ -291,7 +304,7 @@ void on_restore_button_clicked()
        }
        else
        {
-	    //Restore without Decompression nor Decryption
+	    //Do Restore
             FILESYSTEM_restore_save(path);
 	    //END
        }
@@ -333,9 +346,6 @@ void on_valid_rotn_clicked()
         //CALL ENCRYPTION ROTN
 
 	PACKUP_encryption_stream(ROTN,in, out, key);
-	fclose(in);
-	fclose(out);
-	remove(path_tmp);
 
 	//END
      }
@@ -355,7 +365,6 @@ void on_valid_rotn_clicked()
 	   out = fopen(tmpnam);
 	   PACKUP_decryption_stream(ROTN, in, out, key);
            FILESYSTEM_restore_save(path_tmp);
-	   remove(path_tmp);
 	   //END
 	}
 
@@ -374,9 +383,6 @@ void on_valid_vigenere_clicked()
 
         PACKUP_encryption_stream(VIGENERE,in, out, entry_text);
         printf("TO DO: Encryption Vigenere \"%s\"\n", entry_text);
-	fclose(in);
-	fclose(out);
-	remove(path_tmp);
 
 	//END
     }
@@ -417,9 +423,6 @@ void on_valid_aes_clicked()
 
         PACKUP_encryption_stream(AES,in, out, entry_text);
         printf("TO DO: Encryption AES \"%s\"\n", entry_text);
-	fclose(in);
-	fclose(out);
-	remove(path_tmp);
 
 	// DO END
     }
@@ -435,7 +438,7 @@ void on_valid_aes_clicked()
        {
            //CALL DECRYPTION AES + RESTORE
            path_tmp = tmpnam(NULL);
-           in = fopen(path);
+           in = fopen(path)
            out = fopen(tmpnam);
            PACKUP_decryption_stream(AES, in, out, key);
            FILESYSTEM_restore_save(path_tmp);
@@ -549,9 +552,6 @@ void on_valid_key_entry_clicked()
           printf("generate public key from the long %lu for RSA Encryption in the path : %s\n", key,key_path);
 	  //ENCRYPTION RSA CREATE KEY
 	  PACKUP_encryption_stream(RSA, in, out, key_path, key_private_path, key);
-	  fclose(in);
-          fclose(out);
-	  remove(path_tmp);
 
 	  //END
        }
@@ -560,8 +560,6 @@ void on_valid_key_entry_clicked()
           printf("generate public key from the long %lu for ELGAMAL Encryption in the path: %s\n", key, key_path);
           //ENCRYPTION ELGAMAL CREATE KEY
           PACKUP_encryption_stream(ELGAMAL, in, out, key_path, key_private_path, key);
-	  fclose(in);
-	  fclose(out);
 
           //END
        }
@@ -582,9 +580,6 @@ void on_use_key_clicked()
 	 //ENCRYPTION RSA USING EXISTING KEY
 	 
 	 PACKUP_encryption_stream(RSA,in,out,key_path);
-         fclose(in);
-	 fclose(out);
-	 remove(path_tmp);
 
 	 //END
       }
@@ -595,9 +590,6 @@ void on_use_key_clicked()
 	 //ENCRYPTION ELGAMAL USING EXISTING KEY
 
          PACKUP_encryption_stream(ELGAMAL,in,out,key_path);
-         fclose(in);
-	 fclose(out);
-	 remove(path_tmp);
 
 	 //END
       }
@@ -652,6 +644,10 @@ void on_use_key_clicked()
 void on_Huffman_clicked()
 {
     printf("TO DO: Compression Huffman\n");
+    test_simple_huffman_compress(path_in,path_out);
+    in = fopen(path_out, "r");
+    out = fopen(save_path, "w+")
+
     if(crypt_state)
     {
         gtk_widget_hide(Compr);
