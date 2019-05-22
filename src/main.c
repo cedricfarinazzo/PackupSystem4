@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <libgen.h>
+#include <sys/types.h>
+#include <utime.h>
 
 #include "gui/interface.h"
 
@@ -30,8 +32,8 @@
 #include "filesystem/restore_save.h"
 #include "filesystem/create_save.h"
 
-#define VERSION "2.0"
-#define DATE "2018-04"
+#define VERSION "3.0"
+#define DATE "2019-05"
 #define TYPE "dev"
 
 
@@ -141,149 +143,6 @@ void print_ascii(unsigned char *a)
     for (size_t i = 0; a[i] != 0; ++i)
         printf("%d ", a[i]);
 }
-
-/*
-   struct keys
-   {
-//fill with whatever you need for every compression system or encryption system
-//when initializing, please only fill what you need
-//and don't forget to free
-}keys;
-
-char *restore_file(char *src, char *dst, int enc, int comp, struct keys *k)
-{
-if (dst == NULL)
-{
-dst = malloc(4096);
-strcpy(dst, src);
-char *start = dst + strlen(dst);
-strcpy(dst, "_restored");
-}
-
-char tempfile[4096];
-//set tempfile to whatever you wantand decrypt into it
-switch (enc)
-{
-case 1:
-//rotn
-break;
-case 2:
-//vigenere
-break;
-case 3:
-//aes
-break;
-case 4:
-//rsa
-break;
-case 5:
-//elgamal
-break;
-default:
-break;
-}
-
-//from tempfile to dst
-switch (comp)
-{
-case 1:
-//huffman
-break;
-case 2:
-//LZ
-break;
-default:
-break;
-}
-}
-
-struct keys *keys_init(int enc, int comp)
-{
-struct keys *key = malloc(sizeof(struct keys));
-switch (enc)
-{
-case 0:
-break;
-case 1:
-printf("Please give the number for rotn encryption:\n");
-//Get whatever is needed for rotn
-break;
-case 2:
-printf("Please give the key for vigenere encryption:\n");
-//Get the key for vigenere
-break;
-case 3:
-printf("Please give the password for aes encryption:\n");
-//get whatever for aes
-break;
-case 4:
-printf("Please give the link to the key for rsa encryption:\n");
-//get whatever for rsa
-break;
-case 5:
-printf("Please give whatever for elgamal encryption:\n");
-//get whatever for elgamal encryption
-break;
-default:
-break;
-}
-
-switch (comp)
-{
-    case 0:
-        break;
-    case 1:
-        break;
-    case 2:
-        printf("Please give the dictionnary path for LZ compression:\n");
-        char line[4096];
-        getline(&line, 4096, stdin);
-        //save it in keys struct
-        break;
-    default:
-        break;
-}
-return key;
-}
-
-char *restore_clear_saves(char *save_dir, int enc, int comp)
-{
-    struct keys *k = keys_init(enc, comp);
-    DIR *directory = opendir(save_dir);
-    struct dirent *next;
-    char *tempdir = malloc(4096);
-    strcpy(tempdir, save_dir);
-    char *start = tempdir + strlen(save_dir);
-    strcpy(start, "/tempsaves");
-    mkdir(tempdir, 0666);
-    char tempname[4096];
-    strcpy(tempname, save_dir);
-    start = tempname + strlen(save_dir);
-    char tempsave[4096];
-    strcpy(tempsave, tempdir);
-    char *savestart = tempsave + strlen(tempdir);
-    while ((next = readdir(directory)))
-    {
-        if (strcmp(".", next->d_name) == 0 || strcmp("..", next->d_name) == 0)
-        {
-            continue;
-        }
-        strcpy(start, next->d_name);
-        strcpy(savestart, next->d_name);
-        switch (next->d_type)
-        {
-            case DT_REG:
-                restore_file(tempname, tempsave, enc, comp, k);
-                break;
-            default:
-                break;
-        }
-    }
-    closedir(directory);
-    free(k);
-    return tempdir; //tempdir is a local variable. do some cancer here pls
-}
-*/
 
 int remove_dir(const char *path)
 {
@@ -512,6 +371,7 @@ void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp
     char lz_dico_file[PATH_MAX];
     if (enc_type == RSA || enc_type == ELGAMAL)
         ask_string_with_text("Please give the path of the private file key:\n", private_key_file);
+    
     if (enc_type == ROTN || enc_type == VIGENERE || enc_type == AES)
     {
         printf("Please give your backup password: \n");
@@ -536,31 +396,31 @@ void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp
     } else if (enc_type == VIGENERE) {
         FILE *in = fopen(backup, "r");
         FILE *out = fopen(save_file_enc, "w+");
-        PACKUP_encryption_stream(VIGENERE, in, out, backup_pass);
+        PACKUP_decryption_stream(VIGENERE, in, out, backup_pass);
         fclose(out);
         fclose(in);
     } else if (enc_type == ROTN) {
         FILE *in = fopen(backup, "r");
         FILE *out = fopen(save_file_enc, "w+");
-        PACKUP_encryption_stream(ROTN, in, out, rot_pass);
+        PACKUP_decryption_stream(ROTN, in, out, rot_pass);
         fclose(out);
         fclose(in);
     } else if (enc_type == AES) {
         FILE *in = fopen(backup, "r");
         FILE *out = fopen(save_file_enc, "w+");
-        PACKUP_encryption_stream(AES, in, out, backup_pass);
+        PACKUP_decryption_stream(AES, in, out, backup_pass);
         fclose(out);
         fclose(in);
     } else if (enc_type == RSA) {
         FILE *in = fopen(backup, "r");
         FILE *out = fopen(save_file_enc, "w+");
-        PACKUP_encryption_stream(RSA, in, out, private_key_file);
+        PACKUP_decryption_stream(RSA, in, out, private_key_file);
         fclose(out);
         fclose(in);
     } else if (enc_type == ELGAMAL) {
         FILE *in = fopen(backup, "r");
         FILE *out = fopen(save_file_enc, "w+");
-        PACKUP_encryption_stream(ELGAMAL, in, out, private_key_file);
+        PACKUP_decryption_stream(ELGAMAL, in, out, private_key_file);
         fclose(out);
         fclose(in);
     }
@@ -571,12 +431,12 @@ void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp
             break;
 
         case 1: // Huffman
-            test_simple_huffman_compress(save_file_enc, save_file_comp);
+            test_simple_huffman_decompress(save_file_enc, save_file_comp);
             break;
 
         case 2: //Lz78
             ask_string_with_text("Please give the path of the lz78 dictionnary file:\n", lz_dico_file);
-            compress_lz78(save_file_enc, lz_dico_file, save_file_comp);
+            decompress_lz78(save_file_enc, lz_dico_file, save_file_comp);
             break;
 
         default:
@@ -584,6 +444,15 @@ void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp
     }
 
     remove(save_file_enc);
+    struct utimbuf t;
+    struct stat st;
+    int e = stat(backup, &st);
+    if (e != -1)
+    {
+        t.actime = time(NULL);
+        t.modtime = st.st_mtime;
+        utime(out, &t);
+    }
 }
 
 void decomp_dechiff_all_backup(char *save_dir, char *out_dir, enum ENCRYPTION_TYPE enc_type, int comp_type)
@@ -603,6 +472,8 @@ void decomp_dechiff_all_backup(char *save_dir, char *out_dir, enum ENCRYPTION_TY
             sprintf(path, "%s/%s", save_dir, f->d_name);
             printf(" -> %s\n", path);
             decomp_dechiff_backup(path, enc_type, comp_type, out_dir, out);
+            printf("\n");
+            sleep(1);
         }
         closedir(d);
     }
@@ -610,6 +481,7 @@ void decomp_dechiff_all_backup(char *save_dir, char *out_dir, enum ENCRYPTION_TY
 
 int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
 {
+    print_ps4logo();
     printf("Hello, welcome to PackupSystem4 command line interface!\n\n");
 
     char *main_menu_0 = "0";
@@ -646,8 +518,8 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
             char *enc_menu_4 = "4";
             char *enc_menu_5 = "5";
             char *enc_menu_args[] = {enc_menu_0, enc_menu_1, enc_menu_2, enc_menu_3, enc_menu_4, enc_menu_5};
-            ask_predef_with_text("Which encrypton was used ?\n"
-                                 "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
+            ask_predef_with_text("Which encryption was used ?\n"
+                                 "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal\n", enc_menu_args, 6, line);
             enum ENCRYPTION_TYPE enc_type;
             switch (line[0]) {
                 case '0':
@@ -680,6 +552,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
             remove_dir(tmp_dir);
 
         } else {
+            //printf("%s\n%s\n", save_dir, save_file);
             FILESYSTEM_create_save(save_dir, save_file);
         }
         char *enc_menu_0 = "0";
@@ -689,8 +562,8 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         char *enc_menu_4 = "4";
         char *enc_menu_5 = "5";
         char *enc_menu_args[] = {enc_menu_0, enc_menu_1, enc_menu_2, enc_menu_3, enc_menu_4, enc_menu_5};
-        ask_predef_with_text("Which encrypton do you want to used ?\n"
-                             "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
+        ask_predef_with_text("Which encryption do you want to used ?\n"
+                             "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal\n", enc_menu_args, 6, line);
         enum ENCRYPTION_TYPE new_enc_type;
         switch (line[0]) {
             case '0':
@@ -728,8 +601,8 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         char *enc_menu_4 = "4";
         char *enc_menu_5 = "5";
         char *enc_menu_args[] = {enc_menu_0, enc_menu_1, enc_menu_2, enc_menu_3, enc_menu_4, enc_menu_5};
-        ask_predef_with_text("Which encrypton was used ?\n"
-                             "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal)\n", enc_menu_args, 6, line);
+        ask_predef_with_text("Which encryption was used ?\n"
+                             "[0]: no encryption\n[1]: Rotn\n[2]: Vigenere\n[3]: AES\n[4]: RSA\n[5]: Elgamal\n", enc_menu_args, 6, line);
         enum ENCRYPTION_TYPE enc_type;
         switch (line[0]) {
             case '0':
@@ -769,7 +642,6 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
 
 int main(int argc, char *argv[])
 {
-    print_ps4logo();
     srand(time(NULL));
 
     if (argc == 1)
@@ -783,6 +655,41 @@ int main(int argc, char *argv[])
         if (strcmp("cli", argv[1]) == 0)
             return main_cli(argc, argv);
     }
+    
+    if (argc == 5) {
+            if (strcmp("compress", argv[1]) == 0 && strcmp("huffman", argv[2]) == 0)
+        {
+            char *input_path = argv[3];
+            char *output_path = argv[4];
+            test_simple_huffman_compress(input_path, output_path);
+        }
+        if (strcmp("decompress", argv[1]) == 0 &&
+                strcmp("huffman", argv[2]) == 0)
+        {
+            char *input_path = argv[3];
+            char *output_path = argv[4];
+            test_simple_huffman_decompress(input_path, output_path);
+        }
+    }
+
+    if (argc == 6)
+    {
+        if (strcmp("lz78", argv[2]) == 0 && strcmp("compress", argv[1]) == 0)
+        {
+            char *input_path = argv[3];
+            char *dico_path = argv[5];
+            char *output_path = argv[4];
+            compress_lz78(input_path, dico_path, output_path);
+        }
+        if (strcmp("lz78", argv[2]) == 0 && strcmp("decompress", argv[1]) == 0)
+        {
+            char *input_path = argv[3];
+            char *dico_path = argv[5];
+            char *output_path = argv[4];
+            decompress_lz78(input_path, dico_path, output_path);
+        }
+    }
+
 
     return EXIT_SUCCESS;
 }

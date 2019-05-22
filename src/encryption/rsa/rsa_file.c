@@ -22,7 +22,7 @@ int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk)
         return RSA_ERROR_CANNOT_WRITE_FD;
     mpz_clear(mlen);
 
-    size_t buffsize = 8;
+    size_t buffsize = 1;
 
     for (size_t i = 0; i < len; i+= buffsize)
     {
