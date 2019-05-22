@@ -1,5 +1,7 @@
 #ifndef _SRC_COMPRESSION_STRUCT_H_
 #define _SRC_COMPRESSION_STRUCT_H_
+#include <unistd.h>
+#include <stdlib.h>
 
 struct element {
     unsigned char key;
@@ -65,4 +67,23 @@ struct huff_out {
     unsigned char *dataOUT;
     int len;
 } huff_out;
+
+struct pyele {
+    ssize_t key;
+    struct pyele *prec;
+    struct pyele *next;
+} pyele;
+
+struct pylist {
+    size_t len;
+    struct pyele *begin;
+    struct pyele *end;
+} pylist;
+
+struct dico {
+    ssize_t *vector;
+    unsigned char *letter;
+    size_t len;
+    size_t taux;
+} dico;
 #endif /*_SRC_COMPRESSION_STRUCT_H_*/

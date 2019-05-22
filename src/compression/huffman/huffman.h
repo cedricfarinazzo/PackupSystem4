@@ -24,7 +24,7 @@ struct bintree *buildHuffmantree(struct freqlist *Freq);
 void table_codage(struct bintree *huffman, struct liste *table);
 
 struct liste *encode_data(unsigned char dataIN[], unsigned char *table,
-        int len);
+        int len, int datalen);
 
 void codage_tree_(struct liste *output, struct bintree *huffman);
 

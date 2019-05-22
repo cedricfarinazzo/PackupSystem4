@@ -15,6 +15,7 @@
 
 #include "encryption/encryption.h"
 
+#include "compression/wrap.h"
 #include "compression/huffman/huffman.h"
 #include "compression/struct.h"
 #include "compression/file.h"
