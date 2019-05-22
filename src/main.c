@@ -10,6 +10,8 @@
 #include <time.h>
 #include <termios.h>
 #include <unistd.h>
+#include <errno.h>
+#include <libgen.h>
 
 #include "gui/interface.h"
 
@@ -19,6 +21,7 @@
 #include "compression/huffman/huffman.h"
 #include "compression/struct.h"
 #include "compression/file.h"
+#include "compression/lz78/lz78.h"
 
 #include "filesystem/build_metatree.h"
 #include "filesystem/save_metatree.h"
@@ -62,6 +65,54 @@ void print_ps4logo(void)
 char line[4096];
 
 
+int cp(const char *to, const char *from)
+{
+    int fd_to, fd_from;
+    char buf[4096];
+    ssize_t nread;
+    int saved_errno;
+    fd_from = open(from, O_RDONLY);
+    if (fd_from < 0)
+        return -1;
+    fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    if (fd_to < 0)
+        goto out_error;
+    while (nread = read(fd_from, buf, sizeof buf), nread > 0)
+    {
+        char *out_ptr = buf;
+        ssize_t nwritten;
+        do {
+            nwritten = write(fd_to, out_ptr, nread);
+            if (nwritten >= 0)
+            {
+                nread -= nwritten;
+                out_ptr += nwritten;
+            }
+            else if (errno != EINTR)
+                goto out_error;
+        } while (nread > 0);
+    }
+    if (nread == 0)
+    {
+        if (close(fd_to) < 0)
+        {
+            fd_to = -1;
+            goto out_error;
+        }
+        close(fd_from);
+        /* Success! */
+        return 0;
+    }
+  out_error:
+    saved_errno = errno;
+    close(fd_from);
+    if (fd_to >= 0)
+        close(fd_to);
+    errno = saved_errno;
+    return -1;
+}
+
+
 // TO MOVE IN FILESYSTEM
 void print_tree(struct meta_tree *tree, int indent)
 {
@@ -90,7 +141,6 @@ void print_ascii(unsigned char *a)
     for (size_t i = 0; a[i] != 0; ++i)
         printf("%d ", a[i]);
 }
-
 
 /*
    struct keys
@@ -252,7 +302,7 @@ int remove_dir(const char *path)
             size_t len;
             if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
                 continue;
-            len = path_len + strlen(p->d_name) + 2; 
+            len = path_len + strlen(p->d_name) + 2;
             buf = malloc(sizeof(char) * len);
             if (buf)
             {
@@ -274,7 +324,7 @@ int remove_dir(const char *path)
     if (!r)
         r = rmdir(path);
 
-    return r;    
+    return r;
 }
 
 
@@ -291,7 +341,7 @@ void getPassword(char password[])
     newt = oldt;
 
     /*setting the approriate bit in the termios struct*/
-    newt.c_lflag &= ~(ECHO);          
+    newt.c_lflag &= ~(ECHO);
 
     /*setting the new bits*/
     tcsetattr( STDIN_FILENO, TCSANOW, &newt);
@@ -302,7 +352,7 @@ void getPassword(char password[])
     }
     password[i] = '\0';
 
-    /*resetting our old STDIN_FILENO*/ 
+    /*resetting our old STDIN_FILENO*/
     tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
 }
 
@@ -311,12 +361,16 @@ void ask_string_with_text(char *text, char *out)
     int awnser = -1;
     while (awnser < 0)
     {
+        for (size_t i = 0; i < PATH_MAX; ++i)
+            out[i] = 0;
         printf("%s", text);
-        fgets(line, sizeof(line), stdin);
+        fgets(out, PATH_MAX, stdin);
 
-        awnser = strlen(out) > 0;
+        awnser = strlen(out) > 1 && out[0] != '\n' ? 1 : -1;
         printf("\n\n");
     }
+    for (size_t i = strlen(out) - 1; i < PATH_MAX; ++i)
+        out[i] = 0;
 }
 
 void ask_predef_with_text(char *text, char **allowed, size_t len, char *line)
@@ -344,16 +398,113 @@ void comp_chiff_file(char *save_file, enum ENCRYPTION_TYPE enc_type, int comp_ty
 {
     if (enc_type == NONE && comp_type == 0)
         return;
-    //TO DO
+    char save_file_comp[PATH_MAX];
+    char save_file_enc[PATH_MAX];
+    sprintf(save_file_comp, "%s.comp", save_file);
+    sprintf(save_file_enc, "%s.enc", save_file);
+
+    unsigned long rot_pass;
+    char backup_pass[32768];
+    size_t key_size = 0;
+    int need_to_create_key = 0;
+    char public_key_file[PATH_MAX];
+    char private_key_file[PATH_MAX];
+    char lz_dico_file[PATH_MAX];
+    if (enc_type == RSA || enc_type == ELGAMAL)
+    {
+        ask_string_with_text("Please give the path of the public file key:\n", public_key_file);
+        if (!file_exist(public_key_file))
+        {
+            need_to_create_key = 1;
+            printf("Public key not found. new keys will be created\n");
+            ask_string_with_text("Please give the path of the private file key:\n", private_key_file);
+
+            ask_string_with_text("key size:\n", line);
+            key_size = atol(line);
+        }
+    }
+
+    if (enc_type == ROTN || enc_type == VIGENERE || enc_type == AES)
+    {
+        printf("Please give your backup password: \n");
+        getPassword(passbuff);
+        printf("\n\n");
+        if (enc_type == ROTN)
+            rot_pass = atol(passbuff);
+        else
+            strcpy(backup_pass, passbuff);
+    }
+
+    switch (comp_type) {
+        case 0: // NONE
+            rename(save_file, save_file_comp);
+            break;
+
+        case 1: // Huffman
+            test_simple_huffman_compress(save_file, save_file_comp);
+            break;
+
+        case 2: //Lz78
+            ask_string_with_text("Please give the path of the lz78 dictionnary file:\n", lz_dico_file);
+            compress_lz78(save_file, lz_dico_file, save_file_comp);
+            break;
+
+        default:
+            break;
+    }
+
+    if (enc_type == NONE) {
+        rename(save_file_comp, save_file_enc);
+    } else if (enc_type == VIGENERE) {
+        FILE *in = fopen(save_file_comp, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        PACKUP_encryption_stream(VIGENERE, in, out, backup_pass);
+        fclose(out);
+        fclose(in);
+    } else if (enc_type == ROTN) {
+        FILE *in = fopen(save_file_comp, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        PACKUP_encryption_stream(ROTN, in, out, rot_pass);
+        fclose(out);
+        fclose(in);
+    } else if (enc_type == AES) {
+        FILE *in = fopen(save_file_comp, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        PACKUP_encryption_stream(AES, in, out, backup_pass);
+        fclose(out);
+        fclose(in);
+    } else if (enc_type == RSA) {
+        FILE *in = fopen(save_file_comp, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        if (need_to_create_key)
+            PACKUP_encryption_stream(RSA, in, out, public_key_file, private_key_file, key_size);
+        else
+            PACKUP_encryption_stream(RSA, in, out, public_key_file);
+        fclose(out);
+        fclose(in);
+    } else if (enc_type == ELGAMAL) {
+        FILE *in = fopen(save_file_comp, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        if (need_to_create_key)
+            PACKUP_encryption_stream(ELGAMAL, in, out, public_key_file, private_key_file, key_size);
+        else
+            PACKUP_encryption_stream(ELGAMAL, in, out, public_key_file);
+        fclose(out);
+        fclose(in);
+    }
+
+    remove(save_file);
+    rename(save_file_enc, save_file);
+    remove(save_file_comp);
+    remove(save_file_enc);
 }
 
 void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp_type, char *tmp_dir, char *out)
 {
+    char *base = basename(backup);
+    sprintf(out, "%s/%s", tmp_dir, base);
     if (enc_type == NONE && comp_type == 0)
-    {
-        sprintf(out, "%s/%s", tmp_dir, backup);
         return;
-    }
 
     unsigned long rot_pass;
     char backup_pass[32768];
@@ -366,16 +517,95 @@ void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp
         printf("Please give your backup password: \n");
         getPassword(passbuff);
         printf("\n\n");
-        if (enc_type = ROTN)
+        if (enc_type == ROTN)
             rot_pass = atol(passbuff);
+        else
+            strcpy(backup_pass, passbuff);
     }
 
     if (comp_type == 2)
         ask_string_with_text("Please give the path of the lz78 dictionary file:\n", lz_dico_file);
 
+    char save_file_comp[PATH_MAX];
+    char save_file_enc[PATH_MAX];
+    sprintf(save_file_enc, "%s.dec", out);
+    sprintf(save_file_comp, "%s", out);
 
-    //TO DO
-    sprintf(out, "%s/%s", tmp_dir, backup);
+    if (enc_type == NONE) {
+        cp(backup, save_file_enc);
+    } else if (enc_type == VIGENERE) {
+        FILE *in = fopen(backup, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        PACKUP_encryption_stream(VIGENERE, in, out, backup_pass);
+        fclose(out);
+        fclose(in);
+    } else if (enc_type == ROTN) {
+        FILE *in = fopen(backup, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        PACKUP_encryption_stream(ROTN, in, out, rot_pass);
+        fclose(out);
+        fclose(in);
+    } else if (enc_type == AES) {
+        FILE *in = fopen(backup, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        PACKUP_encryption_stream(AES, in, out, backup_pass);
+        fclose(out);
+        fclose(in);
+    } else if (enc_type == RSA) {
+        FILE *in = fopen(backup, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        PACKUP_encryption_stream(RSA, in, out, private_key_file);
+        fclose(out);
+        fclose(in);
+    } else if (enc_type == ELGAMAL) {
+        FILE *in = fopen(backup, "r");
+        FILE *out = fopen(save_file_enc, "w+");
+        PACKUP_encryption_stream(ELGAMAL, in, out, private_key_file);
+        fclose(out);
+        fclose(in);
+    }
+
+    switch (comp_type) {
+        case 0: // NONE
+            rename(save_file_enc, save_file_comp);
+            break;
+
+        case 1: // Huffman
+            test_simple_huffman_compress(save_file_enc, save_file_comp);
+            break;
+
+        case 2: //Lz78
+            ask_string_with_text("Please give the path of the lz78 dictionnary file:\n", lz_dico_file);
+            compress_lz78(save_file_enc, lz_dico_file, save_file_comp);
+            break;
+
+        default:
+            break;
+    }
+
+    remove(save_file_enc);
+}
+
+void decomp_dechiff_all_backup(char *save_dir, char *out_dir, enum ENCRYPTION_TYPE enc_type, int comp_type)
+{
+    //decomp_dechiff_backup(, enc_type, comp_type, tmp_dir, );
+    DIR *d;
+    struct dirent *f;
+    d = opendir(save_dir);
+    if (d)
+    {
+        while ((f = readdir(d)) != NULL)
+        {
+            if (strcmp(".", f->d_name) == 0 || strcmp("..", f->d_name) == 0)
+                continue;
+            char path[PATH_MAX];
+            char out[PATH_MAX];
+            sprintf(path, "%s/%s", save_dir, f->d_name);
+            printf(" -> %s\n", path);
+            decomp_dechiff_backup(path, enc_type, comp_type, out_dir, out);
+        }
+        closedir(d);
+    }
 }
 
 int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
@@ -391,7 +621,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         printf("You have chosen to save a directory.\n\n");
         char *save_menu_0 = "0";
         char *save_menu_1 = "1";
-        char *save_menu_args[] = {save_menu_0, save_menu_1}; 
+        char *save_menu_args[] = {save_menu_0, save_menu_1};
         ask_predef_with_text("Do you already have a save or is it the first one ?\n"
                              "[0]: no prior save\n[1]: a save already exists\n", save_menu_args, 2, line);
         int have_save;
@@ -404,7 +634,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
 
         char save_file[PATH_MAX];
         ask_string_with_text("Please give the path of the file in which you want to save it.\nPlease note that it will"
-                             "be lost if it already exists:\n", save_file);
+                             " be lost if it already exists:\n", save_file);
         if (have_save) {
             char previous_save[PATH_MAX];
             ask_string_with_text("Please give the name of the previous save:\n", previous_save);
@@ -486,6 +716,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
                              "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
         int new_comp_type = atoi(line);
         comp_chiff_file(save_file, new_enc_type, new_comp_type);
+        printf("\n Your new backup is here : %s", save_file);
     } else if (strcmp(line, main_menu_1) == 0) {
         printf("You have chosen to restore a dir.\n");
         char save_dir[PATH_MAX];
@@ -523,128 +754,16 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         ask_predef_with_text("Which compression was used ?\n"
                              "[0]: no compression\n[1]: Huffman\n[2]: Lz78\n", comp_menu_args, 3, line);
         int comp_type = atoi(line);
-
-        //TO FIX
-        //char *temp_saves = restore_clear_saves(save_dir, enc_type, comp_type);
-        //FILESYSTEM_restore_save(temp_saves);
-        //free(temp_saves);
-        //printf("Restoration done\n");
+        
+        char tmp_dir[] = "./.packuptemp/";
+        mkdir(tmp_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        decomp_dechiff_all_backup(save_dir, tmp_dir, enc_type, comp_type);
+        FILESYSTEM_restore_save(tmp_dir);
+        remove_dir(tmp_dir);
+        printf("Restoration done\n");
     } else
         return EXIT_SUCCESS;
-
-    /*
-       if (!save)
-       {
-       printf("You have chosen to save a directory.\n"
-       "Do you already have a save or is it the first one ?\n"
-       "(0 => no prior save, 1 => a save already exists)\n");
-       getline(&line, 4096, stdin);
-       int p_save = atoi(line);
-       printf("please give the name of the directory you want to save:\n");
-       getline(&line, 4096, stdin);
-       char dirpath[4096];
-       strcpy(dirpath, line);
-       printf("Please give the name of the file in which you want to save it. Please note that it will\n"
-       "be lost if it already exists:\n");
-       char savepath[4096];
-       getline(&line, 4096, stdin);
-       strcpy(savepath, line);
-       char tempfile[4096];
-       strcpy(tempfile, savepath);
-       char *start = tempfile + strlen(savepath);
-       strcpy(start, ".rdtgs");
-       if (p_save)
-       {
-       printf("Please give the name of the previous save:\n");
-       char previous_save[4096];
-       getline(&line, 4096, stdin);
-       strcpy(previous_save, line);
-       printf("Which encrypton was used ?\n"
-       "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-       getline(&line, 4096, stdin);
-       int enc = atoi(line);
-       printf("Which compression was used ?\n"
-       "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
-       getline(&line, 4096, stdin);
-       int comp = atoi(line);
-       struct keys *k = keys_init(enc, comp);
-       char *prev = restore_file(previous_save, NULL, enc, comp, k);
-       FILESYSTEM_create_new_save(dirpath, tempfile, prev);
-       }
-       else
-       {
-       FILESYSTEM_create_save(dirpath, tempfile);
-       }
-       printf("Please say which compression you want to use: (0 => no compression, 1 => Huffman, 2 => LZ)\n");
-       getline(&line, 4096, stdin);
-       int comp = atoi(line);
-       char secondtempfile[4096];
-    //name as you wish the second temp file
-    switch (comp)
-    {
-    case 0:
-    break;
-    case 1:
-    //compression huffman
-    break;
-    case 2:
-    //compression LZ
-    break;
-    default:
-    break;
-    }
-    remove(tempfile);
-    printf("Please say which encryption you want to use:\n"
-    "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-    getline(&line, 4096, stdin);
-    int enc = atoi(line);
-    switch (enc)
-    {
-    case 0:
-    break;
-    case 1:
-    //encryption rotn
-    break;
-    case 2:
-    //encryption vigenere
-    break;
-    case 3:
-    //encryption aes
-    break;
-    case 4:
-    //encryption rsa
-    break;
-    case 5:
-    //encryption elgamal
-    break;
-    default:
-    break;
-}
-remove(secondtempfile);
-printf("Save created\n");
-}
-else if (save)
-{
-    printf("You have chosen to restore a dir.\n");
-    printf("Please give the directory in which the saves are:\n");
-    getline(&line, 4096, stdin);
-    char save_dir[4096];
-    strcpy(save_dir, line);
-    printf("Please give the way it was encrypted:\n"
-           "(0 => no encryption, 1 => Rotn, 2 => Vigenere, 3 => AES, 4 => RSA, 5 => Elgamal)\n");
-    getline(&line, 4096, stdin);
-    int enc = atoi(line);
-    printf("Please give the way it was compressed:\n"
-           "(0 => no compression, 1 => Huffman, 2 => LZ)\n");
-    getline(&line, 4096, stdin);
-    int comp = atoi(line);
-    char *temp_saves = restore_clear_saves(save_dir, enc, comp);
-    FILESYSTEM_restore_save(temp_saves);
-    free(temp_saves);
-    printf("Restoration done\n");
-}
-*/
-return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
 
