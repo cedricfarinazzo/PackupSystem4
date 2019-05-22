@@ -239,7 +239,7 @@ void RS_restore_from_restore_tree(struct restore_tree *tree)
         if (tree->son == NULL)
         {
             FILE *src = fopen(tree->data->src, "r");
-            FILE *dst = fopen(tree->data->file, "w");
+            FILE *dst = fopen(tree->data->file, "w+");
             RS_restore_content(src, tree->data->offset, dst);
             fclose(src);
             fclose(dst);
@@ -303,7 +303,7 @@ void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
 
     if (tree->son == NULL)
     {
-        FILE *dst = fopen(tree->data->path, "w");
+        FILE *dst = fopen(tree->data->path, "w+");
         RS_restore_content(src, tree->data->file_content, dst);
         fclose(dst);
     }

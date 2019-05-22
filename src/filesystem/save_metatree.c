@@ -123,7 +123,7 @@ void FILESYSTEM_save_metatree(struct meta_tree *tree, char *path)
     /*
     opens file, call function to save tree then close file
     */
-    FILE *file = fopen(path, "w");
+    FILE *file = fopen(path, "w+");
     FS_save_tree(file, tree->son);
     fclose(file);
 }

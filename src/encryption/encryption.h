@@ -15,6 +15,8 @@
 #include "aes/hashpass.h"
 #include "elgamal/elgamal.h"
 
+int file_exist(char *fname);
+
 enum ENCRYPTION_TYPE {
     ROTN,
     VIGENERE,

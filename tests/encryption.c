@@ -868,7 +868,7 @@ Test(PackupEncryption, RsaGenKey)
     char *in = "example/e/rsagenkey.txt";
     char *enc = "example/e/rsagenkey.txt.enc";
     char *dec = "example/e/rsagenkey.txt.dec";
-    unsigned long keysize = 1024;
+    unsigned long keysize = 2048;
     char *pub = "example/e/rsagenkey.pub";
     char *priv = "example/e/rsagenkey.priv";
 
@@ -903,7 +903,7 @@ Test(PackupEncryption, RsaGenKey)
 
 Test(PackupEncryption, RsaUseKey)
 {
-    unsigned long keysize = 4096;
+    unsigned long keysize = 2048;
     char *pub = "example/e/rsausekey.pub";
     char *priv = "example/e/rsausekey.priv";
     struct RSA_pubKey *pubk;

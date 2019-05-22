@@ -5,6 +5,7 @@
 #include "../struct.h"
 #include "../liste/liste.h"
 #include "../liste/pylist.h"
+#include "dico.h"
 
 struct dico *new_dico(size_t len, size_t taux)
 {

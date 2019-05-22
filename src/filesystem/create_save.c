@@ -95,7 +95,7 @@ void FILESYSTEM_create_save(char *path, char *savepath)
     creates an initial save of path in savepath
     */
 
-    FILE *save = fopen(savepath, "w");
+    FILE *save = fopen(savepath, "w+");
     if (save == NULL)
         err(35, "FILESYSTEM_create_save: failed to open file.");
     struct meta_tree *tree = FILESYSTEM_build_metatree(path);
@@ -174,7 +174,7 @@ void FILESYSTEM_create_new_save(char *path, char *savepath, char *oldsave)
     creates a new save based on the old one
     */
 
-    FILE *save = fopen(savepath, "w");
+    FILE *save = fopen(savepath, "w+");
     struct meta_tree *cur = FILESYSTEM_build_metatree(path);
     struct meta_tree *prev = FILESYSTEM_SAVE_restore_metatree_from_save(oldsave);
     CS_cmp_and_save(cur->son, prev->son, save);
