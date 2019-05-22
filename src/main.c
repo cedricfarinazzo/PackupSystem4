@@ -11,6 +11,7 @@
 
 #include "encryption/encryption.h"
 
+#include "compression/wrap.h"
 #include "compression/huffman/huffman.h"
 #include "compression/struct.h"
 #include "compression/file.h"
@@ -83,6 +84,7 @@ void print_ascii(unsigned char *a)
         printf("%d ", a[i]);
 }
 
+/*
 char *restore_clear_saves(char *save_dir, int enc, int comp)
 {
     enc = enc;
@@ -115,7 +117,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
     printf("Hello, welcome to PackupSystem4.\n");
     printf("Do you want to save a directory or restore it ?\n"
             "(0 => save, 1 => restore)");
-    if (/*save a dir*/0)
+    if (//save a dir0)
     {
         printf("You have chosen to save a directory.\n"
             "Do you already have a save or is it the first one ?\n"
@@ -129,7 +131,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         strcpy(tempfile, savepath);
         char *start = tempfile + strlen(savepath);
         strcpy(start, ".rdtgs");
-        if (/*a save already exists*/0)
+        if (a save already exists 0)
         {
             printf("Please give the name of the previous save:\n");
             char *previous_save;
@@ -192,7 +194,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
         remove(secondtempfile);
         printf("Save created\n");
     }
-    if (/*restore a dir*/0)
+    if (restore a dir0)
     {
         printf("You have chosen to restore a dir.\n");
         printf("Please give the directory in which the saves are:\n");
@@ -209,7 +211,7 @@ int main_cli(int argc __attribute__((unused)), char *argv[] __attribute__((unuse
     }
     return EXIT_SUCCESS;
 }
-
+*/
 
 int main(int argc, char *argv[])
 {
@@ -225,7 +227,7 @@ int main(int argc, char *argv[])
             printf("Packup System 4 by PS4 %s v%s %s\n", TYPE, VERSION, DATE);
 
         if (strcmp("cli", argv[1]) == 0)
-            return main_cli(argc, argv);
+            return EXIT_SUCCESS;
     }
     
     return EXIT_SUCCESS;
@@ -273,7 +275,11 @@ int main(int argc, char *argv[])
             struct huff_out *compressed = compression(text, len);
 
             struct huff_out *final = decompression(compressed->dataOUT,
+<<<<<<< HEAD
                                                    compressed->len);
+=======
+                    compressed->len);
+>>>>>>> compress
             int len_a = strlen((char *)final->dataOUT);
             if (len_a != len)
                 printf("Longeur differente : %d -> %d\n", len, len_a);
@@ -400,6 +406,7 @@ int main(int argc, char *argv[])
                 errx(e, "aes file enc: error ");
         }
 
+<<<<<<< HEAD
         if (strcmp("aes-file-dec", argv[1]) == 0)
         {
             int e = AES_decrypt_file(argv[2], argv[3], argv[4]);
@@ -426,10 +433,73 @@ int main(int argc, char *argv[])
         {
             struct RSA_pubKey *pub = RSA_pubKey_from_file(argv[4]);
             int e = RSA_encode_file(argv[2], argv[3], pub);
+=======
+
+            printf("public: n = ");
+            mpz_out_str(stdout,10, *(pub->n));
+            printf("   e = ");
+            mpz_out_str(stdout, 10, *(pub->e));
+
+            printf("\nprivate: n = ");
+            mpz_out_str(stdout, 10, *(pri->n));
+            printf("   d = ");
+            mpz_out_str(stdout, 10, *(pri->d));
+            printf("\n");
+
+
+            mpz_t *encrypt = RSA_encode(pub, (unsigned char*)text, lentext);
+            printf("\nencode data: ");
+            for (size_t i = 0; i < lentext; ++i)
+                gmp_printf("%#Zx ", encrypt[i]);
+
+            unsigned char *decode = RSA_decode(pri, encrypt, lentext);
+
+            printf("\n\ndecode text: %s\n", decode);
+
+            for (size_t i = 0; i < lentext; ++i)
+                mpz_clear(encrypt[i]);
+            free(encrypt);
+
+            free(decode);
+
+>>>>>>> compress
             RSA_free_public_key(pub);
             if (e < 0)
                 errx(e, "rsa file enc: error ");
         }
+<<<<<<< HEAD
+=======
+        if (strcmp("compress", argv[1]) == 0 && strcmp("huffman", argv[2]) == 0)
+        {
+            char *input_path = argv[3];
+            char *output_path = argv[4];
+            test_simple_huffman_compress(input_path, output_path);
+        }
+        if (strcmp("decompress", argv[1]) == 0 &&
+                strcmp("huffman", argv[2]) == 0)
+        {
+            char *input_path = argv[3];
+            char *output_path = argv[4];
+            test_simple_huffman_decompress(input_path, output_path);
+        }
+    }
+    if (argc == 6)
+    {
+        if (strcmp("lz78", argv[2]) == 0 && strcmp("compress", argv[1]) == 0)
+        {
+            char *input_path = argv[3];
+            char *dico_path = argv[5];
+            char *output_path = argv[4];
+            compress_lz78(input_path, dico_path, output_path);
+        }
+        if (strcmp("lz78", argv[2]) == 0 && strcmp("decompress", argv[1]) == 0)
+        {
+            char *input_path = argv[3];
+            char *dico_path = argv[5];
+            char *output_path = argv[4];
+            decompress_lz78(input_path, dico_path, output_path);
+        }
+    
 
         if (strcmp("rsa-file-dec", argv[1]) == 0)
         {
@@ -439,5 +509,5 @@ int main(int argc, char *argv[])
             if (e < 0)
                 errx(e, "aes file dec: error ");
         }
-        
+    }    
     }*/

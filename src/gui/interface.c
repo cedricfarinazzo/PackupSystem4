@@ -646,7 +646,7 @@ void on_Huffman_clicked()
     printf("TO DO: Compression Huffman\n");
     test_simple_huffman_compress(path_in,path_out);
     in = fopen(path_out, "r");
-    out = fopen(save_path, "w+")
+    out = fopen(save_path, "w+");
 
     if(crypt_state)
     {
