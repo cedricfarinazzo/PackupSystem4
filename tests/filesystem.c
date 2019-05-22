@@ -107,7 +107,7 @@ void remove_dir2()
     remove("./testfiles/content2/file03");
 }
 
-Test(FILESYSTEM, Build_Tree)
+Test(FILESYSTEM, Build_Tree, .disabled=1)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     cr_assert_not_null(tree);
@@ -115,7 +115,7 @@ Test(FILESYSTEM, Build_Tree)
     FILESYSTEM_free_metatree(tree);
 }
 
-Test(FILESYSTEM, save_tree)
+Test(FILESYSTEM, save_tree, .disabled=1)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     cr_assert_not_null(tree);
@@ -124,7 +124,7 @@ Test(FILESYSTEM, save_tree)
     FILESYSTEM_free_metatree(tree);
 }
 
-Test(FILESYSTEM, restore_tree)
+Test(FILESYSTEM, restore_tree, .disabled=1)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     cr_assert_not_null(tree);
@@ -137,7 +137,7 @@ Test(FILESYSTEM, restore_tree)
     FILESYSTEM_free_metatree(tree);
 }
 
-Test(FILESYSTEM, create_save)
+Test(FILESYSTEM, create_save, .disabled=1)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
     print_tree(tree->son, 0);
