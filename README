@@ -1,4 +1,4 @@
-## Packup System 4 v2
+## Packup System 4 v3
 ---
 
 ### AUTHORS
@@ -37,34 +37,7 @@ make
 ./packup
 ```
 
-- rotn
+- cli
 ```
-./packup rotn <text> <key:int>
-```
-
-- vigenere
-```
-./packup vigenere <text> <key:string>
-```
-
-- rsa
-```
-./packup rsa <text> <p:int> <q:int>
-```
-p and q are primes numbers and p < q
-
-- aes
-```
-./packup aes <text> <key:string>
-```
-key is a 16 charactère string
-
-- huffman
-```
-./packup huffman <text>
-```
-- filesystem
-```
-./packup filesystem <path_to_something>
-```
+./packup cli
 

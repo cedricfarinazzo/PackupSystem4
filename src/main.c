@@ -34,7 +34,7 @@
 
 #define VERSION "3.0"
 #define DATE "2019-05"
-#define TYPE "dev"
+#define TYPE "release"
 
 
 void print_ps4logo(void)
