@@ -66,7 +66,7 @@
         <br/>
         <div id="backup_content_container">
             {% if backup_ctn is None %}
-            <div id="backup_id_container"hidden>{{ b.id }}</div>
+            <div id="backup_id_container" hidden>{{ b.id }}</div>
             <div id="backup_content_progress_container" class="container center">
                 Waiting for the server response ...
                 <div class="progress">
@@ -74,15 +74,11 @@
                 </div>
             </div>
             {% endif %}
-            <div id="backup_content_text_container" class="backup-view grey darken-3 white-text">
-                {% if backup_ctn is None %}
-                    The content of the archive is not yet available. Thank you try again later.
-                {% else %}
-                    {% autoescape off %}
-                        {{ backup_ctn.content }}
-                    {% endautoescape %}
-                {% endif %}
-            </div>
+            <pre id="backup_content_text_container" class="backup-view grey darken-3 white-text">{% if backup_ctn is None %}
+    The content of the archive is not yet available. Thank you try again later.
+{% else %}{% autoescape off %}
+  {{ backup_ctn.content }}
+{% endautoescape %}{% endif %}</pre>
         </div>
         <br/>
         <form action="{% url "ps4:backup_view" b.id %}" method="post">
