@@ -67,7 +67,7 @@ void print_ps4logo(void)
 char line[4096];
 
 
-int cp(const char *to, const char *from)
+int cp(const char *from, const char *to)
 {
     int fd_to, fd_from;
     char buf[4096];
@@ -363,7 +363,10 @@ void decomp_dechiff_backup(char *backup, enum ENCRYPTION_TYPE enc_type, int comp
     char *base = basename(backup);
     sprintf(out, "%s/%s", tmp_dir, base);
     if (enc_type == NONE && comp_type == 0)
+    {
+        cp(backup, out);
         return;
+    }
 
     unsigned long rot_pass;
     char backup_pass[32768];
