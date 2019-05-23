@@ -11,9 +11,7 @@ struct AES_matrix *AES_matrix_init()
     struct AES_matrix *m = malloc(sizeof(struct AES_matrix));
     m->rowsLenght = AES_MATRIX_DEFAULT_ROWSLENGHT;
     m->colsLenght = AES_MATRIX_DEFAULT_COLSLENGHT;
-    m->data = malloc(sizeof(uint8_t*) * m->rowsLenght);
-    for (size_t i = 0; i < m->rowsLenght; ++i)
-        m->data[i] = calloc(m->colsLenght, sizeof(uint8_t));
+    m->data = calloc(m->rowsLenght * m->colsLenght, sizeof(uint8_t));
     return m;
 }
 
@@ -27,8 +25,6 @@ void AES_matrix_clear(struct AES_matrix *m)
 void AES_matrix_free(struct AES_matrix *m)
 {
     AES_matrix_clear(m); // Clear before free: prevent leak
-    for (size_t i = 0; i < m->rowsLenght; ++i)
-        free(m->data[i]);
     free(m->data);
     free(m);
 }
@@ -53,7 +49,7 @@ uint8_t AES_matrix_get(struct AES_matrix *m, size_t x, size_t y)
 {
     if (x < AES_matrix_getColsLenght(m)
         &&  y < AES_matrix_getRowsLenght(m))
-        return m->data[y][x];
+        return m->data[y * m->colsLenght + x];
     return -1;
 }
 
@@ -61,7 +57,7 @@ void AES_matrix_set(struct AES_matrix *m, size_t x, size_t y, uint8_t value)
 {
     if (x < AES_matrix_getColsLenght(m)
         &&  y < AES_matrix_getRowsLenght(m))
-        m->data[y][x] = value;
+        m->data[y * m->colsLenght + x] = value;
 }
 
 struct AES_matrix *AES_matrix_add(struct AES_matrix *a, struct AES_matrix *b)

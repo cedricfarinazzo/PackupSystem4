@@ -36,6 +36,7 @@ void print_tree(struct meta_tree *tree, int indent)
         printf("%spath:%s | ", indents, tree->data->path);
         printf("size:%ld o | ",  tree->data->fs.st_size);
         printf("mode: %d | ", tree->data->fs.st_mode);
+        printf("offset: %ld", tree->data->file_content);
         printf("\n");
 
         struct meta_tree *c = tree->son;
@@ -91,7 +92,22 @@ void remove_dir()
     rmdir("./testfiles/content");
 }
 
-Test(FILESYSTEM, Build_Tree)
+void remove_dir2()
+{
+    remove("./testfiles/content2/subdir01/subdir03/file06");
+    rmdir("./testfiles/content2/subdir01/subdir03");
+    remove("./testfiles/content2/subdir01/file04");
+    remove("./testfiles/content2/subdir01/file05");
+    remove("./testfiles/content2/subdir01/file03");
+    rmdir("./testfiles/content2/subdir01");
+    remove("./testfiles/content2/subdir02/file07");
+    rmdir("./testfiles/content2/subdir02");
+    remove("./testfiles/content2/file01");
+    remove("./testfiles/content2/file02");
+    remove("./testfiles/content2/file03");
+}
+
+Test(FILESYSTEM, Build_Tree, .disabled=1)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     cr_assert_not_null(tree);
@@ -99,7 +115,7 @@ Test(FILESYSTEM, Build_Tree)
     FILESYSTEM_free_metatree(tree);
 }
 
-Test(FILESYSTEM, save_tree)
+Test(FILESYSTEM, save_tree, .disabled=1)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     cr_assert_not_null(tree);
@@ -108,7 +124,7 @@ Test(FILESYSTEM, save_tree)
     FILESYSTEM_free_metatree(tree);
 }
 
-Test(FILESYSTEM, restore_tree)
+Test(FILESYSTEM, restore_tree, .disabled=1)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree(".");
     cr_assert_not_null(tree);
@@ -121,7 +137,7 @@ Test(FILESYSTEM, restore_tree)
     FILESYSTEM_free_metatree(tree);
 }
 
-Test(FILESYSTEM, create_save)
+Test(FILESYSTEM, create_save, .disabled=1)
 {
     struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content");
     print_tree(tree->son, 0);
@@ -129,7 +145,7 @@ Test(FILESYSTEM, create_save)
     FILESYSTEM_create_save("./testfiles/content", "./testfiles/saves/save.rdtgs");
     fileexists("./testfiles/saves/save.rdtgs");
     struct stat fs;
-    int e = stat("./testfiles/saves/save.rdtgs", &fs);
+    int e __attribute__((unused)) = stat("./testfiles/saves/save.rdtgs", &fs);
     printf("Size of save: %ld Bytes\n", fs.st_size);
     struct meta_tree *tree2 = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves/save.rdtgs");
     cmp_tree(tree->son, tree2->son);
@@ -149,4 +165,59 @@ Test(FILESYSTEM, create_save)
     print_tree(tree3->son, 0);
     FILESYSTEM_free_metatree(tree);
     FILESYSTEM_free_metatree(tree3);
+}
+
+Test(FILESYSTEM, create_saves)
+{
+    struct meta_tree *tree = FILESYSTEM_build_metatree("./testfiles/content2");
+    print_tree(tree->son, 0);
+    cr_assert_not_null(tree);
+    FILESYSTEM_free_metatree(tree);
+    printf("DEBUG: Tree Built.");
+    FILESYSTEM_create_save("./testfiles/content2", "./testfiles/saves2/save01");
+    sleep(10);
+    printf("DEBUG: First save created.");
+    FILE *file01 = fopen("./testfiles/content2/file01", "a");
+    fwrite("I love bananas.\n\n\n",1, 15, file01);
+    fclose(file01);
+    printf("DEBUG: first file modified.");
+    struct meta_tree *tree01 = FILESYSTEM_build_metatree("./testfiles/content2");
+    printf("printing tree1:\n");
+    print_tree(tree01->son, 0);
+    FILESYSTEM_create_new_save("./testfiles/content2", "./testfiles/saves2/save02", "./testfiles/saves2/save01");
+    sleep(10);
+    struct meta_tree *tree01_r = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves2/save02");
+    printf("printing restoration of tree1:\n");
+    print_tree(tree01_r->son, 0);
+    cmp_tree(tree01->son, tree01_r->son);
+    FILESYSTEM_free_metatree(tree01);
+    FILESYSTEM_free_metatree(tree01_r);
+    printf("DEBUG: second save created.\n");
+    FILE *file03 = fopen("./testfiles/content2/subdir01/file03", "w");
+    fwrite("Jussieux.", 1, 9, file03);
+    fclose(file03);
+    printf("DEBUG: second file modified.\n");
+    struct meta_tree *tree02 = FILESYSTEM_build_metatree("./testfiles/content2");
+    printf("printing tree2:\n");
+    print_tree(tree02->son, 0);
+    FILESYSTEM_create_new_save("./testfiles/content2", "./testfiles/saves2/save03", "./testfiles/saves2/save02");
+    sleep(10);
+    struct meta_tree *tree02_r = FILESYSTEM_SAVE_restore_metatree_from_save("./testfiles/saves2/save03");
+    printf("printing restoration of tree2:\n");
+    print_tree(tree02_r->son, 0);
+    cmp_tree(tree02->son, tree02_r->son);
+    FILESYSTEM_free_metatree(tree02_r);
+    printf("DEBUG: third save created.\n");
+    remove_dir2();
+    printf("printinf pre-final tree\n");
+    struct meta_tree *pf_tree = FILESYSTEM_build_metatree("./testfiles/content2");
+    print_tree(pf_tree->son, 0);
+    FILESYSTEM_restore_save("./testfiles/saves2");
+    printf("DEBUG: restoration done.\n");
+    struct meta_tree *f_tree = FILESYSTEM_build_metatree("./testfiles/content2");
+    //cmp_tree(tree02->son, f_tree->son);
+    print_tree(f_tree->son, 0);
+    FILESYSTEM_free_metatree(tree02);
+    FILESYSTEM_free_metatree(f_tree);
+    FILESYSTEM_free_metatree(pf_tree);
 }

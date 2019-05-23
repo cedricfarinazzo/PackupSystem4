@@ -9,7 +9,6 @@
 #include "aes_shiftrows.h"
 #include "aes_mixcolumns.h"
 
-
 struct AES_ctx {
    struct AES_matrix *key;
    struct AES_matrix **roundKeys;

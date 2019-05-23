@@ -1,5 +1,7 @@
 #include "restore_save.h"
 #include "create_save.h"
+#include <utime.h>
+#include <time.h>
 
 char *RS_restore_path(FILE *file)
 {
@@ -40,7 +42,10 @@ off_t RS_skip_file_content(FILE *file)
     off_t offset = ftell(file);
     size_t length;
     fread(&length, sizeof(size_t), 1, file);
-
+    if (length == 0)
+    {
+        return 0;
+    }
     fseek(file, length, SEEK_CUR);
     return offset;
 }
@@ -104,6 +109,10 @@ struct meta_tree *RS_restore_tree(FILE *file)
 
 struct meta_tree *FILESYSTEM_SAVE_restore_metatree_from_save(char *save)
 {
+    /*
+    restores a metatree saved in save
+    */
+
     struct meta_tree *tree = calloc(1, sizeof(struct meta_tree));
 
     FILE *file = fopen(save, "r");
@@ -113,14 +122,84 @@ struct meta_tree *FILESYSTEM_SAVE_restore_metatree_from_save(char *save)
     return tree;
 }
 
-void FILESYSTEM_restore_save(char *save_dir)
+void chained_insert(struct chained *list, char *file)
 {
-    save_dir = save_dir;
-    //TODO
+    /*
+    insert the file in the sorted chained list
+    */
+
+    struct stat fs;
+    stat(file, &fs);
+    struct chained *node = malloc(sizeof(struct chained));
+    strcpy(node->path, file);
+    node->mtime = fs.st_mtime;
+    struct chained *temp = list;
+    while (temp->next)
+    {
+        if (temp->next->mtime < node->mtime)
+        {
+            break;
+        }
+        temp = temp->next;
+    }
+    node->next = temp->next;
+    temp->next = node;
+}
+
+struct chained *RS_create_save_list(char *save_dir)
+{
+    /*
+    creates a sorted chained list of the files in the dir save_dir
+    */
+
+    DIR *saves = opendir(save_dir);
+    struct dirent *next;
+    char nextname[4096];
+    size_t k;
+    for (k = 0; *(save_dir + k) != '\0' && k < 4096; k++)
+    {
+        nextname[k] = *(save_dir + k);
+    }
+    char *start = nextname + k;
+    *start = '/';
+    start += 1;
+    *start = 0;
+    struct chained *list = calloc(1, sizeof(struct chained));
+    while ((next = readdir(saves)) != NULL)
+    {
+        switch (next->d_type)
+        {
+            case DT_REG:
+                strcpy(start, next->d_name);
+                chained_insert(list, nextname);
+                break;
+            default:
+                break;
+        }
+    }
+    closedir(saves);
+    return list;
+}
+
+void RS_free_save_list(struct chained *list)
+{
+    /*
+    free the sorted chained list list
+    */
+
+    if (list->next)
+    {
+        RS_free_save_list(list->next);
+    }
+    free(list);
 }
 
 void RS_restore_content(FILE *src, off_t offset, FILE *dst)
 {
+    /*
+    restore the content of file dst from file src at offset offset
+    */
+
     fseek(src, offset, SEEK_SET);
 
     size_t length;
@@ -149,11 +228,82 @@ void RS_restore_content(FILE *src, off_t offset, FILE *dst)
     }
 }
 
+void RS_restore_from_restore_tree(struct restore_tree *tree)
+{
+    /*
+    goes through restore_tree tree recursively and restores the files in it
+    */
+
+    if (tree->data)
+    {
+        if (tree->son == NULL)
+        {
+            FILE *src = fopen(tree->data->src, "r");
+            FILE *dst = fopen(tree->data->file, "w+");
+            RS_restore_content(src, tree->data->offset, dst);
+            fclose(src);
+            fclose(dst);
+            chmod(tree->data->file, tree->data->mode);
+            struct utimbuf buf;
+            buf.actime = time(NULL);
+            buf.modtime = tree->data->mtime;
+            utime(tree->data->file, &buf);
+        }
+        else
+        {
+            mkdir(tree->data->file, tree->data->mode);
+            struct restore_tree *temp = tree->son;
+            while (temp)
+            {
+                RS_restore_from_restore_tree(temp);
+                temp = temp->sibling;
+            }
+        }
+    }
+    else
+    {
+        if(tree->son)
+        {
+            struct restore_tree *temp = tree->son;
+            while (temp)
+            {
+                RS_restore_from_restore_tree(temp);
+                temp = temp->sibling;
+            }
+        }
+    }
+}
+
+void FILESYSTEM_restore_save(char *savedir)
+{
+    /*
+    restores a directory from a list of uncompressed and not crypted save files
+    */
+
+    struct chained *list = RS_create_save_list(savedir);
+    struct chained *temp = list->next;
+    struct restore_tree *rt = calloc(1, sizeof(struct restore_tree));
+	while (temp)
+    {
+        struct meta_tree *temptree = FILESYSTEM_SAVE_restore_metatree_from_save(temp->path);
+        RS_update_restore_tree_from_mt(rt, temptree, temp->path);
+        FILESYSTEM_free_metatree(temptree);
+        temp = temp->next;
+    }
+    RS_free_save_list(list);
+    RS_restore_from_restore_tree(rt);
+    RS_free_restore_tree(rt);
+}
+
 void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
 {
+    /*
+    restores a dir from a metatree
+    */
+
     if (tree->son == NULL)
     {
-        FILE *dst = fopen(tree->data->path, "w");
+        FILE *dst = fopen(tree->data->path, "w+");
         RS_restore_content(src, tree->data->file_content, dst);
         fclose(dst);
     }
@@ -171,6 +321,10 @@ void RS_restore_from_meta_tree(struct meta_tree *tree, FILE *src)
 
 void FILESYSTEM_restore_original_save(char *save)
 {
+    /*
+    restore a dir from an original save
+    */
+
     struct meta_tree *tree = FILESYSTEM_SAVE_restore_metatree_from_save(save);
     FILE *file = fopen(save, "r");
     RS_restore_from_meta_tree(tree->son, file);

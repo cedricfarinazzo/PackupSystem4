@@ -29,9 +29,10 @@ Then you can
  * public: struct RSA_pubKey*: a public key generated RSA_generateKey
  * data: unsigned char*: message to encrypt
  * len: size_t: lenght of data
- * return: mpz_t*: an array of mpz_t (lenght = len). it's the encrypted message
+ * rlen: size_t: lenght of output (mpz_t *)
+ * return: mpz_t*: an array of mpz_t (lenght = rlen). it's the encrypted message
  */
-mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len);
+unsigned char *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len, size_t *rlen);
 ```
 
 - decrypt 
@@ -42,7 +43,7 @@ mpz_t *RSA_encode(struct RSA_pubKey *public, unsigned char *data, size_t len);
  * len: size_t: lenght of data
  * return: unsigned char*:(lenght = len). it's the decrypted message
  */
-unsigned char *RSA_decode(struct RSA_privKey *private, mpz_t *data, size_t len);
+unsigned char *RSA_decode(struct RSA_privKey *private, unsigned char *data, size_t len, size_t *rlen);
 ```
 
 Don't forget to free all key: 
@@ -61,6 +62,86 @@ void RSA_free_private_key(struct RSA_privKey *privk);
 void RSA_free_public_key(struct RSA_pubKey *pubk);
 ```
 
+### RSA on file
+
+```c
+#include "rsa_file.h"
+#include "genkey.h"
+```
+
+```c
+/* RSA_pubk_to_file: write the RSA public to file
+ * pub: struct RSA_pubKey*: RSA public key
+ * path: int: path to the output file
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_pubk_to_file(struct RSA_pubKey *pub, char *path);
+```
+
+```c
+/* RSA_privk_to_file: write the RSA private to file
+ * pub: struct RSA_privKey*: RSA private key
+ * path: int: path to the output file
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_privk_to_file(struct RSA_privKey *priv, char *path);
+```
+
+```c
+/* RSA_pubk_from_file: load a RSA public from file
+ * path: int: path to file
+ * return: struct RSA_pubKey*: RSA public key
+ */
+struct RSA_pubKey *RSA_pubKey_from_file(char *path);
+```
+
+```c
+/* RSA_privKey_from_file: load a RSA private from file
+ * path: int: path to file
+ * return: struct RSA_privKey*: RSA private key
+ */
+struct RSA_privKey *RSA_privKey_from_file(char *path);
+```
+
+```c
+/* RSA_encode_fd: encode data from fin and write on fout
+ * fin: int: file descriptor pointing to the input file
+ * fout: int: file descriptor pointing to the output file
+ * pass: struct RSA_pubKey*: RSA public key
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_encode_fd(int fin, int fout, struct RSA_pubKey *pubk);
+```
+
+```c
+/* RSA_decode_fd: decode data from fin and write on fout
+ * fin: int: file descriptor pointing to the input file
+ * fout: int: file descriptor pointing to the output file
+ * pass: struct RSA_privKey*: RSA private key
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_decode_fd(int fin, int fout, struct RSA_privKey *privk);
+```
+
+```c
+/* RSA_encode_file: encode data from in file and write on out file
+ * fin: char*: path to the input file
+ * fout: int: path to the output file
+ * pass: struct RSA_pubKey*: RSA public key
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_encode_file(char *in, char *out, struct RSA_pubKey *pubk);
+```
+
+```c
+/* RSA_decode_file: decode data from in file and write on out file
+ * fin: char*: path to the input file
+ * fout: int: path to the output file
+ * pass: struct RSA_privKey*: RSA private key
+ * return: int: RSA code (check tools.h)
+ */
+int RSA_decode_file(char *in, char *out, struct RSA_privKey *privk);
+```
 
 ### Example
 
@@ -93,17 +174,15 @@ int main(int argc, char *argv[])
     printf("\nprivate: n = "); mpz_out_str(stdout, 10, *(privk->n));
     printf("   d = "); mpz_out_str(stdout, 10, *(privk->d)); printf("\n");
 
-    mpz_t *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext);
-    printf("\nencode data: ");
-    for (size_t i = 0; i < lentext; ++i)
-        gmp_printf("%#Zx ", encrypt[i]);
+    size_t elen;
+    unsigned char *encrypt = RSA_encode(pubk, (unsigned char*)text, lentext, &elen);
+    printf("\nencode (%ld): %s\n", elen, encrypt);
 
-    unsigned char *decode = RSA_decode(privk, encrypt, lentext);
+    size_t dlen;
+    unsigned char *decode = RSA_decode(privk, encrypt, elen, &dlen);
+   
+    printf("\n\ndecode text (%ld): %s\n", dlen, decode);
 
-    printf("\n\ndecode text: %s\n", decode);
-
-    for (size_t i = 0; i < lentext; ++i)
-        mpz_clear(encrypt[i]);
     free(encrypt);
     free(decode);
     RSA_free_public_key(pubk);

@@ -76,7 +76,11 @@ unsigned char *AES_keyFromPass(char *pass, size_t len);
 # AES on file
 
 ```c
-/* AES_encrypt_file: encrypt data from fin and write on fout
+#include "aes_file.h"
+```
+
+```c
+/* AES_encrypt_fd: encrypt data from fin and write on fout
  * fin: int: file descriptor pointing to the input file
  * fout: int: file descriptor pointing to the output file
  * pass: char*: a password
@@ -86,7 +90,7 @@ int AES_encrypt_file(int fin, int fout, char *pass);
 ```
 
 ```c
-/* AES_decrypt_file: decrypt data from fin and write on fout
+/* AES_decrypt_fd: decrypt data from fin and write on fout
  * fin: int: file descriptor pointing to the input file
  * fout: int: file descriptor pointing to the output file
  * pass: char*: a password
@@ -95,6 +99,25 @@ int AES_encrypt_file(int fin, int fout, char *pass);
 int AES_decrypt_file(int fin, int fout, char *pass);
 ```
 
+```c
+/* AES_encrypt_file: encrypt data from in and write on out
+ * in: char*: path to the input file
+ * out: char*: path to the output file
+ * pass: char*: a password
+ * return: int: AES code (check aes_file.h)
+ */
+int AES_encrypt_file(char *in, char *out, char *pass);
+```
+
+```c
+/* AES_decrypt_fd: decrypt data from in and write on out
+ * fin: char*: path to the input file
+ * fout: char*: path to the output file
+ * pass: char*: a password
+ * return: int: AES code (check aes_file.h)
+ */
+int AES_decrypt_file(char *in, char *out, char *pass);
+```
 
 ### Example
 
