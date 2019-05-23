@@ -381,28 +381,26 @@ def backup_view_content(request, id):
             else:
                 args = [settings.PACKUP_BIN]
                 args.append(os.path.join(settings.MEDIA_ROOT, archive_content.backupfile.backupfile.url))
+                lz_dico = backup.get_lz_dico()
                 if backup.comp_type == Backup.HUFF:
-                    argslist.append("huffman")
-                elif backup.comp_type == Backup.LZ78:
-                    dico = backup.get_lz_dico()
-                    if dico is not None:
-                        args += ["lz78", os.path.join(settings.MEDIA_ROOT, dico.backupfile.url)]
+                    args += ["HUFF", "NONE"]
+                elif backup.comp_type == Backup.LZ78 and lz_dico is not None:
+                    args += ["LZ", os.path.join(settings.MEDIA_ROOT, lz_dico.backupfile.url)]
+                else:
+                    args += ["NONE", "NONE"]
+                priv_key = backup.get_priv_key()
                 if backup.enc_type == Backup.ROTN:
-                    args += ["rotn", backup.pass_backup]
+                    args += ["ROTN", backup.pass_backup]
                 elif backup.enc_type == Backup.VIG:
-                    args += ["vigenere", backup.pass_backup]
+                    args += ["VIGENERE", backup.pass_backup]
                 elif backup.enc_type == Backup.AES:
-                    args += ["aes", backup.pass_backup]
-                if backup.enc_type == Backup.RSA:
-                    pub = backup.get_pub_key()
-                    priv = backup.get_priv_key()
-                    if pub is not None and priv is not None:
-                        args += ["rsa", os.path.join(settings.MEDIA_ROOT, pub.backupfile.url), os.path.join(settings.MEDIA_ROOT, priv.backupfile.url)]
-                if backup.enc_type == Backup.EL:
-                    pub = backup.get_pub_key()
-                    priv = backup.get_priv_key()
-                    if pub is not None and priv is not None:
-                        args += ["elgamal", os.path.join(settings.MEDIA_ROOT, pub.backupfile.url), os.path.join(settings.MEDIA_ROOT, priv.backupfile.url)]
+                    args += ["AES", backup.pass_backup]
+                elif backup.enc_type == Backup.RSA and priv_key is not None:
+                    args += ["RSA", os.path.join(settings.MEDIA_ROOT, priv_key.backupfile.url)]
+                elif backup.enc_type == Backup.EL and priv_key is not None:
+                    args += ["ELGAMAL", os.path.join(settings.MEDIA_ROOT, priv_key.backupfile.url)]
+                else:
+                    args += ["NONE", "NONE"];
                 try:
                     p = subprocess.Popen(args, stdout=subprocess.PIPE, shell=False)
                     (output, err) = p.communicate()
