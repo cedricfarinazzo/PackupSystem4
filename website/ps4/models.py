@@ -76,24 +76,6 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
             os.remove(instance.backupfile.path)
 
 
-class ArchiveContent(models.Model):
-    backupfile = models.ForeignKey(BackupFile, on_delete=models.CASCADE)
-    SUCCESS = 'succes'
-    ERROR = 'error'
-    WAITING = 'waiting'
-    STATUS_TYPE = (
-        (SUCCESS, 'succes'),
-        (ERROR, 'error'),
-        (WAITING, 'waiting'),
-    )
-    status_type = models.CharField(
-            max_length=20,
-            choices=STATUS_TYPE,
-            default=WAITING
-        )
-    content = models.TextField()
-
-
 class Backup(models.Model):
     NONE = 'None'
     ROTN = 'Rotn'
@@ -138,10 +120,7 @@ class Backup(models.Model):
         return BackupFile.objects.filter(backup=self, file_type=BackupFile.ARCHIVE_PART).all()
 
     def get_archive_content(self):
-        archives = self.get_archives()
-        if archives is None or archives == []:
-            return []
-        return ArchiveContent.objects.filter(backupfile=archives[0]).first()
+        return ArchiveContent.objects.filter(backup=self).first()
 
     def get_lz_dico(self):
         return BackupFile.objects.filter(backup=self, file_type=BackupFile.LZ_DICO).first()
@@ -153,3 +132,19 @@ class Backup(models.Model):
         return BackupFile.objects.filter(backup=self, file_type=BackupFile.PRIVATE_KEY).first()
 
 
+class ArchiveContent(models.Model):
+    backup = models.ForeignKey(Backup, on_delete=models.CASCADE)
+    SUCCESS = 'succes'
+    ERROR = 'error'
+    WAITING = 'waiting'
+    STATUS_TYPE = (
+        (SUCCESS, 'succes'),
+        (ERROR, 'error'),
+        (WAITING, 'waiting'),
+    )
+    status_type = models.CharField(
+            max_length=20,
+            choices=STATUS_TYPE,
+            default=WAITING
+        )
+    content = models.TextField()

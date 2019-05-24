@@ -363,7 +363,7 @@ def backup_view_content(request, id):
         error = True
     if not error:
         archive_content = backup.get_archive_content()
-        if archive_content is None:
+        if archive_content is None or archive_content.status_type != ArchiveContent.SUCCESS:
             if backup.enc_type in [Backup.AES, Backup.ROTN, Backup.VIG]:
                 if backup.pass_backup == "":
                     html += "[<span class=\"red-text\">ERROR</span>]: Can't read archive because you didn't provide your archive password."
@@ -374,13 +374,12 @@ def backup_view_content(request, id):
                     html += "[<span class=\"red-text\">ERROR</span>]: Can't read archive because you didn't provide your archive keys."
                     error = True
             archive_content = ArchiveContent()
-            archive_content.backupfile = backup.get_archives()[0]
+            archive_content.backup = backup
             archive_content.status_type = ArchiveContent.WAITING if not error else ArchiveContent.ERROR
             if error:
                 archive_content.content = html
             else:
                 args = [settings.PACKUP_BIN]
-                args.append(os.path.join(settings.MEDIA_ROOT, archive_content.backupfile.backupfile.url))
                 lz_dico = backup.get_lz_dico()
                 if backup.comp_type == Backup.HUFF:
                     args += ["HUFF", "NONE"]
@@ -401,6 +400,8 @@ def backup_view_content(request, id):
                     args += ["ELGAMAL", os.path.join(settings.MEDIA_ROOT, priv_key.backupfile.url)]
                 else:
                     args += ["NONE", "NONE"];
+                for f in archive_content.backup.get_archives():
+                    args.append(os.path.join(settings.MEDIA_ROOT, f.backupfile.url))
                 try:
                     p = subprocess.Popen(args, stdout=subprocess.PIPE, shell=False)
                     (output, err) = p.communicate()
@@ -409,10 +410,10 @@ def backup_view_content(request, id):
                     p_status = -1
                 if p_status == 0:
                     archive_content.content = "<br/>".join(output.decode("utf-8").split("\n")) 
-                    print("\n", archive_content.content, "\n")
                     archive_content.status_type = ArchiveContent.SUCCESS
                 else:
                     archive_content.content = "[<span class=\"red-text\">ERROR</span>]: An error occured. Please try again later"
+                    archive_content.status_type = ArchiveContent.ERROR
                 html += archive_content.content
             archive_content.save()
         else:

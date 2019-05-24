@@ -15,7 +15,7 @@ admin.site.register(Backup, BackupAdmin)
 
 class ArchiveContentAdmin(admin.ModelAdmin):
     model = ArchiveContent
-    list_display = ('id', 'backupfile', 'status_type', 'content')
+    list_display = ('id', 'backup', 'status_type', 'content')
 admin.site.register(ArchiveContent, ArchiveContentAdmin)
 
 class StorageUserAdmin(admin.ModelAdmin):
