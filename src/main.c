@@ -161,51 +161,48 @@ static char *rand_string(char *str, size_t size)
 
 int main(int argc, char *argv[])
 {
-    srand(time(NULL));
-
-    if (argc == 2)
-    {
-        if (strcmp("--version", argv[1]) == 0)
-            printf("Packup System 4 by PS4 %s v%s %s\n", TYPE, VERSION, DATE);
-    }
+    printf("Packup System 4 by PS4 %s v%s %s\n\n", TYPE, VERSION, DATE);
     
-    if (argc == 6)
+    if (argc >= 6)
     {
+        srand(time(NULL));
+        
         enum ENCRYPTION_TYPE enc_type;
         int comp_type;
         int rotn_pass = 0;
-        char *backup_path = argv[1];
-        char *backup_name = basename(backup_path);
+      
         char *lz_dico = NULL;
         char *priv_key = NULL;
         char *backup_pass = NULL;
-        if (strcmp(argv[2], "HUFF") == 0) {
+        if (strcmp(argv[1], "HUFF") == 0) {
             comp_type = 1;
-        } else if (strcmp(argv[2], "LZ") == 0) {
+        } else if (strcmp(argv[1], "LZ") == 0) {
             comp_type = 2;
-            lz_dico = argv[3];
+            lz_dico = argv[2];
         } else {
             comp_type = 0;
         }
 
-        if (strcmp(argv[4], "ROTN") == 0) {
+        if (strcmp(argv[3], "ROTN") == 0) {
             enc_type = ROTN;
-            rotn_pass = atoi(argv[5]);
-        } else if (strcmp(argv[4], "VIGENERE") == 0) {
+            rotn_pass = atoi(argv[4]);
+        } else if (strcmp(argv[3], "VIGENERE") == 0) {
             enc_type = VIGENERE;
-            backup_pass = argv[5];
-        } else if (strcmp(argv[4], "AES") == 0) {
+            backup_pass = argv[4];
+        } else if (strcmp(argv[3], "AES") == 0) {
             enc_type = AES;
-            backup_pass = argv[5];
-        } else if (strcmp(argv[4], "RSA") == 0) {
+            backup_pass = argv[4];
+        } else if (strcmp(argv[3], "RSA") == 0) {
             enc_type = RSA;
-            priv_key = argv[5];
-        } else if (strcmp(argv[4], "ELGAMAL") == 0) {
+            priv_key = argv[4];
+        } else if (strcmp(argv[3], "ELGAMAL") == 0) {
             enc_type = ELGAMAL;
-            priv_key = argv[5];
+            priv_key = argv[4];
         } else {
             enc_type = NONE;
         }
+        char *backup_path = argv[5];
+        char *backup_name = basename(backup_path);
 
         char exe_path[PATH_MAX];
         if (realpath("/proc/self/exe", exe_path) == NULL)

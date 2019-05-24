@@ -4,17 +4,14 @@
 
 CC=$(shell gcc --version > /dev/null 2>&1 && echo "gcc" || echo "clang")
 
-GTK_CFLAGS=$(shell pkg-config --cflags gtk+-3.0)
-GTK_LDLIBS=$(shell pkg-config --libs gtk+-3.0)
-
 CRITERION_CFLAGS=$(shell pkg-config --cflags criterion)
 CRITERION_LDLIBS=$(shell pkg-config --libs criterion)
 
-CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 -rdynamic -lpthread ${GTK_CFLAGS} 
+CFLAGS=-Wall -Wextra -std=c99 -pedantic -Wformat=2 -rdynamic -lpthread
 CPPFLAGS=-MMD
 
 LDFLAGS=
-LDLIBS=-lm -lgmp ${GTK_LDLIBS}
+LDLIBS=-lm -lgmp
 
 DEBUG=-fsanitize=address -g3
 RELEASE=-Ofast -march=native
